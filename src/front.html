@@ -1,0 +1,15 @@
+<div id="dictname" style="visibility: hidden;">{{DictionaryName}}</div>
+
+<div id="container">
+    <div id="header-container">
+        <div id="expression">{{Word}}</div>
+        <div id="hint">{{Hint}}</div>
+    </div>
+</div>
+
+<script>
+    hintFieldText = document.getElementById('hint-field').innerHTML.trim()
+    if (hintFieldText === "" || hintFieldText === "(Hint)") {
+        document.getElementById('hint-field').style.display = "none";
+    }
+</script>

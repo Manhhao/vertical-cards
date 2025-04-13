@@ -1,0 +1,274 @@
+@import url("_kadokawa_shinjigen_styles.css");
+
+/* Dark mode colour palette */
+:root {
+    --background-color: #1e1e1e;
+    --content-background-color: #252525;
+    --header-border-color: #777;
+    --content-border-color: #555;
+    --text-color: #e0e0e0;
+    --dictname-color: #999;
+    --image-border-color: #444;
+    --divider-color: #666;
+
+    /* --- Fonts --- */
+    --expression-font: "SHINJIMinchoW7", "SHINJIMinchoW7 W7";
+    --reading-font: "SHINJIMinchoW3", "SHINJIMinchoW3 W3";
+    --primary-font: "ヒラギノ明朝 ProN";
+    --dictname-font: "FOT-テロップ明朝 Pro";
+}
+
+/* Light mode colour palette */
+.card:not(.nightMode) {
+    --background-color: #f5f5f5;
+    --content-background-color: #ffffff;
+    --header-border-color: #c0c0c0;
+    --content-border-color: #d3d3d3;
+    --text-color: #333333;
+    --dictname-color: #666666;
+    --image-border-color: #e0e0e0;
+    --divider-color: #bbbbbb;
+}
+
+.card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 95vh;
+    overflow-y: hidden;
+    /* Prevent scrolling */
+}
+
+/* Overall Card Styling */
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    writing-mode: vertical-rl;
+    text-align: justify;
+    font-family: var(--primary-font);
+    font-size: 1.2em;
+    margin: 2em;
+    max-width: 100%;
+    /*overflow-x: hidden;*/
+}
+
+#container {
+    position: relative;
+    align-items: stretch;
+    /* Ensures both children stretch to equal height */
+    max-height: 90vh;
+    gap: 1em;
+    /* Adds spacing between header and content */
+}
+
+/* Dictionary Name Styling */
+#dictname {
+    position: absolute;
+    right: 1em;
+    height: auto;
+    font-family: var(--dictname-font), "Noto Sans JP";
+    color: var(--dictname-color);
+    font-size: 0.8em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    opacity: 0.5;
+    z-index: 1;
+}
+
+/* Header and Content Containers */
+#header-container,
+#content-container {
+    border: 2px solid var(--header-border-color);
+    padding: 1em;
+    background-color: var(--content-background-color);
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-right: 1em;
+    height: 85vh;
+    box-sizing: border-box;
+    flex-grow: 1;
+    /* Allows them to expand but not overflow */
+    overflow: auto;
+    /* Enables scrolling if necessary */
+}
+
+/* Header Container Styling */
+#expression {
+    font-family: var(--expression-font);
+    font-weight: bold;
+    font-size: 2em;
+    margin-top: 0.35em;
+}
+
+#reading {
+    font-family: var(--reading-font);
+    font-size: 1.2em;
+    margin-top: 0.2em;
+}
+
+/* Content Container Styling */
+#content-container {
+    border: 1.5px solid var(--content-border-color);
+    display: flex;
+    align-items: stretch;
+}
+
+#glossary-container {
+    flex-grow: 1;
+    padding-left: 1em;
+    display: flex;
+    flex-direction: column;
+}
+
+#definition {
+    font-size: 1em;
+}
+
+#sentence {
+    margin-top: 1em;
+    color: var(--dictname-color);
+}
+
+/* Ensure border follows sentence */
+#sentence+*:not(#image-container) {
+    border-top: 1.5px solid var(--content-border-color);
+    margin-top: 1em;
+}
+
+/* Vertical Divider */
+#definition::after {
+    content: "";
+    display: block;
+    width: 1px;
+    background-color: var(--divider-color);
+    margin: 0 1em;
+}
+
+img {
+    width: 100%;
+    object-fit: contain;
+    max-width: 600px;
+    max-height: 350px;
+}
+
+a,
+span {
+    height: 100%;
+    max-width: 300px !important;
+}
+
+.iphone .card {
+    padding: 0.5em !important;
+}
+
+.iphone .body {
+    margin: 0.25em !important;
+}
+
+@media (max-width: 600px) {
+    .card {
+        display: block;
+        padding: 1em;
+        height: auto;
+        overflow-y: auto;
+    }
+
+    body {
+        writing-mode: horizontal-tb;
+        margin: 1em;
+        font-size: 1.1em;
+        overflow-x: hidden;
+    }
+
+    #container {
+        flex-direction: column;
+        max-height: none;
+        height: auto;
+        gap: 0.5em;
+    }
+
+    #dictname {
+        display: none;
+    }
+
+    #header-container {
+        height: auto;
+        padding: 0.5em;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 0.5em;
+    }
+
+    #expression {
+        line-height: 1.2;
+    }
+
+    #reading {
+        line-height: 1.2;
+    }
+
+    #content-container {
+        flex-direction: column;
+        align-items: stretch;
+        height: auto;
+        padding-bottom: 0.5em;
+    }
+
+    #glossary-container {
+        padding-left: 0;
+        text-align: center;
+        margin-bottom: 0.5em;
+    }
+
+    #image-container {
+        margin-left: 0;
+        margin-bottom: 1em;
+    }
+
+    #image img {
+        max-width: 100%;
+    }
+
+    #sentence {
+        text-align: left;
+    }
+
+    /* Remove empty space after sentence when no image */
+    #sentence+*:not(#image-container) {
+        margin-top: 0;
+    }
+}
+
+/* CSS to disable links in glossaries */
+/* Target all links in the glossary container */
+#glossary-container a,
+.yomitan-glossary a,
+li[data-dictionary] a {
+    /* Remove link styling */
+    color: inherit !important;
+    cursor: default !important;
+    pointer-events: none !important;
+    /* This prevents click behavior */
+
+    /* Optional: remove underlines or any other visual hints that it's a link */
+    border-bottom: none !important;
+    background: none !important;
+}
+
+/* If there are any link hover effects, disable those too */
+#glossary-container a:hover,
+.yomitan-glossary a:hover,
+li[data-dictionary] a:hover {
+    color: inherit !important;
+    background: none !important;
+}
+
+/* Sometimes pointer-events: none doesn't work in all browsers/situations, 
+   so we can add this to be extra sure the links look like regular text */
+#glossary-container a::after,
+.yomitan-glossary a::after,
+li[data-dictionary] a::after {
+    display: none !important;
+}
