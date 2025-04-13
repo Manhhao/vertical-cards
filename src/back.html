@@ -2,8 +2,14 @@
 
 <div id="container">
     <div id="header-container">
-        <div id="expression">{{Word}}</div>
-        <div id="reading">{{Reading}}</div>
+        <div class="audio-buttons">
+            <div class="word-audio">{{Audio}}</div>
+            <div class="sentence-audio">{{SentenceAudio}}</div>
+        </div>
+        <div class="header-main-content">
+            <div id="expression">{{Word}}</div>
+            <div id="reading">{{Reading}}</div>
+        </div>
     </div>
 
     <div id="content-container">
@@ -17,8 +23,6 @@
         </div>
     </div>
 </div>
-
-{{Audio}} {{SentenceAudio}}
 
 <script>
     (function () {

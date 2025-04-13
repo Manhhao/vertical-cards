@@ -14,7 +14,7 @@ A lovely card template for Anki that I've made for my Yomitan dictionaries. Gran
 - **Plays nicely with dictionaries**:
   - Definitions are cyclable
   - Styling support for my converted Yomitan dictionaries.
-  - Collapsible sections for some dictionareis so you're not overwhelmed with text
+  - Collapsible sections for some dictionaries so you're not overwhelmed with text
 
 ## How it looks
 
@@ -24,12 +24,19 @@ A lovely card template for Anki that I've made for my Yomitan dictionaries. Gran
 ### Horizontal on mobile
 *[Image of horizontal layout will go here]*
 
-### All the dictionary bits working together
-*[Image showing dictionary features like collapsible sections will go here]*
+### Yomitan fields
+| Field                 | Value                           |
+| --------------------- | ------------------------------- |
+| Word            | `{expression}`                        |
+| Reading     | `{reading}`                               |
+| Glossary       | `{glossary-no-dictionary}`             |
+| Sentence         | `{sentence}`                         |
+| Audio        | `{audio}`.                               |
+| DictionaryName              | `{dictionary}`            |
 
 ## Getting started
 
-1. Pop over to the [releases page](https://github.com/yourusername/vertical-cards/releases) and download the latest version
+1. Pop over to the [releases page](https://github.com/kiwakiwaa/vertical-cards/releases) and download the latest version
 2. Import it into your Anki
 3. Create a new note type or tweak an existing one to use this template
 4. **Important for dictionary styling**: If you're using one of my Yomitan dictionaries and want the proper styling, you'll need to copy the CSS files from the `dictionary-css` folder to your Anki media collection folder
@@ -57,4 +64,4 @@ Replace `username` with your system username and `YourProfileName` with the name
 
 ## My yomitan dictionaries
 
-- [My Dictionary Collection](https://github.com/yourusername/dictionary-collection) - A wee collection of dictionaries that work brilliantly with this template
+- [My Dictionary Collection](https://github.com/kiwakiwaa/yomitan-dictionaries) - A wee collection of dictionaries that work brilliantly with this template

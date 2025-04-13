@@ -91,7 +91,22 @@ body {
     /* Enables scrolling if necessary */
 }
 
-/* Header Container Styling */
+#header-container {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-start;
+    justify-content: flex-end;
+    position: relative;
+}
+
+.header-main-content {
+    display: flex;
+    flex-direction: column;
+    writing-mode: vertical-rl;
+    margin-bottom: 0;
+}
+
+/* Expression and Reading Styling */
 #expression {
     font-family: var(--expression-font);
     font-weight: bold;
@@ -156,6 +171,23 @@ span {
     max-width: 300px !important;
 }
 
+.audio-buttons {
+    display: flex;
+    flex-direction: column;
+    writing-mode: horizontal-tb;
+    margin-right: 1em;
+    margin-top: 0.75em;
+}
+
+.word-audio, .sentence-audio {
+    margin-bottom: 0.5em;
+}
+
+.audio-buttons img, .audio-buttons a {
+    width: 32px;
+    height: 32px;
+}
+
 .iphone .card {
     padding: 0.5em !important;
 }
@@ -192,19 +224,23 @@ span {
 
     #header-container {
         height: auto;
-        padding: 0.5em;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        padding: 1em;
         margin-bottom: 0.5em;
+        flex-direction: row;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    #expression {
-        line-height: 1.2;
+    .header-main-content {
+        writing-mode: horizontal-tb;
+        text-align: center;
+        margin: 0 auto;
     }
 
-    #reading {
-        line-height: 1.2;
+    #expression, #reading {
+        text-align: center;
     }
 
     #content-container {
@@ -236,6 +272,22 @@ span {
     /* Remove empty space after sentence when no image */
     #sentence+*:not(#image-container) {
         margin-top: 0;
+    }
+
+    /* Audio Buttons - Horizontal Mode */
+    .audio-buttons {
+        position: absolute;
+        top: 50%;
+        right: 0.5em;
+        transform: translateY(-50%);
+        flex-direction: column;
+        margin-top: 0;
+        margin-right: 0;
+        z-index: 2;
+    }
+    
+    .word-audio {
+        margin-bottom: 0.5em;
     }
 }
 
