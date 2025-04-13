@@ -200,7 +200,7 @@
         margin-right: 0.2em;
     }
 
-    div[data-sc-jukugog] {
+    .yomitan-glossary div[data-sc-jukugog] {
         margin-top: 0 !important;
         margin-left: 0.5em;
     }

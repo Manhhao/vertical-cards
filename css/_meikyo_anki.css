@@ -1,24 +1,57 @@
 .card:not(.nightMode) {
-    --meikyo-red: #FF3333;
+    --meikyo-white: #ffffff;
+    --meikyo-black: #000000;
+    --meikyo-red: #ff3333;
     --meikyo-gray: #666666;
-    --meikyo-pink: #FFCCCC;
-    --meikyo-dark-red: #CC3333;
-    --meikyo-fbox-white: #FFFFFF;
+    --meikyo-pink: #ffcccc;
+    --meikyo-dark-red: #cc3333;
+    --meikyo-fbox-white: #ffffff;
     --meikyo-fbox-gray: #333333;
-    --meikyo-box-gray: #FFDDDD;
+    --meikyo-box-gray: #ffdddd;
 }
 
 .card.nightMode {
-    --meikyo-blue: #33CCFF;
-    --meikyo-red: #FF3333;
-    --meikyo-gray: #BBBBBB;
-    --meikyo-pink: #CC6666;
+    --meikyo-white: #000000;
+    --meikyo-black: #cccccc;
+    --meikyo-blue: #33ccff;
+    --meikyo-red: #ff3333;
+    --meikyo-gray: #bbbbbb;
+    --meikyo-pink: #cc6666;
     --meikyo-dark-red: #993333;
-    --meikyo-fbox-white: #FFFFFF;
-    --meikyo-fbox-gray: #CCCCCC;
+    --meikyo-fbox-white: #ffffff;
+    --meikyo-fbox-gray: #cccccc;
     --meikyo-box-gray: #663333;
 }
 
-span[data-sc-img][data-sc-audio] {
-	display: none;
+.yomitan-glossary span[data-sc-img][data-sc-audio] {
+    display: none;
+}
+
+.yomitan-glossary [data-sc-body],
+.yomitan-glossary span[data-sc-rect],
+.yomitan-glossary span[data-sc-katsuyo],
+.yomitan-glossary span[data-sc-headword][data-sc-class="旧かな"],
+.yomitan-glossary span[data-sc-fbox0],
+.yomitan-glossary span[data-sc-fbox],
+.yomitan-glossary span[data-sc-e-m],
+.yomitan-glossary span[data-sc-em],
+.yomitan-glossary div[data-sc-class="shikiri"] div[data-sc-meaning],
+.yomitan-glossary span[data-sc-meaning][data-sc-class="columntitle"],
+.yomitan-glossary div[data-sc-meaning][data-sc-class="columntitle"],
+.yomitan-glossary span[data-sc-b],
+.yomitan-glossary a,
+.yomitan-glossary span[data-sc-bc] {
+    font-family: "Hiragino Kaku Gothic ProN";
+}
+
+.yomitan-glossary div[data-sc-example],
+.yomitan-glossary span[data-sc-fbox][data-sc-class="品格"],
+.yomitan-glossary span[data-sc-headword][data-sc-class="表記"],
+.yomitan-glossary span[data-sc-headword][data-sc-class="原綴"],
+.yomitan-glossary span[data-sc-zoomkanji] {
+    font-family: "Hiragino Mincho ProN";
+}
+
+.yomitan-glossary span[data-sc-pron] {
+    font-family: "Doulos SIL";
 }

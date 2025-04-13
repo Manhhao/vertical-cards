@@ -21,95 +21,174 @@
 {{Audio}} {{SentenceAudio}}
 
 <script>
-    // Hide sentence field if empty
-    var sentenceDiv = document.getElementById("sentence");
-    if (sentenceDiv.textContent.trim() === "") {
-        sentenceDiv.style.display = "none";
-    }
-
-    // Hide reading if same as term
-    var expresssionDiv = document.getElementById("expression");
-    var readingDiv = document.getElementById("reading");
-    if (expresssionDiv.textContent.trim() === readingDiv.textContent.trim()) {
-        readingDiv.style.display = "none";
-    }
-
-    // Improved cycling definition script that preserves styling and handles vertical/horizontal layouts
     (function () {
-        // Get the definition container
+        window.dictionaryContext = {
+            cssFiles: {
+                "三省堂 全訳読解古語辞典": "_skogo_anki.css",
+                "旺文社 全訳古語辞典": "_ozk5_anki.css",
+                "角川新字源 改訂新版": "_shinjigen_anki.css",
+                "明鏡国語辞典 第三版": "_meikyo_anki.css"
+            },
+
+            collapsibleSelectors: {
+                "三省堂 全訳読解古語辞典": [
+                    "div[data-sc絵巻項目]",
+                    "div[data-sc読解-g]"
+                ],
+                "旺文社 全訳古語辞典": [
+                    "div[data-sc用例囲み-g]",
+                    "div[data-sc発展]"
+                ]
+            },
+
+            displayNameMap: {
+                // 三省堂 全訳読解古語辞典
+                "絵巻項目": "絵巻",
+                "発展": "発展事項",
+                "読解-g": "読解",
+
+                // 旺文社 全訳古語辞典
+                "用例囲み-g": "例文・訳"
+            },
+
+            imageSelectors: {
+                "三省堂 全訳読解古語辞典": "div[data-sc画像-g]",
+                "大辞泉 第二版": "div[data-sc-m-image]",
+
+                // Default selectors
+                "default": "div[data-sc画像-g], .image-container, .figure, figure, .img-container"
+            },
+
+            activeDictionaries: {},
+            isVertical: false,
+
+            init: function () {
+                this.isVertical = window.getComputedStyle(document.body).writingMode === 'vertical-rl';
+
+                // Find all dictionary entries and track which ones are present
+                document.querySelectorAll("li[data-dictionary]").forEach((entry) => {
+                    const dictName = entry.getAttribute("data-dictionary");
+                    if (dictName) {
+                        this.activeDictionaries[dictName] = true;
+                    }
+                });
+
+                // If no dictionaries found in list items, check the DictionaryName field
+                if (Object.keys(this.activeDictionaries).length === 0) {
+                    const dictionaryNameElement = document.getElementById("dictname");
+                    if (dictionaryNameElement) {
+                        const dictionaryName = dictionaryNameElement.textContent.trim();
+                        if (dictionaryName) {
+                            this.activeDictionaries[dictionaryName] = true;
+                        }
+                    }
+                }
+
+                console.log("Active dictionaries:", Object.keys(this.activeDictionaries));
+            }
+        };
+
+        window.dictionaryContext.init();
+    })();
+
+    // Hide sentence field if empty
+    (function () {
+        var sentenceDiv = document.getElementById("sentence");
+        if (sentenceDiv && sentenceDiv.textContent.trim() === "") {
+            sentenceDiv.style.display = "none";
+        }
+    })();
+
+    // Hide reading and sentence if same as term
+    (function () {
+        var expresssionDiv = document.getElementById("expression");
+        var readingDiv = document.getElementById("reading");
+        var sentenceDiv = document.getElementById("sentence")
+        if (expresssionDiv && readingDiv &&
+            expresssionDiv.textContent.trim() === readingDiv.textContent.trim()) {
+            readingDiv.style.display = "none";
+        }
+
+        if (expresssionDiv && sentenceDiv &&
+            expresssionDiv.textContent.trim() === sentenceDiv.textContent.trim()) {
+            sentenceDiv.style.display = "none"
+        }
+    })();
+
+    // Load dictionary CSS files
+    (function () {
+        const { cssFiles, activeDictionaries } = window.dictionaryContext;
+
+        // Load CSS for active dictionaries
+        Object.keys(activeDictionaries).forEach(dictionaryName => {
+            if (cssFiles[dictionaryName]) {
+                const link = document.createElement("link");
+                link.rel = "stylesheet";
+                link.href = cssFiles[dictionaryName];
+                document.head.appendChild(link);
+                console.log(`Loaded CSS for dictionary: ${dictionaryName}`);
+            }
+        });
+    })();
+
+
+    /* Cyclable definitions script */
+    (function () {
         var definitionContainer = document.getElementById("definition");
 
-        // If the container doesn't exist, exit early
         if (!definitionContainer) return;
 
-        // Get all definition items
         var definitionItems = definitionContainer.querySelectorAll("li");
 
         // If there are multiple definitions
         if (definitionItems.length > 1) {
-            // Set up the counter element
             var counterElement = document.createElement("div");
             counterElement.className = "definition-counter";
 
-            // Apply base styling for counter element
-            counterElement.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-            counterElement.style.color = "white";
-            counterElement.style.padding = "3px 8px";
-            counterElement.style.borderRadius = "4px";
-            counterElement.style.fontSize = "14px";
-            counterElement.style.position = "absolute";
-            counterElement.style.zIndex = "100";
+            // Add left and right edges for clicking
+            var leftEdge = document.createElement("div");
+            var rightEdge = document.createElement("div");
 
-            // Function to adjust counter position based on orientation
-            function adjustCounterPosition() {
-                // Check if we're in vertical or horizontal mode
-                const isVertical =
-                    window.getComputedStyle(document.body).writingMode === "vertical-rl";
+            leftEdge.className = "definition-left-edge";
+            rightEdge.className = "definition-right-edge";
+
+            // Function to adjust position based on orientation
+            function adjustPositions() {
+                const isVertical = window.dictionaryContext &&
+                    window.dictionaryContext.isVertical;
+
+                // Add or remove vertical class for CSS-based positioning
+                const containerToUse = document.getElementById("content-container") || definitionContainer;
 
                 if (isVertical) {
-                    // For vertical layout, position counter at the bottom right
-                    // This avoids overlap with the definition text which starts at the top
-                    counterElement.style.top = "auto";
-                    counterElement.style.bottom = "0.5em";
-                    counterElement.style.right = "0.5em";
-                    counterElement.style.left = "auto";
-                    counterElement.style.writingMode = "horizontal-tb";
+                    containerToUse.classList.add("vertical-mode");
                 } else {
-                    // Horizontal layout positioning (top right)
-                    counterElement.style.top = "0.5em";
-                    counterElement.style.right = "0.5em";
-                    counterElement.style.left = "auto";
-                    counterElement.style.bottom = "auto";
+                    containerToUse.classList.remove("vertical-mode");
                 }
             }
 
-            // Setup the counter in the correct container based on layout
-            function setupCounter() {
-                // Check if we're in vertical or horizontal mode
-                const isVertical =
-                    window.getComputedStyle(document.body).writingMode === "vertical-rl";
-
-                // For both layouts, we'll place the counter in the content-container
-                // as it has more space and better visibility
+            function setupElements() {
                 const contentContainer = document.getElementById("content-container");
-                if (contentContainer) {
-                    contentContainer.style.position = "relative";
-                    contentContainer.appendChild(counterElement);
-                } else {
-                    // Fallback to definition container if content container not found
-                    definitionContainer.style.position = "relative";
-                    definitionContainer.appendChild(counterElement);
-                }
+                const containerToUse = contentContainer || definitionContainer;
 
-                // Initial positioning
-                adjustCounterPosition();
+                containerToUse.style.position = "relative";
+                containerToUse.appendChild(counterElement);
+                containerToUse.appendChild(leftEdge);
+                containerToUse.appendChild(rightEdge);
+
+                adjustPositions();
             }
 
-            // Setup the counter
-            setupCounter();
+            setupElements();
 
-            // Listen for orientation changes or window resizes
-            window.addEventListener("resize", adjustCounterPosition);
+            window.addEventListener("resize", function () {
+                if (window.dictionaryContext) {
+                    window.dictionaryContext.isVertical =
+                        window.getComputedStyle(document.body).writingMode === 'vertical-rl';
+                }
+
+                adjustPositions();
+            });
 
             let currentIndex = 0;
 
@@ -118,364 +197,205 @@
                 definitionItems[i].style.display = "none";
             }
 
-            // Update counter text
             function updateCounter() {
-                counterElement.textContent = `${currentIndex + 1}/${definitionItems.length
-                    }`;
+                counterElement.textContent = `${currentIndex + 1}/${definitionItems.length}`;
             }
 
-            // Initial counter update
             updateCounter();
 
             // Function to cycle to the next definition
-            function cycleDefinition() {
-                // Hide current definition
+            function cycleDefinition(direction) {
                 definitionItems[currentIndex].style.display = "none";
 
-                // Increment index, loop back to 0 if needed
-                currentIndex = (currentIndex + 1) % definitionItems.length;
+                // Calculate new index with wraparound
+                if (direction === "next") {
+                    currentIndex = (currentIndex + 1) % definitionItems.length;
+                } else {
+                    currentIndex = (currentIndex - 1 + definitionItems.length) % definitionItems.length;
+                }
 
-                // Show new current definition
                 definitionItems[currentIndex].style.display = "";
-
-                // Update counter
                 updateCounter();
             }
 
-            // Function to handle arrow key navigation
-            function handleArrowKeys(event) {
-                if (event.keyCode === 37) {
-                    // Left arrow
-                    // Hide current definition
-                    definitionItems[currentIndex].style.display = "none";
-
-                    // Decrement index, loop to end if needed
-                    currentIndex =
-                        (currentIndex - 1 + definitionItems.length) %
-                        definitionItems.length;
-
-                    // Show new current definition
-                    definitionItems[currentIndex].style.display = "";
-
-                    // Update counter
-                    updateCounter();
-                } else if (event.keyCode === 39) {
-                    // Right arrow
-                    cycleDefinition();
-                }
-            }
-
-            // Add click event to the definition container
-            definitionContainer.addEventListener("click", cycleDefinition);
-
-            // Add keydown event to document
-            document.addEventListener("keydown", handleArrowKeys);
-
-            // Run position adjustment once more after a short delay to ensure layout is complete
-            setTimeout(adjustCounterPosition, 300);
-        }
-        // If there's only one definition, no need for cycling
-        else if (definitionItems.length === 1) {
-            // Optionally clean up the single definition if needed
-            // But avoid replacing innerHTML to preserve styling
-        }
-    })();
-
-
-
-    // Script to load CSS for specific dictionaries
-    (function () {
-        // Function to load dictionary-specific CSS
-        function loadDictionaryCSS() {
-            // Define dictionary to CSS mappings
-            const dictionaryCSS = {
-                "三省堂 全訳読解古語辞典": "_skogo_anki.css",
-                "旺文社 全訳古語辞典": "_ozk5_anki.css",
-                "角川新字源 改訂新版": "_kadokawa_shinjigen_styles.css"
-            };
-
-            // Check if any dictionary entries exist on the page
-            const dictionaries = {};
-
-            // Find all dictionary entries and track which ones are present
-            document.querySelectorAll("li[data-dictionary]").forEach((entry) => {
-                const dictName = entry.getAttribute("data-dictionary");
-                if (dictName) {
-                    dictionaries[dictName] = true;
-                }
+            // Add click events to the edges
+            leftEdge.addEventListener("click", function () {
+                cycleDefinition("prev");
             });
 
-            // Load CSS only for dictionaries that are present on the page
-            for (const [dictionary, cssFile] of Object.entries(dictionaryCSS)) {
-                if (dictionaries[dictionary]) {
-                    // Create link element for the CSS
-                    const link = document.createElement("link");
-                    link.rel = "stylesheet";
-                    link.href = cssFile;
-                    document.head.appendChild(link);
+            rightEdge.addEventListener("click", function () {
+                cycleDefinition("next");
+            });
 
-                    console.log(`Loaded CSS for dictionary: ${dictionary}`);
+            // Function to handle arrow key navigation
+            function handleArrowKeys(event) {
+                if (event.key === "ArrowLeft" || event.keyCode === 37) {
+                    cycleDefinition("prev");
+                } else if (event.key === "ArrowRight" || event.keyCode === 39) {
+                    cycleDefinition("next");
                 }
             }
-        }
 
-        // Wait for the DOM to be fully loaded
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", loadDictionaryCSS);
-        } else {
-            loadDictionaryCSS();
+            document.addEventListener("keydown", handleArrowKeys);
+
+            setTimeout(adjustPositions, 300);
         }
     })();
 
 
-
-    // Script to make specific elements collapsible in dictionary entries, showing on hover
-    // Supports different dictionaries with different collapsible elements
+    // Script to make specific elements collapsible in dictionary entries
     (function () {
-        const dictionaryCollapsibleSelectors = {
-            "三省堂 全訳読解古語辞典": [
-                "div[data-sc絵巻項目]",
-                "div[data-sc読解-g]"
-            ],
+        const { collapsibleSelectors, displayNameMap, activeDictionaries } = window.dictionaryContext;
 
-            "旺文社 全訳古語辞典": [
-                "div[data-sc用例囲み-g]",
-                "div[data-sc発展]"
-            ],
-        };
-
-        // Display name mapping for element attributes
-        const displayNameMap = {
-            // 三省堂 全訳読解古語辞典
-            "絵巻項目": "絵巻",
-            "発展": "発展事項",
-            "読解-g": "読解",
-
-            // 旺文社 全訳古語辞典
-            "用例囲み-g": "例文・訳",
-        };
-
-        // Function to make elements collapsible in dictionary entries
-        function setupCollapsibleElements() {
-            // Remove any existing style elements we've created to prevent duplicates
-            const oldStyles = document.querySelectorAll('style.collapsible-styles');
-            oldStyles.forEach(el => el.remove());
-
-            // Check if we're in vertical writing mode
+        // Check if we're in vertical mode and add class to body
+        function detectVerticalMode() {
             const isVertical = window.getComputedStyle(document.body).writingMode === 'vertical-rl';
+            document.body.classList.toggle('vertical-mode', isVertical);
+            return isVertical;
+        }
 
-            // Create the CSS for collapsible elements with fixes for vertical mode
-            const collapsibleStyle = document.createElement('style');
-            collapsibleStyle.className = 'collapsible-styles';
+        function processElementsWithSelectors(container, selectors) {
+            selectors.forEach(selector => {
+                const elements = container.querySelectorAll(selector);
 
-            // Use separate rule sets for easier management
-            const baseStyles = `
-                .collapsible-wrapper {
-                    position: relative;
-                    ${isVertical ? 'width: auto;' : ''}
-                }
-                
-                .collapsible-header {
-                    padding: 2px 5px;
-                    background-color: rgba(100, 100, 100, 0.2);
-                    border-radius: 4px;
-                    margin: 3px 0;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    font-size: 0.85em;
-                }
-                
-                .collapsible-wrapper:hover .collapsible-header {
-                    background-color: rgba(120, 120, 120, 0.3);
-                }
-                
-                .collapsible-header::after {
-                    content: "▼";
-                    font-size: 0.8em;
-                    margin-left: 5px;
-                    transition: transform 0.3s;
-                }
-                
-                .collapsed .collapsible-header::after {
-                    transform: rotate(-90deg);
-                }
-                
-                .collapsible-content {
-                    transition: max-height 0.25s ease-out, opacity 0.25s ease-out;
-                    max-height: 1000px;
-                    opacity: 1;
-                    overflow: hidden;
-                    ${isVertical ? 'width: auto;' : ''}
-                }
-                `;
+                elements.forEach(element => {
+                    if (element.parentNode && element.parentNode.classList &&
+                        element.parentNode.classList.contains('collapsible-content')) {
+                        return;
+                    }
 
-                    const collapsedStyles = `
-                .collapsed .collapsible-content {
-                    max-height: 0;
-                    opacity: 0;
-                    padding-top: 0;
-                    padding-bottom: 0;
-                    ${isVertical ? 'width: 0; position: absolute; left: -9999px;' : ''}
-                }
-                `;
+                    const attrMatch = selector.match(/data-sc([^=\]]*)/);
+                    const rawAttrName = attrMatch ? attrMatch[1] : selector.split('[')[1].split(']')[0];
 
-                    const hoverStyles = `
-                .collapsed:hover .collapsible-content {
-                    max-height: 1000px !important;
-                    opacity: 1 !important;
-                    ${isVertical ? 'width: auto !important; position: relative !important; left: auto !important;' : ''}
-                }
-                
-                .collapsed:hover .collapsible-header::after {
-                    transform: rotate(0deg);
-                }
-                `;
+                    const displayName = displayNameMap[rawAttrName] || rawAttrName;
 
-            collapsibleStyle.textContent = baseStyles + collapsedStyles + hoverStyles;
-            document.head.appendChild(collapsibleStyle);
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'collapsible-wrapper collapsed';
 
-            Object.keys(dictionaryCollapsibleSelectors).forEach(dictionaryName => {
-                const entries = document.querySelectorAll(`li[data-dictionary="${dictionaryName}"]`);
+                    const header = document.createElement('div');
+                    header.className = 'collapsible-header';
+                    header.textContent = displayName;
 
-                if (!entries.length) return;
+                    const content = document.createElement('div');
+                    content.className = 'collapsible-content';
 
-                // Get selectors for this dictionary
-                const collapsibleSelectors = dictionaryCollapsibleSelectors[dictionaryName];
+                    element.parentNode.insertBefore(wrapper, element);
+                    wrapper.appendChild(header);
+                    wrapper.appendChild(content);
+                    content.appendChild(element);
 
-                entries.forEach(entry => {
-                    collapsibleSelectors.forEach(selector => {
-                        const elements = entry.querySelectorAll(selector);
-
-                        elements.forEach(element => {
-                            // Skip if already wrapped
-                            if (element.parentNode && element.parentNode.classList &&
-                                element.parentNode.classList.contains('collapsible-content')) {
-                                return;
-                            }
-
-                            // Get the element's attribute name for the header text
-                            const attrMatch = selector.match(/data-sc([^=\]]*)/);
-                            const rawAttrName = attrMatch ? attrMatch[1] : selector.split('[')[1].split(']')[0];
-
-                            // Look up display name from mapping, fall back to raw attribute name if not found
-                            const displayName = displayNameMap[rawAttrName] || rawAttrName;
-
-                            // Create wrapper and header
-                            const wrapper = document.createElement('div');
-                            wrapper.className = 'collapsible-wrapper collapsed';
-
-                            const header = document.createElement('div');
-                            header.className = 'collapsible-header';
-                            header.textContent = displayName; // Use mapped display name
-
-                            // Wrap the element
-                            element.parentNode.insertBefore(wrapper, element);
-                            wrapper.appendChild(header);
-
-                            // Create container for the collapsible content
-                            const content = document.createElement('div');
-                            content.className = 'collapsible-content';
-                            wrapper.appendChild(content);
-                            content.appendChild(element);
-                        });
+                    header.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        wrapper.classList.toggle('collapsed');
                     });
                 });
             });
-
-            // Apply appropriate styles based on current layout
-            updateCollapsedStyles(isVertical);
         }
 
-        // Function to update styles for collapsed items based on layout mode
-        function updateCollapsedStyles(isVertical) {
-            // Update all collapsed content elements
-            document.querySelectorAll('.collapsed .collapsible-content').forEach(content => {
-                if (isVertical) {
-                    content.style.width = '0';
-                    content.style.position = 'absolute';
-                    content.style.left = '-9999px';
-                } else {
-                    content.style.width = '';
-                    content.style.position = '';
-                    content.style.left = '';
-                }
+        function forceRedraw() {
+            document.querySelectorAll('.collapsible-wrapper').forEach(wrapper => {
+                wrapper.classList.add('force-redraw');
+                setTimeout(() => wrapper.classList.remove('force-redraw'), 10);
             });
         }
 
-        // Run when DOM is loaded
         function init() {
-            setupCollapsibleElements();
+            // Check for vertical mode FIRST
+            detectVerticalMode();
 
-            // Add a debounced resize handler
+            const dictionariesToProcess = Object.keys(activeDictionaries);
+
+            // If no specific dictionaries found in list items, check the DictionaryName field
+            if (dictionariesToProcess.length === 0) {
+                const dictionaryNameElement = document.getElementById("dictname");
+                if (dictionaryNameElement && dictionaryNameElement.textContent.trim()) {
+                    const singleDictName = dictionaryNameElement.textContent.trim();
+                    if (collapsibleSelectors[singleDictName]) {
+                        dictionariesToProcess.push(singleDictName);
+                    }
+                }
+            }
+
+            dictionariesToProcess.forEach(dictionaryName => {
+                if (!collapsibleSelectors[dictionaryName]) return;
+
+                const currentSelectors = collapsibleSelectors[dictionaryName];
+
+                const entries = document.querySelectorAll(`li[data-dictionary="${dictionaryName}"]`);
+
+                if (entries.length > 0) {
+                    entries.forEach(entry => {
+                        processElementsWithSelectors(entry, currentSelectors);
+                    });
+                }
+                // Process single dictionary case
+                else {
+                    processElementsWithSelectors(document, currentSelectors);
+                }
+            });
+
+            forceRedraw();
+        }
+
+        function setupEventListeners() {
             let resizeTimer;
             window.addEventListener('resize', function () {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(function () {
-                    // Check if writing mode has changed
-                    const isVertical = window.getComputedStyle(document.body).writingMode === 'vertical-rl';
-
-                    // Completely recreate the styles when layout changes
-                    setupCollapsibleElements();
-
-                    // Also directly update inline styles
-                    updateCollapsedStyles(isVertical);
+                    detectVerticalMode();
+                    forceRedraw();
                 }, 250);
+            });
+
+            document.addEventListener('DOMContentLoaded', function () {
+                detectVerticalMode();
+                forceRedraw();
             });
         }
 
-        // Wait for the DOM to be fully loaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            detectVerticalMode();
         }
-    })();
 
+        init();
+        setupEventListeners();
+
+        setTimeout(function () {
+            detectVerticalMode();
+            forceRedraw();
+        }, 50);
+    })();
 
 
     // Script to show only the first image in dictionary entries
     (function () {
-        const dictionaryImageSelectors = {
-            "三省堂 全訳読解古語辞典": "div[data-sc画像-g]",
-            "大辞泉 第二版": "div[data-sc-m-image]",
+        const { imageSelectors, activeDictionaries } = window.dictionaryContext;
+        if (!Object.keys(activeDictionaries).length) return;
 
-            // Default selector as fallback (used if dictionary isn't in the list)
-            default:
-                "div[data-sc画像-g], .image-container, .figure, figure, .img-container",
-        };
-
-        // Function to hide all but the first image
-        function hideExtraImages() {
-            const dictionaryEntries = document.querySelectorAll(
-                "li[data-dictionary]"
-            );
-
-            dictionaryEntries.forEach((entry) => {
-                const dictionaryName = entry.getAttribute("data-dictionary");
-
-                // Get the appropriate selector for this dictionary
-                const imageSelector =
-                    dictionaryImageSelectors[dictionaryName] ||
-                    dictionaryImageSelectors["default"];
-
-                // Get all image groups in this entry using the dictionary-specific selector
-                const imageGroups = entry.querySelectorAll(imageSelector);
-
-                // Skip if there's only one or no image
-                if (imageGroups.length <= 1) return;
-
-                // Hide all image groups except the first one
-                for (let i = 1; i < imageGroups.length; i++) {
-                    imageGroups[i].style.display = "none";
-                }
-            });
+        function hideExtraImages(container, selector) {
+            const images = container.querySelectorAll(selector);
+            if (images.length > 1) {
+                images.forEach((img, idx) => {
+                    if (idx > 0) img.style.display = "none";
+                });
+            }
         }
 
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", hideExtraImages);
-        } else {
-            hideExtraImages();
+        // Handle <li> dictionary entries
+        for (const dictName of Object.keys(activeDictionaries)) {
+            const selector = imageSelectors[dictName] || imageSelectors["default"];
+            document.querySelectorAll(`li[data-dictionary="${dictName}"]`)
+                .forEach(entry => hideExtraImages(entry, selector));
+        }
+
+        // Handle single dictionary entry layout
+        const dictnameEl = document.getElementById("dictname");
+        if (dictnameEl) {
+            const singleDict = dictnameEl.textContent.trim();
+            if (activeDictionaries[singleDict]) {
+                const selector = imageSelectors[singleDict] || imageSelectors["default"];
+                hideExtraImages(document, selector);
+            }
         }
     })();
 </script>
