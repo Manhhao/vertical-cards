@@ -18,6 +18,7 @@ collection.media/
 *.apkg
 *.colpkg
 *.ankiaddon
+*.sh
 
 node_modules/
 package-lock.json

@@ -55,20 +55,6 @@ C:\Users\username\AppData\Roaming\Anki2\YourProfileName\collection.media\
 
 Replace `username` with your system username and `YourProfileName` with the name of your Anki profile (usually "User 1" if you haven't changed it).
 
-### If you're feeling fancy
-
-You can customize the look and feel by tweaking these bits in the card styling section:
-
-```css
-/* Make it your own */
-:root {
-    --background-color: #1e1e1e;
-    --content-background-color: #252525;
-    --header-border-color: #777;
-    /* Add whatever other colours take your fancy */
-}
-```
-
 ## My yomitan dictionaries
 
 - [My Dictionary Collection](https://github.com/yourusername/dictionary-collection) - A wee collection of dictionaries that work brilliantly with this template

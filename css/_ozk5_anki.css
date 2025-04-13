@@ -1,0 +1,234 @@
+.card:not(.nightMode) {
+	--ozk5-white: white;
+	--ozk5-black: black;
+	--ozk5-blue: rgb(49, 49, 226);
+	--ozk5-red: #C00000;
+	--ozk5-light-red: #D96666;
+	--ozk5-gray: #888;
+	--ozk5-hinshi-mark: #444;
+	--ozk5-kakomi-border: #999;
+	--ozk5-metadata-background: #999;
+	--ozk5-example-katsuyou-mark: #666;
+	--ozk5-mark-border: #660;
+	--ozk5-gogi-panel-header: #F9E6E6;
+	--ozk5-ruigo-panel-background: #444;
+	--ozk5-ruigo-panel-border: #AAA;
+	--ozk5-appendix-title-background: #633;
+	--ozk5-gendai-mark: #888;
+}
+
+.card.nightMode {
+	--ozk5-black: #DDDDDD;
+	--ozk5-white: #000000;
+	--ozk5-blue: #00AAFF;
+	--ozk5-red: #FF6666;
+	--ozk5-light-red: #B24747;
+	--ozk5-gray: #888;
+	--ozk5-hinshi-mark: #CCCCCC;
+	--ozk5-kakomi-border: #888;
+	--ozk5-metadata-background: #888;
+	--ozk5-example-katsuyou-mark: #AAAAAA;
+	--ozk5-mark-border: #ACAC04;
+	--ozk5-gogi-panel-header: #331414;
+	--ozk5-ruigo-panel-background: #CCCCCC;
+	--ozk5-ruigo-panel-border: #777;
+	--ozk5-appendix-title-background: #BF6666;
+	--ozk5-gendai-mark: #CCCCCC;
+}
+
+.yomitan-glossary span[data-sc-body],
+.yomitan-glossary span[data-sc巻頭カラーテキストタイトル] span[data-sc割],
+.yomitan-glossary span[data-sc-hyoki],
+.yomitan-glossary div[data-sc活用インライン-g],
+.yomitan-glossary span[data-sc参照矢印] {
+	font-family: "游明朝体 Pr6N", "Yu Mincho Pr6N";
+}
+
+.yomitan-glossary span[data-sc主見出],
+.yomitan-glossary div[data-sc用例メタデータ],
+.yomitan-glossary span[data-sc用例訳],
+.yomitan-glossary span[data-sc巻頭カラーテキストタイトル],
+.yomitan-glossary div[data-sc訳語-g],
+.yomitan-glossary span[data-sc活用タイトル],
+.yomitan-glossary div[data-sc活用型],
+.yomitan-glossary div[data-scパネルタイトル],
+.yomitan-glossary span[data-sc重点義タイトル],
+.yomitan-glossary div[data-scガイド大語義項],
+.yomitan-glossary td[data-scガイド項タイトル],
+.yomitan-glossary div[data-sc発展タイトル],
+.yomitan-glossary div[data-sc語の広がりタイトル],
+.yomitan-glossary div[data-sc敬語ガイドタイトル],
+.yomitan-glossary div[data-sc図解学習タイトル],
+.yomitan-glossary div[data-sc慣用表現タイトル],
+.yomitan-glossary span[data-sc発展-m],
+.yomitan-glossary span[data-sc語の広がり-m],
+.yomitan-glossary span[data-sc共通義タイトル],
+.yomitan-glossary td[data-sc類語項][data-sc語句],
+.yomitan-glossary div[data-sc識別ボードタイトル],
+.yomitan-glossary div[data-sc文法要語解説小見出],
+.yomitan-glossary span[data-sc-rect],
+.yomitan-glossary span[data-sc-rectr],
+.yomitan-glossary span[data-sc-circle],
+.yomitan-glossary span[data-sc語義-m],
+.yomitan-glossary span[data-sc小語義-m],
+.yomitan-glossary span[data-sc-bold],
+.yomitan-glossary span[data-sc-color],
+.yomitan-glossary span[data-sc-strong],
+.yomitan-glossary span[data-sc-gendai見出] {
+	font-family: "ヒラギノ角ゴシック", "Hiragino Kaku Gothic ProN", sans-serif;
+}
+
+.yomitan-glossary span[data-sc-img][data-sc-audio] {
+	display: none;
+}
+
+.yomitan-glossary div[data-sc用例囲み-g],
+.yomitan-glossary div[data-sc和歌俳句囲み-g],
+.yomitan-glossary div[data-sc冒頭文囲み-g],
+.yomitan-glossary div[data-sc小倉囲み-g] {
+	margin-top: 0 !important;
+}
+
+@media (min-width: 601px) {
+	.yomitan-glossary div[data-sc小倉参照] {
+		margin-top: 0.3em;
+	}
+
+	.yomitan-glossary span[data-sc文法テキスト][data-sc文法インデント2],
+	.yomitan-glossary span[data-sc文法テキスト][data-sc文法インデント-2] {
+		margin-top: 2.0em !important;
+		margin-left: 0em !important;
+	}
+
+	.yomitan-glossary span[data-sc大語義インデックス][data-sc-l-m] {
+		margin-top: 0.2em;
+	}
+
+	.yomitan-glossary div[data-sc活用インライン-g] {
+		margin-top: 0.6em;
+		margin-left: 0em !important;
+		/* font-family: "Yu Mincho Pr6N"; */
+	}
+
+	.yomitan-glossary div[data-sc語義パネル語義][data-sc-n] {
+		margin-top: 1.15em;
+		margin-left: 0em !important;
+	}
+
+	.yomitan-glossary table[data-scガイド項][data-sc-l-m] {
+		margin-top: 2.15em;
+		margin-left: 0em !important;
+	}
+
+	.yomitan-glossary td[data-scガイド項テキスト] {
+		margin-top: 0.3em;
+		margin-left: 0em !important;
+	}
+
+	.yomitan-glossary div[data-sc接続大語義項] {
+		margin-top: 1.15em;
+		margin-left: 0em !important;
+	}
+
+	.yomitan-glossary span[data-sc-f-m] {
+		margin-bottom: 0.15em;
+		margin-right: 0em !important;
+	}
+
+	.yomitan-glossary span[data-sc-b-m] {
+		margin-top: 0.15em;
+		margin-left: 0em !important;
+	}
+
+	.yomitan-glossary span[data-sc-i-m] {
+		margin-top: 0.15em;
+		margin-left: 0em !important;
+		margin-bottom: 0.15em;
+		margin-right: 0em !important;
+	}
+
+	.yomitan-glossary span[data-scヘッドライン括弧番号] {
+		margin-top: 0.2em;
+		margin-left: 0em !important;
+		text-combine-upright: all;
+	}
+
+	.yomitan-glossary span[data-sc文法要語nijyusen],
+	.yomitan-glossary span[data-sc文法要語-nijyusen] {
+		margin-top: 0.05em;
+		margin-left: 0em !important;
+		margin-bottom: 0.05em;
+		margin-right: 0em !important;
+	}
+
+	.yomitan-glossary div[data-sc用例-g] {
+		margin-top: 0.3em;
+		margin-left: 0em !important;
+	}
+
+	.yomitan-glossary div[data-sc用例み-g],
+	.yomitan-glossary div[data-sc用例訳-g] {
+		margin: 0.3em 0.1em !important;
+	}
+
+	.yomitan-glossary div[data-sc用例囲み-g],
+	.yomitan-glossary div[data-sc和歌俳句囲み-g],
+	.yomitan-glossary div[data-sc冒頭文囲み-g],
+	.yomitan-glossary div[data-sc小倉囲み-g] {
+		margin-left: 0.2em;
+		margin-bottom: 0em !important;
+	}
+
+	.yomitan-glossary table[data-sc活用テーブル] {
+		margin-left: 0.4em;
+		margin-bottom: 0em !important;
+	}
+
+	.yomitan-glossary div[data-sc語義パネル-g],
+	.yomitan-glossary div[data-scガイド-g],
+	.yomitan-glossary div[data-sc接続囲み-g],
+	.yomitan-glossary div[data-sc類語パネル-g] {
+		margin-left: 0.4em;
+		margin-bottom: 0em !important;
+	}
+
+	.yomitan-glossary div[data-sc囲み-g] {
+		margin-left: 0.4em;
+		margin-bottom: 0em !important;
+	}
+
+	.yomitan-glossary div[data-sc囲み2-g],
+	.yomitan-glossary div[data-sc囲み-2-g] {
+		margin-left: 0.4em;
+		margin-bottom: 0em !important;
+	}
+
+	.yomitan-glossary div[data-sc囲み用例メタデータ],
+	.yomitan-glossary div[data-sc文法要語解説用例G],
+	.yomitan-glossary div[data-sc修辞解説用例G] {
+		margin-left: 0.2em;
+		margin-bottom: 0em !important;
+	}
+
+	.yomitan-glossary div[data-sc訳語-g] {
+		margin-left: 0.2em;
+	}
+
+	.yomitan-glossary span[data-sc括弧番号] {
+		text-combine-upright: all;
+		margin-bottom: 0.1em;
+		margin-right: 0em !important;
+	}
+
+	.yomitan-glossary span[data-sc活用タイトル] {
+		text-combine-upright: all;
+	}
+
+	.yomitan-glossary span[data-sc縦中横] {
+		text-combine-upright: all;
+	}
+
+	.yomitan-glossary span[data-sc-img][data-sc外字] {
+		text-combine-upright: all;
+	}
+}

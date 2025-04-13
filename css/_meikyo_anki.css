@@ -1,0 +1,24 @@
+.card:not(.nightMode) {
+    --meikyo-red: #FF3333;
+    --meikyo-gray: #666666;
+    --meikyo-pink: #FFCCCC;
+    --meikyo-dark-red: #CC3333;
+    --meikyo-fbox-white: #FFFFFF;
+    --meikyo-fbox-gray: #333333;
+    --meikyo-box-gray: #FFDDDD;
+}
+
+.card.nightMode {
+    --meikyo-blue: #33CCFF;
+    --meikyo-red: #FF3333;
+    --meikyo-gray: #BBBBBB;
+    --meikyo-pink: #CC6666;
+    --meikyo-dark-red: #993333;
+    --meikyo-fbox-white: #FFFFFF;
+    --meikyo-fbox-gray: #CCCCCC;
+    --meikyo-box-gray: #663333;
+}
+
+span[data-sc-img][data-sc-audio] {
+	display: none;
+}
