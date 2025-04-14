@@ -33,7 +33,6 @@
 }
 
 
-
 /* ----------------------- */
 /* --- 全体のスタイリング --- */
 /* ----------------------- */
@@ -57,13 +56,29 @@ body {
     max-width: 100%;
 }
 
+.center-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: top;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: visible;
+}
+
+.center-wrapper.front {
+    align-items: center;
+}
+
 #container {
     position: relative;
-    align-items: stretch;
-    /* 両方の子要素が同じ高さになるようにする */
+    align-items: stretch; /* 両方の子要素が同じ高さになるようにする */
     max-height: 90vh;
-    gap: 1em;
-    /* ヘッダーとコンテンツの間の間隔 */
+    gap: 1em; /* ヘッダーとコンテンツの間の間隔 */
 }
 
 /* 辞書名のスタイリング */
@@ -92,10 +107,13 @@ body {
     margin-right: 1em;
     height: 85vh;
     box-sizing: border-box;
-    flex-grow: 1;
-    /* 拡大できるが溢れないようにする */
-    overflow: auto;
-    /* 必要に応じてスクローリングを有効にする */
+    flex-grow: 1; /* 拡大できるが溢れないようにする */
+    overflow: auto; /* 必要に応じてスクローリングを有効にする */
+}
+
+.front #header-container,
+.front #content-container {
+    margin-right: 0;
 }
 
 #header-container {
@@ -197,7 +215,56 @@ span {
     height: 32px;
 }
 
+#image-container {
+    display: flex;
+    justify-content: top;
+    align-items: center;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    padding: 0.5em;
+    overflow: hidden;
+}
 
+#image {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    width: 100%;
+}
+
+/* Image styling */
+#image img {
+    width: auto;
+    height: auto;
+    max-width: 350px;
+    max-height: 350px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* Image hover effect */
+#image img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Make sure the image container adapts to writing mode */
+body[style*="vertical-rl"] #image-container {
+    margin-right: 1em;
+    writing-mode: vertical-rl;
+}
+
+/* Fade-in animation for images */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+#image img {
+    animation: fadeIn 0.5s ease-in;
+}
 
 /* ---------------- */
 /* --- 水平モード --- */
@@ -278,6 +345,10 @@ span {
         margin-bottom: 1em;
     }
 
+    #image {
+        gap: 0.3em;
+    }
+
     #image img {
         max-width: 100%;
     }
@@ -305,6 +376,21 @@ span {
 
     .word-audio {
         margin-bottom: 0.5em;
+    }
+
+    #image-container {
+        margin: 0.1em 0;
+        max-width: 100%;
+    }
+    
+    #image img {
+        max-width: 100%;
+        max-height: 300px;
+        margin: 0 auto;
+    }
+    
+    #image img {
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
     }
 }
 

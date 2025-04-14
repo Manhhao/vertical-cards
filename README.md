@@ -31,7 +31,7 @@ A lovely card template for Anki that I've made for my Yomitan dictionaries. Gran
 | Reading     | `{reading}`                               |
 | Glossary       | `{glossary-no-dictionary}`             |
 | Sentence         | `{sentence}`                         |
-| Audio        | `{audio}`.                               |
+| Audio        | `{audio}`                               |
 | DictionaryName              | `{dictionary}`            |
 
 ## Getting started

@@ -1,7 +1,5 @@
-<div class="center-wrapper"
-    style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; position: fixed; top: 0; left: 0; right: 0; bottom: 0;">
-    <div id="container"
-        style="position: relative; min-width: 50vw; width: fit-content; max-width: 85vw; overflow-x: visible;">
+<div class="center-wrapper back">
+    <div id="container">
         <div id="dictname" style="position: relative; right: 0; top: 0; margin-bottom: 0.5em;">{{DictionaryName}}</div>
 
         <div id="header-container">
@@ -104,6 +102,7 @@
             this.elements.expression = document.getElementById("expression");
             this.elements.reading = document.getElementById("reading");
             this.elements.sentence = document.getElementById("sentence");
+            this.elements.centerWrapperBack = document.querySelector('.center-wrapper.back')
         },
 
         identifyActiveDictionaries() {
@@ -147,9 +146,29 @@
         setupCyclableDefinitions();
         setupCollapsibleElements();
         handleImages();
+        hideEmptyImageContainer();
+        setupAdaptiveMargin();
 
         // Set up event listeners
         setupGlobalEventListeners();
+    }
+
+    // Feature: Hide image container if it's empty
+    function hideEmptyImageContainer() {
+        const imageDiv = document.getElementById('image');
+        const imageContainer = document.getElementById('image-container');
+
+        if (!imageContainer) return;
+
+        // Check if the image div is empty or only contains whitespace
+        const isEmpty = !imageDiv ||
+            (imageDiv.getElementsByTagName('img').length === 0 &&
+                imageDiv.innerText.trim() === '');
+
+        // Hide the container if empty
+        if (isEmpty) {
+            imageContainer.style.display = 'none';
+        }
     }
 
     // Feature: Hide sentence field if empty
@@ -275,6 +294,102 @@
         if (containerToUse) {
             containerToUse.classList.toggle("vertical-mode", isVertical);
         }
+    }
+
+    // Feature: Adaptive margin for vertical layout
+    function setupAdaptiveMargin() {
+        if (!window.dictionaryContext.isVertical) return;
+
+        // ===== CUSTOMIZABLE SETTINGS =====
+        const NARROW_CONTENT_MAX = 300;  // Content narrower than this is considered "narrow"
+        const MEDIUM_CONTENT_MAX = 600;  // Content between NARROW_MAX and this is "medium"
+
+        const NARROW_CONTENT_CLAMP = {
+            min: 16,   // Minimum margin in vw
+            max: 30,   // Maximum margin in vw
+            base: 16,  // Base value before viewport adjustment
+            factor: 0.01  // How much to adjust per pixel of viewport width (from REFERENCE_VIEWPORT_WIDTH)
+        };
+
+        // Clamp values for medium content
+        const MEDIUM_CONTENT_CLAMP = {
+            min: 10,
+            max: 25,
+            base: 10,
+            factor: 0.01
+        };
+
+        // Clamp values for wide content
+        const WIDE_CONTENT_CLAMP = {
+            min: 4,
+            max: 15,
+            base: 4,
+            factor: 0.007
+        };
+
+        // Viewport width reference point
+        const REFERENCE_VIEWPORT_WIDTH = 601;
+
+        // Retina display adjustment
+        const RETINA_ADJUSTMENT = 2;
+
+        function calculateMargin() {
+            const contentContainer = window.dictionaryContext.elements.contentContainer;
+            const wrapper = window.dictionaryContext.elements.centerWrapperBack;
+
+            // If either element doesn't exist, exit
+            if (!contentContainer || !wrapper) return;
+
+            const contentWidth = contentContainer.scrollWidth || contentContainer.offsetWidth;
+            const viewportWidth = window.innerWidth;
+
+            let clampValues;
+
+            if (contentWidth < NARROW_CONTENT_MAX) {
+                clampValues = NARROW_CONTENT_CLAMP;
+                console.log("Using narrow content clamp values");
+            }
+            else if (contentWidth < MEDIUM_CONTENT_MAX) {
+                clampValues = MEDIUM_CONTENT_CLAMP;
+                console.log("Using medium content clamp values");
+            }
+            else {
+                clampValues = WIDE_CONTENT_CLAMP;
+                console.log("Using wide content clamp values");
+            }
+
+            // Calculate the preferred value based on viewport width
+            const viewportAdjustment = (viewportWidth - REFERENCE_VIEWPORT_WIDTH) * clampValues.factor;
+            const preferredMargin = clampValues.base + viewportAdjustment;
+
+            const clampedMargin = Math.max(clampValues.min, Math.min(preferredMargin, clampValues.max));
+            wrapper.style.marginRight = clampedMargin + 'vw';
+
+            // Apply Retina adjustment if needed
+            if (window.devicePixelRatio >= 2) {
+                const retinaMargin = Math.max(clampValues.min, clampedMargin - RETINA_ADJUSTMENT);
+                wrapper.style.marginRight = retinaMargin + 'vw';
+                console.log(`Retina display detected, adjusted margin: ${retinaMargin}vw`);
+            }
+        }
+
+        calculateMargin();
+        window.addEventListener('resize', calculateMargin);
+
+        const observer = new MutationObserver(calculateMargin);
+
+        // Observe the content container for changes
+        const contentContainer = window.dictionaryContext.elements.contentContainer;
+        if (contentContainer) {
+            observer.observe(contentContainer, {
+                childList: true,
+                subtree: true,
+                characterData: true,
+                attributes: true
+            });
+        }
+
+        return observer;
     }
 
     // Feature: Collapsible elements
