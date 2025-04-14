@@ -1,4 +1,6 @@
-/* Dark mode colour palette */
+/* ------------------------ */
+/* --- ダークモードの調色板 --- */
+/* ------------------------ */
 :root {
     --background-color: #1e1e1e;
     --content-background-color: #252525;
@@ -9,14 +11,16 @@
     --image-border-color: #444;
     --divider-color: #666;
 
-    /* --- Fonts --- */
+    /* --- フォント --- */
     --expression-font: "SHINJIMinchoW7", "SHINJIMinchoW7 W7";
     --reading-font: "SHINJIMinchoW3", "SHINJIMinchoW3 W3";
     --primary-font: "ヒラギノ明朝 ProN";
     --dictname-font: "FOT-テロップ明朝 Pro";
 }
 
-/* Light mode colour palette */
+/* ------------------------- */
+/* --- ライトモードの調色板 --- */
+/* ------------------------- */
 .card:not(.nightMode) {
     --background-color: #f5f5f5;
     --content-background-color: #ffffff;
@@ -28,16 +32,20 @@
     --divider-color: #bbbbbb;
 }
 
+
+
+/* ----------------------- */
+/* --- 全体のスタイリング --- */
+/* ----------------------- */
 .card {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 95vh;
     overflow-y: hidden;
-    /* Prevent scrolling */
+    /* スクロールを防止 */
 }
 
-/* Overall Card Styling */
 body {
     background-color: var(--background-color);
     color: var(--text-color);
@@ -47,19 +55,18 @@ body {
     font-size: 1.2em;
     margin: 2em;
     max-width: 100%;
-    /*overflow-x: hidden;*/
 }
 
 #container {
     position: relative;
     align-items: stretch;
-    /* Ensures both children stretch to equal height */
+    /* 両方の子要素が同じ高さになるようにする */
     max-height: 90vh;
     gap: 1em;
-    /* Adds spacing between header and content */
+    /* ヘッダーとコンテンツの間の間隔 */
 }
 
-/* Dictionary Name Styling */
+/* 辞書名のスタイリング */
 #dictname {
     position: absolute;
     right: 1em;
@@ -73,7 +80,7 @@ body {
     z-index: 1;
 }
 
-/* Header and Content Containers */
+/* ヘッダーとコンテンツのコンテナ */
 #header-container,
 #content-container {
     border: 2px solid var(--header-border-color);
@@ -86,9 +93,9 @@ body {
     height: 85vh;
     box-sizing: border-box;
     flex-grow: 1;
-    /* Allows them to expand but not overflow */
+    /* 拡大できるが溢れないようにする */
     overflow: auto;
-    /* Enables scrolling if necessary */
+    /* 必要に応じてスクローリングを有効にする */
 }
 
 #header-container {
@@ -106,7 +113,7 @@ body {
     margin-bottom: 0;
 }
 
-/* Expression and Reading Styling */
+/* 表現と読みのスタイリング */
 #expression {
     font-family: var(--expression-font);
     font-weight: bold;
@@ -120,7 +127,7 @@ body {
     margin-top: 0.2em;
 }
 
-/* Content Container Styling */
+/* コンテンツコンテナのスタイリング */
 #content-container {
     border: 1.5px solid var(--content-border-color);
     display: flex;
@@ -143,14 +150,14 @@ body {
     color: var(--dictname-color);
 }
 
-/* Ensure border follows sentence */
+/* 文の後に境界線が続くようにする */
 #sentence+*:not(#image-container) {
     border-top: 1.5px solid var(--content-border-color);
     margin-top: 1em;
 }
 
-/* Vertical Divider */
-#definition::after {
+/* 垂直区切り戦 */
+#sentence::before {
     content: "";
     display: block;
     width: 1px;
@@ -179,23 +186,22 @@ span {
     margin-top: 0.75em;
 }
 
-.word-audio, .sentence-audio {
+.word-audio,
+.sentence-audio {
     margin-bottom: 0.5em;
 }
 
-.audio-buttons img, .audio-buttons a {
+.audio-buttons img,
+.audio-buttons a {
     width: 32px;
     height: 32px;
 }
 
-.iphone .card {
-    padding: 0.5em !important;
-}
 
-.iphone .body {
-    margin: 0.25em !important;
-}
 
+/* ---------------- */
+/* --- 水平モード --- */
+/* ---------------- */
 @media (max-width: 600px) {
     .card {
         display: block;
@@ -209,6 +215,16 @@ span {
         margin: 1em;
         font-size: 1.1em;
         overflow-x: hidden;
+    }
+
+    .center-wrapper {
+        display: block !important;
+        position: static !important;
+        height: auto !important;
+    }
+
+    #container {
+        max-width: 100% !important;
     }
 
     #container {
@@ -239,7 +255,8 @@ span {
         margin: 0 auto;
     }
 
-    #expression, #reading {
+    #expression,
+    #reading {
         text-align: center;
     }
 
@@ -269,12 +286,12 @@ span {
         text-align: left;
     }
 
-    /* Remove empty space after sentence when no image */
+    /* 画像がない場合、文の後の空のスペースを削除 */
     #sentence+*:not(#image-container) {
         margin-top: 0;
     }
 
-    /* Audio Buttons - Horizontal Mode */
+    /* 音声再生ボタンの水平モード */
     .audio-buttons {
         position: absolute;
         top: 50%;
@@ -285,29 +302,40 @@ span {
         margin-right: 0;
         z-index: 2;
     }
-    
+
     .word-audio {
         margin-bottom: 0.5em;
     }
 }
 
-/* CSS to disable links in glossaries */
-/* Target all links in the glossary container */
+.iphone .card {
+    padding: 0.5em !important;
+}
+
+.iphone .body {
+    margin: 0.25em !important;
+}
+
+
+
+/* ----------------------------------- */
+/* --- 用語集内のリンクを全部無効にする --- */
+/* ----------------------------------- */
 #glossary-container a,
 .yomitan-glossary a,
 li[data-dictionary] a {
-    /* Remove link styling */
+    /* リンクのスタイリングを削除 */
     color: inherit !important;
     cursor: default !important;
     pointer-events: none !important;
-    /* This prevents click behavior */
+    /* これはクリック動作を防止する */
 
-    /* Optional: remove underlines or any other visual hints that it's a link */
+    /* 下線やリンクを示すその他の視覚的な手がかりを削除 */
     border-bottom: none !important;
     background: none !important;
 }
 
-/* If there are any link hover effects, disable those too */
+/* リンクのホバー効果がある場合も無効にする */
 #glossary-container a:hover,
 .yomitan-glossary a:hover,
 li[data-dictionary] a:hover {
@@ -322,14 +350,16 @@ li[data-dictionary] a::after {
 }
 
 
-/* CSS for collapsible dictionary elements */
-/* Base styles for collapsible wrapper */
+
+/* ------------------------------------ */
+/* --- 折りたたみ可能な要素のスタイリング --- */
+/* ------------------------------------ */
 .collapsible-wrapper {
     position: relative;
     margin: 5px 0;
 }
 
-/* Header styling */
+/* ヘッダーのスタイリング */
 .collapsible-header {
     padding: 2px 5px;
     background-color: rgba(100, 100, 100, 0.2);
@@ -342,12 +372,12 @@ li[data-dictionary] a::after {
     cursor: pointer;
 }
 
-/* Header hover effect */
+/* ホバー効果 */
 .collapsible-wrapper:hover .collapsible-header {
     background-color: rgba(120, 120, 120, 0.3);
 }
 
-/* Arrow indicator */
+/* 矢印 */
 .collapsible-header::after {
     content: "▼";
     font-size: 0.8em;
@@ -355,21 +385,21 @@ li[data-dictionary] a::after {
     transition: transform 0.3s;
 }
 
-/* Rotate arrow when collapsed */
+/* 折り畳まれた時に矢印を回転 */
 .collapsed .collapsible-header::after {
     transform: rotate(-90deg);
 }
 
-/* Content transition for both modes */
+/* 両方のモードのコンテンツ転化 */
 .collapsible-content {
     transition: all 0.25s ease-out;
     overflow: hidden;
-    /* Ensure content remains visible initially */
+    /* コンテンツが最初に表示されるようにする */
     display: block;
     opacity: 1;
 }
 
-/* HORIZONTAL MODE - uses height transitions */
+/* 水平モード、高さの転化を使用 */
 :not(.vertical-mode) .collapsible-content {
     max-height: 1000px;
     opacity: 1;
@@ -387,7 +417,7 @@ li[data-dictionary] a::after {
     opacity: 1;
 }
 
-/* VERTICAL MODE - uses width transitions */
+/* 垂直モード、幅の代わりに変形を使用 */
 .vertical-mode .collapsible-content {
     max-height: none;
     width: auto;
@@ -395,52 +425,38 @@ li[data-dictionary] a::after {
     opacity: 1;
     margin: 0;
     padding: 0.5em 0;
-    /* Override any horizontal mode styles */
-    display: block;
+    transform-origin: right center;
+    transform: scaleX(1);
+    transition: transform 0.25s ease-out, opacity 0.25s ease-out;
 }
 
 .vertical-mode .collapsed .collapsible-content {
-    width: 0 !important;
-    min-width: 0 !important;
-    max-width: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
+    transform: scaleX(0);
     opacity: 0;
-    /* Ensure it takes up no space */
-    overflow: hidden !important;
-    /* Critical for layout switches */
-    display: block !important;
-    position: static !important;
+    width: 0;
+    overflow: hidden;
+    padding: 0;
 }
 
 .vertical-mode .collapsed:hover .collapsible-content {
-    width: auto !important;
-    min-width: auto !important;
-    max-width: none !important;
-    padding: 0.5em 0 !important;
+    transform: scaleX(1);
     opacity: 1;
-    display: block !important;
+    width: auto;
+    padding: 0.5em 0;
 }
 
-/* Fix for the wrapper element itself */
+/* ラッパー要素自体の修正 */
 .vertical-mode .collapsible-wrapper {
     display: inline-block;
     vertical-align: top;
-    min-width: 0 !important;
 }
 
-/* Critical fix for layout switching */
-.layout-switching .collapsible-content {
-    transition: none !important;
-}
-
-/* Arrow rotation for vertical mode */
+/* 垂直モードでの矢印の回転 */
 .vertical-mode .collapsed:hover .collapsible-header::after {
     transform: rotate(0deg);
 }
 
-/* Force redraw helper class */
+/* 強制再描画 */
 .force-redraw {
     animation: force-redraw-animation 0.01s;
 }
@@ -455,8 +471,8 @@ li[data-dictionary] a::after {
     }
 }
 
-/* CSS for definition cycling */
-/* Counter styles */
+/* 定義の切り替え用スタイリング */
+/* カウンターのスタイル */
 .definition-counter {
     background-color: rgba(0, 0, 0, 0.7);
     color: white;
@@ -469,7 +485,6 @@ li[data-dictionary] a::after {
     right: 0.5em;
 }
 
-/* Edge navigation styles */
 .definition-left-edge,
 .definition-right-edge {
     position: absolute;
@@ -496,7 +511,7 @@ li[data-dictionary] a::after {
     background-color: rgba(0, 0, 0, 0.15);
 }
 
-/* Arrow indicators that appear on hover */
+/* ホバー時に表示される矢印インジケーター */
 .definition-left-edge:hover::after,
 .definition-right-edge:hover::after {
     content: "";
@@ -524,7 +539,7 @@ li[data-dictionary] a::after {
     transform: translateY(-50%) rotate(45deg);
 }
 
-/* Vertical mode adjustments */
+/* 垂直モードの調整 */
 .vertical-mode .definition-counter {
     top: auto;
     bottom: 0.5em;
@@ -547,7 +562,7 @@ li[data-dictionary] a::after {
     right: 0;
 }
 
-/* Adjustments for arrow indicators in vertical mode */
+/* 垂直モードでの矢印のインジケーターの調整 */
 .vertical-mode .definition-left-edge:hover::after {
     left: 50%;
     top: 18px;

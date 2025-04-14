@@ -1,126 +1,184 @@
-<div id="dictname">{{DictionaryName}}</div>
+<div class="center-wrapper"
+    style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; position: fixed; top: 0; left: 0; right: 0; bottom: 0;">
+    <div id="container"
+        style="position: relative; min-width: 50vw; width: fit-content; max-width: 85vw; overflow-x: visible;">
+        <div id="dictname" style="position: relative; right: 0; top: 0; margin-bottom: 0.5em;">{{DictionaryName}}</div>
 
-<div id="container">
-    <div id="header-container">
-        <div class="audio-buttons">
-            <div class="word-audio">{{Audio}}</div>
-            <div class="sentence-audio">{{SentenceAudio}}</div>
-        </div>
-        <div class="header-main-content">
-            <div id="expression">{{Word}}</div>
-            <div id="reading">{{Reading}}</div>
-        </div>
-    </div>
-
-    <div id="content-container">
-        <div id="glossary-container">
-            <div id="definition">{{Glossary}}</div>
-            <div id="sentence">{{Sentence}}</div>
+        <div id="header-container">
+            <div class="audio-buttons">
+                <div class="word-audio">{{Audio}}</div>
+                <div class="sentence-audio">{{SentenceAudio}}</div>
+            </div>
+            <div class="header-main-content">
+                <div id="expression">{{Word}}</div>
+                <div id="reading">{{Reading}}</div>
+            </div>
         </div>
 
-        <div id="image-container">
-            <div id="image">{{Picture}}</div>
+        <div id="content-container">
+            <div id="glossary-container">
+                <div id="definition">{{Glossary}}</div>
+                <div id="sentence">{{Sentence}}</div>
+            </div>
+
+            <div id="image-container">
+                <div id="image">{{Picture}}</div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    (function () {
-        window.dictionaryContext = {
-            cssFiles: {
-                "三省堂 全訳読解古語辞典": "_skogo_anki.css",
-                "旺文社 全訳古語辞典": "_ozk5_anki.css",
-                "角川新字源 改訂新版": "_shinjigen_anki.css",
-                "明鏡国語辞典 第三版": "_meikyo_anki.css"
-            },
+    // Main dictionary context object
+    window.dictionaryContext = {
+        cssFiles: {
+            "三省堂 全訳読解古語辞典": "_skogo_anki.css",
+            "旺文社 全訳古語辞典": "_ozk5_anki.css",
+            "角川新字源 改訂新版": "_shinjigen_anki.css",
+            "明鏡国語辞典 第三版": "_meikyo_anki.css"
+        },
 
-            collapsibleSelectors: {
-                "三省堂 全訳読解古語辞典": [
-                    "div[data-sc絵巻項目]",
-                    "div[data-sc読解-g]"
-                ],
-                "旺文社 全訳古語辞典": [
-                    "div[data-sc用例囲み-g]",
-                    "div[data-sc発展]"
-                ]
-            },
+        collapsibleSelectors: {
+            "三省堂 全訳読解古語辞典": [
+                "div[data-sc絵巻項目]",
+                "div[data-sc読解-g]"
+            ],
+            "旺文社 全訳古語辞典": [
+                "div[data-sc用例囲み-g]",
+                "div[data-sc発展]"
+            ]
+        },
 
-            displayNameMap: {
-                // 三省堂 全訳読解古語辞典
-                "絵巻項目": "絵巻",
-                "発展": "発展事項",
-                "読解-g": "読解",
+        displayNameMap: {
+            // 三省堂 全訳読解古語辞典
+            "絵巻項目": "絵巻",
+            "発展": "発展事項",
+            "読解-g": "読解",
 
-                // 旺文社 全訳古語辞典
-                "用例囲み-g": "例文・訳"
-            },
+            // 旺文社 全訳古語辞典
+            "用例囲み-g": "例文・訳"
+        },
 
-            imageSelectors: {
-                "三省堂 全訳読解古語辞典": "div[data-sc画像-g]",
-                "大辞泉 第二版": "div[data-sc-m-image]",
+        imageSelectors: {
+            "三省堂 全訳読解古語辞典": "div[data-sc画像-g]",
+            "大辞泉 第二版": "div[data-sc-m-image]",
 
-                // Default selectors
-                "default": "div[data-sc画像-g], .image-container, .figure, figure, .img-container"
-            },
+            // Default selectors
+            "default": "div[data-sc画像-g], .image-container, .figure, figure, .img-container"
+        },
 
-            activeDictionaries: {},
-            isVertical: false,
+        // DOM element caches
+        elements: {
+            dictionaryEntries: null,
+            collapsibleContents: null,
+            definitionContainer: null,
+            contentContainer: null,
+            dictname: null,
+            expression: null,
+            reading: null,
+            sentence: null
+        },
 
-            init: function () {
-                this.isVertical = window.getComputedStyle(document.body).writingMode === 'vertical-rl';
+        activeDictionaries: {},
+        isVertical: false,
 
-                // Find all dictionary entries and track which ones are present
-                document.querySelectorAll("li[data-dictionary]").forEach((entry) => {
+        detectVerticalMode() {
+            this.isVertical = window.getComputedStyle(document.body).writingMode === 'vertical-rl';
+            document.body.classList.toggle('vertical-mode', this.isVertical);
+
+            // Apply to content container
+            if (this.elements.contentContainer) {
+                this.elements.contentContainer.classList.toggle('vertical-mode', this.isVertical);
+            }
+
+            return this.isVertical;
+        },
+
+        cacheElements() {
+            // Cache common elements
+            this.elements.dictionaryEntries = document.querySelectorAll("li[data-dictionary]");
+            this.elements.collapsibleContents = document.querySelectorAll('.collapsible-content');
+            this.elements.definitionContainer = document.getElementById("definition");
+            this.elements.contentContainer = document.getElementById("content-container");
+            this.elements.dictname = document.getElementById("dictname");
+            this.elements.expression = document.getElementById("expression");
+            this.elements.reading = document.getElementById("reading");
+            this.elements.sentence = document.getElementById("sentence");
+        },
+
+        identifyActiveDictionaries() {
+            // Reset the active dictionaries
+            this.activeDictionaries = {};
+
+            // Find dictionaries from list items
+            if (this.elements.dictionaryEntries.length > 0) {
+                this.elements.dictionaryEntries.forEach((entry) => {
                     const dictName = entry.getAttribute("data-dictionary");
                     if (dictName) {
                         this.activeDictionaries[dictName] = true;
                     }
                 });
-
-                // If no dictionaries found in list items, check the DictionaryName field
-                if (Object.keys(this.activeDictionaries).length === 0) {
-                    const dictionaryNameElement = document.getElementById("dictname");
-                    if (dictionaryNameElement) {
-                        const dictionaryName = dictionaryNameElement.textContent.trim();
-                        if (dictionaryName) {
-                            this.activeDictionaries[dictionaryName] = true;
-                        }
-                    }
-                }
-
-                console.log("Active dictionaries:", Object.keys(this.activeDictionaries));
             }
-        };
+            // If no dictionaries found in list items, check the DictionaryName field
+            else if (this.elements.dictname && this.elements.dictname.textContent.trim()) {
+                const dictionaryName = this.elements.dictname.textContent.trim();
+                this.activeDictionaries[dictionaryName] = true;
+            }
 
+            console.log("Active dictionaries:", Object.keys(this.activeDictionaries));
+            return Object.keys(this.activeDictionaries);
+        },
+
+        init() {
+            this.cacheElements();
+            this.detectVerticalMode();
+            this.identifyActiveDictionaries();
+        }
+    };
+
+    // Main initialization function
+    function initializeDictionaryCard() {
         window.dictionaryContext.init();
-    })();
 
-    // Hide sentence field if empty
-    (function () {
-        var sentenceDiv = document.getElementById("sentence");
+        // Run all features using cached elements
+        handleEmptySentence();
+        handleDuplicateContent();
+        loadDictionaryCssFiles();
+        setupCyclableDefinitions();
+        setupCollapsibleElements();
+        handleImages();
+
+        // Set up event listeners
+        setupGlobalEventListeners();
+    }
+
+    // Feature: Hide sentence field if empty
+    function handleEmptySentence() {
+        const sentenceDiv = window.dictionaryContext.elements.sentence;
         if (sentenceDiv && sentenceDiv.textContent.trim() === "") {
             sentenceDiv.style.display = "none";
         }
-    })();
+    }
 
-    // Hide reading and sentence if same as term
-    (function () {
-        var expresssionDiv = document.getElementById("expression");
-        var readingDiv = document.getElementById("reading");
-        var sentenceDiv = document.getElementById("sentence")
-        if (expresssionDiv && readingDiv &&
-            expresssionDiv.textContent.trim() === readingDiv.textContent.trim()) {
+    // Feature: Hide reading and sentence if same as term
+    function handleDuplicateContent() {
+        const expressionDiv = window.dictionaryContext.elements.expression;
+        const readingDiv = window.dictionaryContext.elements.reading;
+        const sentenceDiv = window.dictionaryContext.elements.sentence;
+
+        if (expressionDiv && readingDiv &&
+            expressionDiv.textContent.trim() === readingDiv.textContent.trim()) {
             readingDiv.style.display = "none";
         }
 
-        if (expresssionDiv && sentenceDiv &&
-            expresssionDiv.textContent.trim() === sentenceDiv.textContent.trim()) {
-            sentenceDiv.style.display = "none"
+        if (expressionDiv && sentenceDiv &&
+            expressionDiv.textContent.trim() === sentenceDiv.textContent.trim()) {
+            sentenceDiv.style.display = "none";
         }
-    })();
+    }
 
-    // Load dictionary CSS files
-    (function () {
+    // Feature: Load dictionary CSS files for dictionaries
+    function loadDictionaryCssFiles() {
         const { cssFiles, activeDictionaries } = window.dictionaryContext;
 
         // Load CSS for active dictionaries
@@ -133,66 +191,35 @@
                 console.log(`Loaded CSS for dictionary: ${dictionaryName}`);
             }
         });
-    })();
+    }
 
-
-    /* Cyclable definitions script */
-    (function () {
-        var definitionContainer = document.getElementById("definition");
-
+    // Feature: Cyclable definitions
+    function setupCyclableDefinitions() {
+        const definitionContainer = window.dictionaryContext.elements.definitionContainer;
         if (!definitionContainer) return;
 
-        var definitionItems = definitionContainer.querySelectorAll("li");
+        const definitionItems = definitionContainer.querySelectorAll("li");
 
         // If there are multiple definitions
         if (definitionItems.length > 1) {
-            var counterElement = document.createElement("div");
+            const counterElement = document.createElement("div");
             counterElement.className = "definition-counter";
 
             // Add left and right edges for clicking
-            var leftEdge = document.createElement("div");
-            var rightEdge = document.createElement("div");
+            const leftEdge = document.createElement("div");
+            const rightEdge = document.createElement("div");
 
             leftEdge.className = "definition-left-edge";
             rightEdge.className = "definition-right-edge";
 
-            // Function to adjust position based on orientation
-            function adjustPositions() {
-                const isVertical = window.dictionaryContext &&
-                    window.dictionaryContext.isVertical;
+            const containerToUse = window.dictionaryContext.elements.contentContainer || definitionContainer;
+            containerToUse.style.position = "relative";
+            containerToUse.appendChild(counterElement);
+            containerToUse.appendChild(leftEdge);
+            containerToUse.appendChild(rightEdge);
 
-                // Add or remove vertical class for CSS-based positioning
-                const containerToUse = document.getElementById("content-container") || definitionContainer;
-
-                if (isVertical) {
-                    containerToUse.classList.add("vertical-mode");
-                } else {
-                    containerToUse.classList.remove("vertical-mode");
-                }
-            }
-
-            function setupElements() {
-                const contentContainer = document.getElementById("content-container");
-                const containerToUse = contentContainer || definitionContainer;
-
-                containerToUse.style.position = "relative";
-                containerToUse.appendChild(counterElement);
-                containerToUse.appendChild(leftEdge);
-                containerToUse.appendChild(rightEdge);
-
-                adjustPositions();
-            }
-
-            setupElements();
-
-            window.addEventListener("resize", function () {
-                if (window.dictionaryContext) {
-                    window.dictionaryContext.isVertical =
-                        window.getComputedStyle(document.body).writingMode === 'vertical-rl';
-                }
-
-                adjustPositions();
-            });
+            // Apply orientation-specific styling
+            adjustCyclablePositions();
 
             let currentIndex = 0;
 
@@ -201,17 +228,17 @@
                 definitionItems[i].style.display = "none";
             }
 
+            // Update counter display
             function updateCounter() {
                 counterElement.textContent = `${currentIndex + 1}/${definitionItems.length}`;
             }
-
             updateCounter();
 
             // Function to cycle to the next definition
             function cycleDefinition(direction) {
                 definitionItems[currentIndex].style.display = "none";
 
-                // Calculate new index with wraparound
+                // Calculate new index
                 if (direction === "next") {
                     currentIndex = (currentIndex + 1) % definitionItems.length;
                 } else {
@@ -223,13 +250,8 @@
             }
 
             // Add click events to the edges
-            leftEdge.addEventListener("click", function () {
-                cycleDefinition("prev");
-            });
-
-            rightEdge.addEventListener("click", function () {
-                cycleDefinition("next");
-            });
+            leftEdge.addEventListener("click", () => cycleDefinition("prev"));
+            rightEdge.addEventListener("click", () => cycleDefinition("next"));
 
             // Function to handle arrow key navigation
             function handleArrowKeys(event) {
@@ -241,138 +263,97 @@
             }
 
             document.addEventListener("keydown", handleArrowKeys);
-
-            setTimeout(adjustPositions, 300);
         }
-    })();
+    }
 
+    // Helper function for cyclable definitions
+    function adjustCyclablePositions() {
+        const isVertical = window.dictionaryContext.isVertical;
+        const containerToUse = window.dictionaryContext.elements.contentContainer ||
+            window.dictionaryContext.elements.definitionContainer;
 
-    // Script to make specific elements collapsible in dictionary entries
-    (function () {
+        if (containerToUse) {
+            containerToUse.classList.toggle("vertical-mode", isVertical);
+        }
+    }
+
+    // Feature: Collapsible elements
+    function setupCollapsibleElements() {
         const { collapsibleSelectors, displayNameMap, activeDictionaries } = window.dictionaryContext;
+        const dictionariesToProcess = Object.keys(activeDictionaries);
 
-        // Check if we're in vertical mode and add class to body
-        function detectVerticalMode() {
-            const isVertical = window.getComputedStyle(document.body).writingMode === 'vertical-rl';
-            document.body.classList.toggle('vertical-mode', isVertical);
-            return isVertical;
-        }
+        dictionariesToProcess.forEach(dictionaryName => {
+            if (!collapsibleSelectors[dictionaryName]) return;
 
-        function processElementsWithSelectors(container, selectors) {
-            selectors.forEach(selector => {
-                const elements = container.querySelectorAll(selector);
+            const currentSelectors = collapsibleSelectors[dictionaryName];
+            const entries = document.querySelectorAll(`li[data-dictionary="${dictionaryName}"]`);
 
-                elements.forEach(element => {
-                    if (element.parentNode && element.parentNode.classList &&
-                        element.parentNode.classList.contains('collapsible-content')) {
-                        return;
-                    }
-
-                    const attrMatch = selector.match(/data-sc([^=\]]*)/);
-                    const rawAttrName = attrMatch ? attrMatch[1] : selector.split('[')[1].split(']')[0];
-
-                    const displayName = displayNameMap[rawAttrName] || rawAttrName;
-
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'collapsible-wrapper collapsed';
-
-                    const header = document.createElement('div');
-                    header.className = 'collapsible-header';
-                    header.textContent = displayName;
-
-                    const content = document.createElement('div');
-                    content.className = 'collapsible-content';
-
-                    element.parentNode.insertBefore(wrapper, element);
-                    wrapper.appendChild(header);
-                    wrapper.appendChild(content);
-                    content.appendChild(element);
-
-                    header.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        wrapper.classList.toggle('collapsed');
-                    });
+            if (entries.length > 0) {
+                entries.forEach(entry => {
+                    processElementsWithSelectors(entry, currentSelectors, displayNameMap);
                 });
-            });
-        }
-
-        function forceRedraw() {
-            document.querySelectorAll('.collapsible-wrapper').forEach(wrapper => {
-                wrapper.classList.add('force-redraw');
-                setTimeout(() => wrapper.classList.remove('force-redraw'), 10);
-            });
-        }
-
-        function init() {
-            // Check for vertical mode FIRST
-            detectVerticalMode();
-
-            const dictionariesToProcess = Object.keys(activeDictionaries);
-
-            // If no specific dictionaries found in list items, check the DictionaryName field
-            if (dictionariesToProcess.length === 0) {
-                const dictionaryNameElement = document.getElementById("dictname");
-                if (dictionaryNameElement && dictionaryNameElement.textContent.trim()) {
-                    const singleDictName = dictionaryNameElement.textContent.trim();
-                    if (collapsibleSelectors[singleDictName]) {
-                        dictionariesToProcess.push(singleDictName);
-                    }
-                }
             }
+            // Process single dictionary case
+            else {
+                processElementsWithSelectors(document, currentSelectors, displayNameMap);
+            }
+        });
 
-            dictionariesToProcess.forEach(dictionaryName => {
-                if (!collapsibleSelectors[dictionaryName]) return;
-
-                const currentSelectors = collapsibleSelectors[dictionaryName];
-
-                const entries = document.querySelectorAll(`li[data-dictionary="${dictionaryName}"]`);
-
-                if (entries.length > 0) {
-                    entries.forEach(entry => {
-                        processElementsWithSelectors(entry, currentSelectors);
-                    });
-                }
-                // Process single dictionary case
-                else {
-                    processElementsWithSelectors(document, currentSelectors);
-                }
+        // Apply styles after a minimal delay to ensure elements are processed
+        setTimeout(() => {
+            // Remove the initial display:none from collapsible contents
+            document.querySelectorAll('.collapsible-content').forEach(content => {
+                content.style.display = '';
             });
-
             forceRedraw();
-        }
+        }, 10);
+    }
 
-        function setupEventListeners() {
-            let resizeTimer;
-            window.addEventListener('resize', function () {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(function () {
-                    detectVerticalMode();
-                    forceRedraw();
-                }, 250);
+    // Helper function for collapsible elements
+    function processElementsWithSelectors(container, selectors, displayNameMap) {
+        selectors.forEach(selector => {
+            const elements = container.querySelectorAll(selector);
+
+            elements.forEach(element => {
+                if (element.parentNode && element.parentNode.classList &&
+                    element.parentNode.classList.contains('collapsible-content')) {
+                    return;
+                }
+
+                const attrMatch = selector.match(/data-sc([^=\]]*)/);
+                const rawAttrName = attrMatch ? attrMatch[1] : selector.split('[')[1].split(']')[0];
+                const displayName = displayNameMap[rawAttrName] || rawAttrName;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'collapsible-wrapper collapsed';
+
+                const header = document.createElement('div');
+                header.className = 'collapsible-header';
+                header.textContent = displayName;
+
+                const content = document.createElement('div');
+                content.className = 'collapsible-content';
+                // Start with display: none to avoid flash
+                content.style.display = 'none';
+
+                element.parentNode.insertBefore(wrapper, element);
+                wrapper.appendChild(header);
+                wrapper.appendChild(content);
+                content.appendChild(element);
             });
+        });
+    }
 
-            document.addEventListener('DOMContentLoaded', function () {
-                detectVerticalMode();
-                forceRedraw();
-            });
-        }
+    // Helper function to force CSS redraw for collapsible elements
+    function forceRedraw() {
+        document.querySelectorAll('.collapsible-wrapper').forEach(wrapper => {
+            wrapper.classList.add('force-redraw');
+            setTimeout(() => wrapper.classList.remove('force-redraw'), 10);
+        });
+    }
 
-        if (document.readyState === 'interactive' || document.readyState === 'complete') {
-            detectVerticalMode();
-        }
-
-        init();
-        setupEventListeners();
-
-        setTimeout(function () {
-            detectVerticalMode();
-            forceRedraw();
-        }, 50);
-    })();
-
-
-    // Script to show only the first image in dictionary entries
-    (function () {
+    // Feature: Show only the first image in dictionary entries
+    function handleImages() {
         const { imageSelectors, activeDictionaries } = window.dictionaryContext;
         if (!Object.keys(activeDictionaries).length) return;
 
@@ -393,7 +374,7 @@
         }
 
         // Handle single dictionary entry layout
-        const dictnameEl = document.getElementById("dictname");
+        const dictnameEl = window.dictionaryContext.elements.dictname;
         if (dictnameEl) {
             const singleDict = dictnameEl.textContent.trim();
             if (activeDictionaries[singleDict]) {
@@ -401,5 +382,81 @@
                 hideExtraImages(document, selector);
             }
         }
-    })();
+    }
+
+    // Set up global event listeners
+    function setupGlobalEventListeners() {
+        let resizeTimer;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function () {
+                window.dictionaryContext.detectVerticalMode();
+                adjustCyclablePositions();
+                forceRedraw();
+            }, 250);
+        });
+
+        // Add click handlers for collapsible headers - done once globally
+        document.addEventListener('click', function (e) {
+            if (e.target && e.target.classList.contains('collapsible-header')) {
+                const wrapper = e.target.closest('.collapsible-wrapper');
+                if (wrapper) {
+                    wrapper.classList.toggle('collapsed');
+                }
+            }
+        });
+    }
+
+    // Use MutationObserver to wait for dictionary content to be fully loaded
+    function waitForDictionaryContent() {
+        const criticalElements = ['definition', 'content-container', 'dictname'];
+        let elementsReady = 0;
+
+        // Check if all critical elements are ready
+        function checkReadiness() {
+            elementsReady = 0;
+            for (const id of criticalElements) {
+                if (document.getElementById(id)) {
+                    elementsReady++;
+                }
+            }
+            return elementsReady === criticalElements.length;
+        }
+
+        // Init if everything is already ready
+        if (checkReadiness()) {
+            initializeDictionaryCard();
+            return;
+        }
+
+        // Otherwise, set up a MutationObserver to wait
+        const observer = new MutationObserver((mutations) => {
+            if (checkReadiness()) {
+                observer.disconnect();
+                initializeDictionaryCard();
+            }
+        });
+
+        // Start observing the document for added nodes
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        // Fallback: initialize after a timeout even if not all elements are ready
+        setTimeout(() => {
+            observer.disconnect();
+            if (!checkReadiness()) {
+                console.warn('Some dictionary elements not found, initializing anyway');
+            }
+            initializeDictionaryCard();
+        }, 1000);
+    }
+
+    // Start the initialization process
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', waitForDictionaryContent);
+    } else {
+        waitForDictionaryContent();
+    }
 </script>
