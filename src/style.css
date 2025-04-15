@@ -154,7 +154,6 @@ body {
 
 #glossary-container {
     flex-grow: 1;
-    padding-left: 1em;
     display: flex;
     flex-direction: column;
 }
@@ -282,6 +281,11 @@ body[style*="vertical-rl"] #image-container {
         margin: 1em;
         font-size: 1.1em;
         overflow-x: hidden;
+    }
+
+    #header-container,
+    #content-container {
+        margin-right: 0;
     }
 
     .center-wrapper {
