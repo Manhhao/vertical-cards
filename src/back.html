@@ -29,11 +29,12 @@
 <script>
     // Main dictionary context object
     window.dictionaryContext = {
-        cssFiles: {
-            "三省堂 全訳読解古語辞典": "_skogo_anki.css",
-            "旺文社 全訳古語辞典": "_ozk5_anki.css",
-            "角川新字源 改訂新版": "_shinjigen_anki.css",
-            "明鏡国語辞典 第三版": "_meikyo_anki.css"
+        dictionaryClassNames: {
+            "三省堂 全訳読解古語辞典": "skogo",
+            "旺文社 全訳古語辞典": "obunsha-kogo",
+            "角川新字源 改訂新版": "kadokawa-shinjigen",
+            "明鏡国語辞典 第三版": "meikyo",
+            "大辞泉 第二版": "daijisen"
         },
 
         collapsibleSelectors: {
@@ -158,10 +159,53 @@
             return Object.keys(this.activeDictionaries);
         },
 
+        // Apply dictionary-specific class names
+        applyDictionaryClasses() {
+            const { dictionaryClassNames, activeDictionaries } = window.dictionaryContext;
+            const dictionariesToProcess = Object.keys(activeDictionaries);
+
+            if (dictionariesToProcess.length === 0) return;
+
+            const contentContainer = window.dictionaryContext.elements.contentContainer;
+            const entries = window.dictionaryContext.elements.dictionaryEntries;
+
+            const classOperations = [];
+
+            // Process individual dictionary entries (li elements)
+            if (entries && entries.length > 0) {
+                entries.forEach(entry => {
+                    const dictName = entry.getAttribute("data-dictionary");
+                    if (dictName && dictionaryClassNames[dictName]) {
+                        classOperations.push(() => {
+                            entry.classList.add(dictionaryClassNames[dictName]);
+                        });
+                    }
+                });
+            }
+
+            // Process the main container (for single dictionary view)
+            if (contentContainer && dictionariesToProcess.length === 1) {
+                const dictName = dictionariesToProcess[0];
+                if (dictionaryClassNames[dictName]) {
+                    classOperations.push(() => {
+                        contentContainer.classList.add(dictionaryClassNames[dictName]);
+                    });
+                }
+            }
+
+            // Apply all class additions in a single batch
+            if (classOperations.length > 0) {
+                requestAnimationFrame(() => {
+                    classOperations.forEach(operation => operation());
+                });
+            }
+        },
+
         init() {
             this.cacheElements();
             this.detectVerticalMode();
             this.identifyActiveDictionaries();
+            this.applyDictionaryClasses();
         }
     };
 
@@ -174,7 +218,6 @@
             // Only run features if their required elements exist
             { fn: handleEmptySentence, requires: ['sentence'] },
             { fn: handleDuplicateContent, requires: ['expression', 'reading', 'sentence'] },
-            { fn: loadDictionaryCssFiles, requires: [] },
             { fn: setupCyclableDefinitions, requires: ['definitionContainer'] },
             { fn: setupCollapsibleElements, requires: [] },
             { fn: handleImages, requires: [] },
@@ -257,35 +300,6 @@
             requestAnimationFrame(() => {
                 changes.forEach(change => change());
             });
-        }
-    }
-
-    // Feature: Load dictionary CSS files for dictionaries
-    function loadDictionaryCssFiles() {
-        const { cssFiles, activeDictionaries } = window.dictionaryContext;
-        const dictionariesToProcess = Object.keys(activeDictionaries);
-
-        if (dictionariesToProcess.length === 0) return;
-
-        // Create a document fragment for batch insertion
-        const fragment = document.createDocumentFragment();
-
-        dictionariesToProcess.forEach(dictionaryName => {
-            if (cssFiles[dictionaryName]) {
-                // Check if the CSS is already loaded
-                const existingLink = document.querySelector(`link[href="${cssFiles[dictionaryName]}"]`);
-                if (!existingLink) {
-                    const link = document.createElement("link");
-                    link.rel = "stylesheet";
-                    link.href = cssFiles[dictionaryName];
-                    fragment.appendChild(link);
-                }
-            }
-        });
-
-        // Add all links at once
-        if (fragment.childNodes.length > 0) {
-            document.head.appendChild(fragment);
         }
     }
 

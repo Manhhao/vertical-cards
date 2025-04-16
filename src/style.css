@@ -412,7 +412,7 @@ body[style*="vertical-rl"] #image-container {
 /* --- 用語集内のリンクを全部無効にする --- */
 /* ----------------------------------- */
 #glossary-container a,
-.yomitan-glossary a,
+a,
 li[data-dictionary] a {
     /* リンクのスタイリングを削除 */
     color: inherit !important;
@@ -427,14 +427,14 @@ li[data-dictionary] a {
 
 /* リンクのホバー効果がある場合も無効にする */
 #glossary-container a:hover,
-.yomitan-glossary a:hover,
+a:hover,
 li[data-dictionary] a:hover {
     color: inherit !important;
     background: none !important;
 }
 
 #glossary-container a::after,
-.yomitan-glossary a::after,
+a::after,
 li[data-dictionary] a::after {
     display: none !important;
 }
@@ -664,4 +664,1052 @@ li[data-dictionary] a::after {
     bottom: 18px;
     top: auto;
     transform: translateX(50%) rotate(135deg);
+}
+
+
+
+/* -------------------------- */
+/* --- 角川新字源スタイリング --- */
+/* -------------------------- */
+.card.nightMode .kadokawa-shinjigen {
+    --kadokawa-black: #dddddd;
+    --kadokawa-white: #000000;
+    --kadokawa-blue: #00aaff;
+    --kadokawa-red: #ff6666;
+    --kadokawa-pink: #aa6264;
+    --kadokawa-light-pink: #79474b;
+    --kadokawa-gogi-gray: #c8c8c8;
+    --kadokawa-light-gray: #777777;
+    --kadokawa-extra-light-gray: #333333;
+    --kadokawa-kodaimoji-branch-separator: #b0b0b0;
+    --kadokawa-kodaimoji-type-separator: #606060;
+    --kadokawa-canvas-background: rgb(30, 30, 30);
+    --kadokawa-jukugo-hyoki-color: rgb(101, 146, 201);
+
+    .kadokawa-shinjigen span[data-sc-kodaimojilistg] span[data-sc-img] {
+        -webkit-filter: invert(87%);
+        filter: invert(87%);
+    }
+}
+
+.kadokawa-shinjigen span[data-sc-head],
+.kadokawa-shinjigen span[data-sc-yomi][data-sc-w3],
+.kadokawa-shinjigen span[data-sc-okuri],
+.kadokawa-shinjigen span[data-sc-wari],
+.kadokawa-shinjigen span[data-sc-jukugoyomi],
+.kadokawa-shinjigen span[data-sc-jionrekishikana],
+.kadokawa-shinjigen span[data-sc-kaeriten][data-sc-w3] {
+    font-family: "SHINJIMinchoW3", "SHINJIMinchoW3 W3";
+}
+
+.kadokawa-shinjigen span[data-sc-kanji],
+.kadokawa-shinjigen span[data-sc-yomi],
+.kadokawa-shinjigen span[data-sc-kaeriten],
+.kadokawa-shinjigen span[data-sc-bimidashijic][data-sc-joyo] {
+    font-family: "SHINJIMinchoW7", "SHINJIMinchoW7 W7";
+}
+
+.kadokawa-shinjigen span[data-sc-rect],
+.kadokawa-shinjigen span[title="熟語義"],
+.kadokawa-shinjigen span[data-sc-rect_oval],
+.kadokawa-shinjigen span[data-sc-ref][data-sc-furoku],
+.kadokawa-shinjigen span[data-sc-kodaimojitype],
+.kadokawa-shinjigen span[data-sc-kokujilogo],
+.kadokawa-shinjigen span[data-sc-itaijilabel],
+.kadokawa-shinjigen span[data-sc-kokugoshisakulabel],
+.kadokawa-shinjigen span[data-sc-nocode],
+.kadokawa-shinjigen span[data-sc-kenjinumber],
+.kadokawa-shinjigen span[data-sc-circle],
+.kadokawa-shinjigen span[data-sc-circlenumber],
+.kadokawa-shinjigen span[data-sc-circlekana],
+.kadokawa-shinjigen span[data-sc-bracket],
+.kadokawa-shinjigen span[data-sc-busyukakusulabel],
+.kadokawa-shinjigen span[data-sc-busyubusyulabel],
+.kadokawa-shinjigen div[data-sc-busyuyomicontent],
+.kadokawa-shinjigen span[data-sc-busyukakusu] {
+    font-family: "Source Han Sans JP", "Hiragino Kaku Gothic ProN";
+}
+
+
+/* Show 古代文字 for horizontal layout */
+.kadokawa-shinjigen span[data-sc-kodaimojilistg] span[data-sc-img] > a > span {
+    width: 25em !important;
+    vertical-align: -7em !important;
+}
+
+/* I really cant make the images display inline in vertical mode for some reason */
+.vertical-mode .kadokawa-shinjigen span[data-sc-kodaimojilistg] {
+    display: none;
+}
+
+/* Hide 韻目 gaiji */
+.kadokawa-shinjigen span[data-sc-img][data-sc-gaiji_h],
+.kadokawa-shinjigen span[data-sc-img][data-sc-gaiji] {
+    display: none;
+}
+
+/* Completely hide the 熟語 section */
+.kadokawa-shinjigen div[data-sc-jukugog] {
+    display: none !important;
+}
+
+/* Hide the large kanji/itaiji tables */
+.kadokawa-shinjigen table[data-sc-kanjiinfoheadg],
+.kadokawa-shinjigen div[data-sc-kyujilistg],
+.kadokawa-shinjigen div[data-sc-itaijilistg] {
+    display: none !important;
+}
+
+/* --- Hidden by default but this fixes the table borders --- */
+.kadokawa-shinjigen td[data-sc-kanjibusyug],
+.kadokawa-shinjigen td[data-sc-kanjisoukakusug],
+.kadokawa-shinjigen td[data-sc-menkutencodeg],
+.kadokawa-shinjigen td[data-sc-itaijilabelg],
+.kadokawa-shinjigen td[data-sc-kokugoshisakulabelg],
+.kadokawa-shinjigen td[data-sc-unicodeg] {
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-top: solid 0.05em var(--kadokawa-black, black) !important;
+}
+
+.kadokawa-shinjigen td[data-sc-kenjinumberg][data-sc-oyaji],
+.kadokawa-shinjigen td[data-sc-kanjig][data-sc-oyaji] {
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-top: solid 0.23em var(--kadokawa-black, black) !important;
+}
+
+.kadokawa-shinjigen td[data-sc-kenjinumberg][data-sc-itaiji-kyuji],
+.kadokawa-shinjigen td[data-sc-kanjig][data-sc-itaiji-kyuji] {
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-top: solid 0.17em var(--kadokawa-black, black) !important;
+}
+
+
+.kadokawa-shinjigen div:has(span[data-sc-rect]) {
+    margin: 0.2em 0;
+}
+
+/* --- Margin fixes for vertical layout --- */
+.vertical-mode .kadokawa-shinjigen div:has(span[data-sc-rect]) {
+    margin: 0 0.2em;
+}
+
+.vertical-mode .kadokawa-shinjigen td[data-sc-kanjibusyug],
+.vertical-mode .kadokawa-shinjigen td[data-sc-kanjisoukakusug],
+.vertical-mode .kadokawa-shinjigen td[data-sc-menkutencodeg],
+.vertical-mode .kadokawa-shinjigen td[data-sc-itaijilabelg],
+.vertical-mode .kadokawa-shinjigen td[data-sc-kokugoshisakulabelg],
+.vertical-mode .kadokawa-shinjigen td[data-sc-unicodeg] {
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: solid 0.05em var(--kadokawa-black, black) !important;
+}
+
+.vertical-mode .kadokawa-shinjigen td[data-sc-kenjinumberg][data-sc-oyaji],
+.vertical-mode .kadokawa-shinjigen td[data-sc-kanjig][data-sc-oyaji] {
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: solid 0.23em var(--kadokawa-black, black) !important;
+}
+
+.vertical-mode .kadokawa-shinjigen td[data-sc-kenjinumberg][data-sc-itaiji-kyuji],
+.vertical-mode .kadokawa-shinjigen td[data-sc-kanjig][data-sc-itaiji-kyuji] {
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: solid 0.17em var(--kadokawa-black, black) !important;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-busyunumber] {
+    margin-left: 0 !important;
+    margin-top: 0.25em;
+    margin-right: 0 !important;
+    margin-bottom: 0.25em;
+}
+
+.vertical-mode .kadokawa-shinjigen td[data-sc-busyubusyug] {
+    margin-left: 0 !important;
+    margin-top: 0.5em;
+    margin-right: 0 !important;
+    margin-bottom: 0.2em;
+    margin-top: 0 !important;
+    margin-left: 0.3em;
+    margin-bottom: 0 !important;
+    margin-right: 0.3em;
+}
+
+.vertical-mode .kadokawa-shinjigen div[data-sc-itaijikyujiinfog] {
+    margin-top: 0 !important;
+    margin-left: 0.4em;
+}
+
+.vertical-mode .kadokawa-shinjigen div[data-sc-itaijikyujiinfog][data-sc-first] {
+    margin-top: 0 !important;
+    margin-left: 0.7em;
+}
+
+.vertical-mode .kadokawa-shinjigen table[data-sc-kanjiinfoheadg] {
+    margin-top: 0 !important;
+    margin-left: 0.25em;
+}
+
+.vertical-mode .kadokawa-shinjigen div[data-sc-busyuyomig] {
+    margin-left: 0 !important;
+    margin-top: 1em;
+    margin-bottom: 0 !important;
+    margin-right: 0.3em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-busyukakusu] {
+    margin-right: 0 !important;
+    margin-bottom: 0.25em;
+}
+
+.vertical-mode .kadokawa-shinjigen div[data-sc-bushubetsuindexg] {
+    margin-left: 0 !important;
+    margin-top: 1em;
+    margin-top: 0 !important;
+    margin-left: 0.4em;
+    margin-bottom: 0 !important;
+    margin-right: 0.4em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-bimidashiji] {
+    margin-left: 0 !important;
+    margin-top: 0.24em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-shinsetsumidashisubg] {
+    margin-right: 0 !important;
+    margin-bottom: 1em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-bimidashiji][data-sc-itaiji] {
+    margin-left: 0 !important;
+    margin-top: 0.013em;
+}
+
+.vertical-mode .kadokawa-shinjigen div[data-sc-shinsetsumidashig] {
+    margin-left: 0 !important;
+    margin-top: 1em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-shinsetsumidashiarrow] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .kadokawa-shinjigen td[data-sc-kanjig] {
+    margin-right: 0 !important;
+    margin-bottom: 0.2em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-kodaimojilistafterspace] {
+    margin-right: 0 !important;
+    margin-bottom: 0.3em;
+}
+
+.vertical-mode .kadokawa-shinjigen div[data-sc-onlistsubg][data-sc-sub] {
+    margin-left: 0 !important;
+    margin-top: 1.08em;
+}
+
+.vertical-mode .kadokawa-shinjigen div[data-sc-honmong] {
+    margin-top: 0 !important;
+}
+
+.vertical-mode .kadokawa-shinjigen div[data-sc-honmong][data-sc-jukugo-item] {
+    margin-left: 0 !important;
+    margin-top: 0.5em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-kodaimojilistg] {
+    margin-left: 0 !important;
+    margin-top: 0.118em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-kodaimojibranchg]+span[data-sc-kodaimojibranchg] {
+    margin-left: 0 !important;
+    margin-top: 0.1em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-kodaimojitypeg] {
+    margin-left: 0 !important;
+    margin-top: 0.05em;
+}
+
+.vertical-mode .kadokawa-shinjigen div[data-sc-imagecontentg] {
+    margin-left: 0 !important;
+    margin-top: 1em;
+    margin-right: 0 !important;
+    margin-bottom: 2em;
+    margin-top: 0 !important;
+    margin-left: 0.2em;
+    margin-bottom: 0 !important;
+    margin-right: 0.2em;
+}
+
+.vertical-mode .kadokawa-shinjigen div[data-sc-jukugog] {
+    margin-top: 0 !important;
+    margin-left: 0.5em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-source] {
+    margin-left: 0 !important;
+    margin-top: 0.2em;
+    margin-right: 0 !important;
+    margin-bottom: 0.2em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-jukugosubhead] {
+    margin-right: 0 !important;
+    margin-bottom: 0.5em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-example] {
+    margin-right: 0 !important;
+    margin-bottom: 0.5em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-rect][data-sc-small] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-circlenumber][data-sc-small],
+.vertical-mode .kadokawa-shinjigen span[data-sc-circlekana][data-sc-small] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-tate-c],
+.vertical-mode .kadokawa-shinjigen span[data-sc-tate_c] {
+    margin-left: 0 !important;
+    margin-top: 0.1em;
+    margin-right: 0 !important;
+    margin-bottom: -0.1em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-f-m] {
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-logo_-f-m] {
+    margin-right: 0 !important;
+    margin-bottom: 0.3em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-b-m] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-b-m2] {
+    margin-left: 0 !important;
+    margin-top: 0.2em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-i-m] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .kadokawa-shinjigen span[data-sc-i-m2] {
+    margin-left: 0 !important;
+    margin-top: 0.2em;
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+
+
+/* --------------------------------- */
+/* --- 三省堂全訳古語辞典スタイリング --- */
+/* --------------------------------- */
+.card.nightMode .skogo {
+    --skogo-black: #DDDDDD;
+    --skogo-white: #000000;
+    --skogo-blue: #00AAFF;
+    --skogo-red: #FF6666;
+    --skogo-light-red: #A54447;
+    --skogo-extra-light-red: #481D1E;
+    --skogo-hinshi-mark: #CCCCCC;
+    --skogo-shubetsu-mark: #CCCCCC;
+    --skogo-gendai-mark: #CCCCCC;
+}
+
+.skogo span[data-sc-body],
+.skogo span[data-sc見出歴史仮名],
+.skogo span[data-sc見出現代仮名],
+.skogo span[data-sc段落歴史仮名],
+.skogo span[data-sc段落現代仮名],
+.skogo span[data-sc中黒語義],
+.skogo span[data-sc-em][data-sc小書き],
+.skogo span[data-scルビ],
+.skogo span[data-sc返り点] {
+    font-family: "Hiragino Mincho ProN";
+}
+
+.skogo span[data-sc見出G],
+.skogo span[data-sc絵巻タイトル],
+.skogo span[data-scGendai見出],
+.skogo span[data-sc活用分節],
+.skogo span[data-sc語構成],
+.skogo span[data-sc-f-w-hyphen],
+.skogo span[data-sc活用表-label],
+.skogo span[data-sc詩歌全形],
+.skogo span[data-sc見出相当部],
+.skogo span[data-sc詩歌技法ロゴ],
+.skogo span[data-sc用例訳注ロゴ],
+.skogo span[data-sc参考ロゴ],
+.skogo span[data-sc注釈ロゴ],
+.skogo span[data-sc冒頭文ロゴテキスト],
+.skogo span[data-sc作品例ロゴテキスト],
+.skogo span[data-sc-em][data-sc-gothic],
+.skogo span[data-sc-em][data-sc赤],
+.skogo span[data-sc補説小見出],
+.skogo span[data-sc読解見出],
+.skogo span[data-sc現代見出],
+.skogo span[data-sc読解小見出],
+.skogo span[data-sc現代小見出],
+.skogo span[data-scチャート見出],
+.skogo span[data-sc付録参照ロゴ],
+.skogo span[data-sc絵巻図版],
+.skogo span[data-sc識別見出],
+.skogo td[data-sc識別ヘッダ項],
+.skogo span[data-sc識別説明],
+.skogo span[data-sc-gendai-ref品詞],
+.skogo span[data-sc-gendai-ref-品詞],
+.skogo span[data-sc-gendai-ref-desc],
+.skogo span[data-sc-gendai-ref-desc],
+.skogo span[data-sc-rectr] {
+    font-family: "Hiragino Kaku Gothic ProN";
+}
+
+.skogo span[data-sc-body] {
+    line-height: 1.4em;
+}
+
+/* Fix margins for vertical layout */
+.vertical-mode .skogo div[data-sc見出部] {
+    margin-left: 0 !important;
+    margin-top: 0.909em;
+}
+
+.vertical-mode .skogo span[data-sc-rank] {
+    margin-left: 0 !important;
+    margin-top: -0.44em;
+
+    margin-right: 0 !important;
+    margin-bottom: 0.1em;
+}
+
+.vertical-mode .skogo span[data-sc表記-g],
+.vertical-mode .skogo span[data-scチャート表記-g] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .skogo span[data-sc見出歴史仮名],
+.vertical-mode .skogo span[data-sc見出現代仮名],
+.vertical-mode .skogo span[data-sc段落歴史仮名],
+.vertical-mode .skogo span[data-sc段落現代仮名] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+
+    margin-right: 0 !important;
+    margin-bottom: 0.1em;
+}
+
+.vertical-mode .skogo span[data-sc活用語尾-g] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .skogo div[data-sc箇条書] {
+    margin-left: 0 !important;
+    margin-top: 1.15em;
+}
+
+.vertical-mode .skogo div[data-sc箇条書][data-sc-noindent] {
+    margin-top: 0;
+}
+
+.vertical-mode .skogo div[data-sc箇条書][data-sc-findent] {
+    margin-top: 0;
+}
+
+.vertical-mode .skogo table[data-sc箇条書][data-sc連結語義] {
+    margin-top: 0;
+}
+
+.vertical-mode .skogo span[data-sc括弧語義] {
+    margin-left: 0 !important;
+    margin-top: 0.1em;
+
+    margin-right: 0 !important;
+    margin-bottom: 0.1em;
+}
+
+.vertical-mode .skogo div[data-sc用例-g][data-sc-inline] {
+    margin-top: 0;
+}
+
+.vertical-mode .skogo span[data-sc文法情報],
+.vertical-mode .skogo span[data-sc百人一首] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .skogo span[data-sc言換イコール] {
+    margin-right: 0 !important;
+    margin-bottom: 0.1em;
+}
+
+.vertical-mode .skogo span[data-sc段落][data-sc字下0_1] {
+    margin-left: 0 !important;
+    margin-top: 1em;
+}
+
+.vertical-mode .skogo span[data-sc段落][data-sc字下1_1] {
+    margin-left: 0 !important;
+    margin-top: 1em;
+}
+
+.vertical-mode .skogo span[data-sc段落][data-sc字下2_2] {
+    margin-left: 0 !important;
+    margin-top: 2em;
+}
+
+.vertical-mode .skogo span[data-sc付録参照ロゴ] {
+    margin-left: 0 !important;
+    margin-top: 0.1em;
+
+    margin-right: 0 !important;
+    margin-bottom: 0.1em;
+}
+
+.vertical-mode .skogo table[data-sc識別-g] {
+    margin-left: 0 !important;
+    margin-top: 1em;
+}
+
+.vertical-mode .skogo span[data-sc列-c] {
+    margin-right: 0 !important;
+    margin-bottom: 1em;
+}
+
+.vertical-mode .skogo span[data-sc識別見出サブ] {
+    margin-left: 0 !important;
+    margin-top: 0.1em;
+}
+
+.vertical-mode .skogo span[data-sc-gendai-ref品詞],
+.vertical-mode .skogo span[data-sc-gendai-ref-品詞],
+.vertical-mode .skogo span[data-sc-gendai-ref-desc] {
+    margin-left: 0 !important;
+    margin-top: 0.25em;
+}
+
+.vertical-mode .skogo span[data-sc-gendai-ref-desc] {
+    margin-left: 0 !important;
+    margin-top: 0.25em;
+}
+
+.vertical-mode .skogo span[data-sc縦中横][data-sc-small] {
+    margin-left: 0 !important;
+    margin-top: 0.1em;
+
+    margin-right: 0 !important;
+    margin-bottom: 0.1em;
+}
+
+.vertical-mode .skogo [data-sc-b-m] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+}
+
+.vertical-mode .skogo [data-sc-i-m] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .skogo span[data-sc箇条書-h] {
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .skogo [data-sc-f-m] {
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .skogo [data-sc-logo_-f-m] {
+    margin-right: 0 !important;
+    margin-bottom: 0.3em;
+}
+
+.vertical-mode .skogo table[data-sc活用表] {
+    margin-top: 0 !important;
+    margin-right: 0.3em;
+
+    margin-bottom: 0 !important;
+    margin-left: 0.3em;
+}
+
+.vertical-mode .skogo div[data-sc語義要説-g] {
+    margin-top: 0 !important;
+    margin-right: 0.6em;
+
+    margin-bottom: 0 !important;
+    margin-left: 0.6em;
+}
+
+.vertical-mode .skogo div[data-sc関連語] {
+    margin-top: 0 !important;
+    margin-right: 0.3em;
+
+    margin-bottom: 0 !important;
+    margin-left: 0.3em;
+}
+
+.vertical-mode .skogo div[data-sc読解-g],
+.vertical-mode .skogo div[data-sc現代-g],
+.vertical-mode .skogo div[data-scチャート項目],
+.vertical-mode .skogo div[data-sc絵巻項目] {
+    margin-top: 0 !important;
+    margin-right: 0.4em;
+
+    margin-bottom: 0 !important;
+    margin-left: 0.4em;
+}
+
+.vertical-mode .skogo table[data-sc表-g] {
+    margin-top: 0 !important;
+    margin-right: 0.3em;
+
+    margin-bottom: 0 !important;
+    margin-left: 0.3em;
+}
+
+.vertical-mode .skogo div[data-sc-gendai-ref-g] {
+    margin-top: 0 !important;
+    margin-right: 0.4em;
+}
+
+.vertical-mode .skogo div[data-sc画像-g],
+.vertical-mode .skogo div[data-sc絵巻画像-g] {
+    margin-top: 0 !important;
+    margin-right: 0.3em;
+
+    margin-bottom: 0 !important;
+    margin-left: 0.3em;
+}
+
+
+
+/* ----------------------- */
+/* --- 旺文社全訳古語辞典 --- */
+/* ----------------------- */
+.card.nightMode .obunsha-kogo {
+	--ozk5-black: #DDDDDD;
+	--ozk5-white: #000000;
+	--ozk5-blue: #00AAFF;
+	--ozk5-red: #FF6666;
+	--ozk5-light-red: #B24747;
+	--ozk5-gray: #888;
+	--ozk5-hinshi-mark: #CCCCCC;
+	--ozk5-kakomi-border: #888;
+	--ozk5-metadata-background: #888;
+	--ozk5-example-katsuyou-mark: #AAAAAA;
+	--ozk5-mark-border: #ACAC04;
+	--ozk5-gogi-panel-header: #331414;
+	--ozk5-ruigo-panel-background: #CCCCCC;
+	--ozk5-ruigo-panel-border: #777;
+	--ozk5-appendix-title-background: #BF6666;
+	--ozk5-gendai-mark: #CCCCCC;
+}
+
+.obunsha-kogo [data-sc-audio_play_button],
+.obunsha-kogo [data-sc-audio_stop_button] {
+    display: none !important;
+}
+
+.obunsha-kogo span[data-sc-body],
+.obunsha-kogo span[data-sc巻頭カラーテキストタイトル] span[data-sc割],
+.obunsha-kogo span[data-sc-hyoki],
+.obunsha-kogo div[data-sc活用インライン-g],
+.obunsha-kogo span[data-sc参照矢印] {
+	font-family: "游明朝体 Pr6N", "Yu Mincho Pr6N";
+}
+
+.obunsha-kogo span[data-sc主見出],
+.obunsha-kogo div[data-sc用例メタデータ],
+.obunsha-kogo span[data-sc用例訳],
+.obunsha-kogo span[data-sc巻頭カラーテキストタイトル],
+.obunsha-kogo div[data-sc訳語-g],
+.obunsha-kogo span[data-sc活用タイトル],
+.obunsha-kogo div[data-sc活用型],
+.obunsha-kogo div[data-scパネルタイトル],
+.obunsha-kogo span[data-sc重点義タイトル],
+.obunsha-kogo div[data-scガイド大語義項],
+.obunsha-kogo td[data-scガイド項タイトル],
+.obunsha-kogo div[data-sc発展タイトル],
+.obunsha-kogo div[data-sc語の広がりタイトル],
+.obunsha-kogo div[data-sc敬語ガイドタイトル],
+.obunsha-kogo div[data-sc図解学習タイトル],
+.obunsha-kogo div[data-sc慣用表現タイトル],
+.obunsha-kogo span[data-sc発展-m],
+.obunsha-kogo span[data-sc語の広がり-m],
+.obunsha-kogo span[data-sc共通義タイトル],
+.obunsha-kogo td[data-sc類語項][data-sc語句],
+.obunsha-kogo div[data-sc識別ボードタイトル],
+.obunsha-kogo div[data-sc文法要語解説小見出],
+.obunsha-kogo span[data-sc-rect],
+.obunsha-kogo span[data-sc-rectr],
+.obunsha-kogo span[data-sc-circle],
+.obunsha-kogo span[data-sc語義-m],
+.obunsha-kogo span[data-sc小語義-m],
+.obunsha-kogo span[data-sc-bold],
+.obunsha-kogo span[data-sc-color],
+.obunsha-kogo span[data-sc-strong],
+.obunsha-kogo span[data-sc-gendai見出] {
+	font-family: "ヒラギノ角ゴシック", "Hiragino Kaku Gothic ProN", sans-serif;
+}
+
+.obunsha-kogo span[data-sc-img][data-sc-audio] {
+	display: none;
+}
+
+.obunsha-kogo div[data-sc用例囲み-g],
+.obunsha-kogo div[data-sc和歌俳句囲み-g],
+.obunsha-kogo div[data-sc冒頭文囲み-g],
+.obunsha-kogo div[data-sc小倉囲み-g] {
+	margin-top: 0 !important;
+}
+
+.vertical-mode .obunsha-kogo div[data-sc小倉参照] {
+	margin-top: 0.3em;
+}
+
+.vertical-mode .obunsha-kogo span[data-sc文法テキスト][data-sc文法インデント2],
+.vertical-mode .obunsha-kogo span[data-sc文法テキスト][data-sc文法インデント-2] {
+	margin-top: 2.0em !important;
+	margin-left: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo span[data-sc大語義インデックス][data-sc-l-m] {
+	margin-top: 0.2em;
+}
+
+.vertical-mode .obunsha-kogo div[data-sc活用インライン-g] {
+	margin-top: 0.6em;
+	margin-left: 0em !important;
+	/* font-family: "Yu Mincho Pr6N"; */
+}
+
+.vertical-mode .obunsha-kogo div[data-sc語義パネル語義][data-sc-n] {
+	margin-top: 1.15em;
+	margin-left: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo table[data-scガイド項][data-sc-l-m] {
+	margin-top: 2.15em;
+	margin-left: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo td[data-scガイド項テキスト] {
+	margin-top: 0.3em;
+	margin-left: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo div[data-sc接続大語義項] {
+	margin-top: 1.15em;
+	margin-left: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo span[data-sc-f-m] {
+	margin-bottom: 0.15em;
+	margin-right: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo span[data-sc-b-m] {
+	margin-top: 0.15em;
+	margin-left: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo span[data-sc-i-m] {
+	margin-top: 0.15em;
+	margin-left: 0em !important;
+	margin-bottom: 0.15em;
+	margin-right: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo span[data-scヘッドライン括弧番号] {
+	margin-top: 0.2em;
+	margin-left: 0em !important;
+	text-combine-upright: all;
+}
+
+.vertical-mode .obunsha-kogo span[data-sc文法要語nijyusen],
+.vertical-mode .obunsha-kogo span[data-sc文法要語-nijyusen] {
+	margin-top: 0.05em;
+	margin-left: 0em !important;
+	margin-bottom: 0.05em;
+	margin-right: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo div[data-sc用例-g] {
+	margin-top: 0.3em;
+	margin-left: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo div[data-sc用例み-g],
+.vertical-mode .obunsha-kogo div[data-sc用例訳-g] {
+	margin: 0.3em 0.1em !important;
+}
+
+.vertical-mode .obunsha-kogo div[data-sc用例囲み-g],
+.vertical-mode .obunsha-kogo div[data-sc和歌俳句囲み-g],
+.vertical-mode .obunsha-kogo div[data-sc冒頭文囲み-g],
+.vertical-mode .obunsha-kogo div[data-sc小倉囲み-g] {
+	margin-left: 0.2em;
+	margin-bottom: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo table[data-sc活用テーブル] {
+	margin-left: 0.4em;
+	margin-bottom: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo div[data-sc語義パネル-g],
+.vertical-mode .obunsha-kogo div[data-scガイド-g],
+.vertical-mode .obunsha-kogo div[data-sc接続囲み-g],
+.vertical-mode .obunsha-kogo div[data-sc類語パネル-g] {
+	margin-left: 0.4em;
+	margin-bottom: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo div[data-sc囲み-g] {
+	margin-left: 0.4em;
+	margin-bottom: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo div[data-sc囲み2-g],
+.vertical-mode .obunsha-kogo div[data-sc囲み-2-g] {
+	margin-left: 0.4em;
+	margin-bottom: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo div[data-sc囲み用例メタデータ],
+.vertical-mode .obunsha-kogo div[data-sc文法要語解説用例G],
+.vertical-mode .obunsha-kogo div[data-sc修辞解説用例G] {
+	margin-left: 0.2em;
+	margin-bottom: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo div[data-sc訳語-g] {
+	margin-left: 0.2em;
+}
+
+.vertical-mode .obunsha-kogo span[data-sc括弧番号] {
+	text-combine-upright: all;
+	margin-bottom: 0.1em;
+	margin-right: 0em !important;
+}
+
+.vertical-mode .obunsha-kogo span[data-sc活用タイトル] {
+	text-combine-upright: all;
+}
+
+.vertical-mode .obunsha-kogo span[data-sc縦中横] {
+	text-combine-upright: all;
+}
+
+.vertical-mode .obunsha-kogo span[data-sc-img][data-sc外字] {
+	text-combine-upright: all;
+}
+
+
+
+/* ------------------ */
+/* --- 明鏡国語辞典 --- */
+/* ------------------ */
+.card.nightMode .meikyo {
+    --meikyo-white: #000000;
+    --meikyo-black: #cccccc;
+    --meikyo-blue: #33ccff;
+    --meikyo-red: #ff3333;
+    --meikyo-gray: #bbbbbb;
+    --meikyo-pink: #cc6666;
+    --meikyo-dark-red: #993333;
+    --meikyo-fbox-white: #ffffff;
+    --meikyo-fbox-gray: #cccccc;
+    --meikyo-box-gray: #663333;
+}
+
+.meikyo span[data-sc-img][data-sc-audio] {
+    display: none;
+}
+
+.vertical-mode .meikyo span[data-sc-img][data-sc-gaiji] {
+    display: none !important;
+}
+
+.meikyo span[data-sc-img][data-sc-gaiji] > a > span {
+    width: 20em !important;
+    margin-right: 2em;
+    vertical-align: -4em !important;
+}
+
+.meikyo [data-sc-body],
+.meikyo span[data-sc-rect],
+.meikyo span[data-sc-katsuyo],
+.meikyo span[data-sc-headword][data-sc-class="旧かな"],
+.meikyo span[data-sc-fbox0],
+.meikyo span[data-sc-fbox],
+.meikyo span[data-sc-e-m],
+.meikyo span[data-sc-em],
+.meikyo div[data-sc-class="shikiri"] div[data-sc-meaning],
+.meikyo span[data-sc-meaning][data-sc-class="columntitle"],
+.meikyo div[data-sc-meaning][data-sc-class="columntitle"],
+.meikyo span[data-sc-b],
+.meikyo a,
+.meikyo span[data-sc-bc] {
+    font-family: "Hiragino Kaku Gothic ProN";
+}
+
+.meikyo div[data-sc-example],
+.meikyo span[data-sc-fbox][data-sc-class="品格"],
+.meikyo span[data-sc-headword][data-sc-class="表記"],
+.meikyo span[data-sc-headword][data-sc-class="原綴"],
+.meikyo span[data-sc-zoomkanji] {
+    font-family: "Hiragino Mincho ProN";
+}
+
+.meikyo span[data-sc-pron] {
+    font-family: "Doulos SIL";
+}
+
+.vertical-mode .meikyo [data-sc-child_item] {
+    margin-top: 0 !important;
+    margin-right: 0.5em;
+}
+
+.vertical-mode .meikyo [data-sc-column] {
+    margin-top: 0 !important;
+    margin-right: 0.5em;
+}
+
+.vertical-mode .meikyo div[data-sc-class="hinkaku"] {
+    margin-top: 0 !important;
+    margin-right: 0.5em;
+}
+
+.vertical-mode .meikyo div:has(> span[data-sc-zoomkanji]) {
+    margin-top: 0 !important;
+    margin-right: 0.8em;
+}
+
+.vertical-mode .meikyo [data-sc-class="ruigo-items"]+[data-sc-class="ruigo-items"] {
+    margin-top: 0 !important;
+    margin-right: 0.5em;
+}
+
+.vertical-mode .meikyo table[data-sc-class="img"] {
+    margin-top: 0 !important;
+    margin-right: 1em;
+}
+
+.vertical-mode .meikyo div[data-sc-head2] {
+    margin-top: 0 !important;
+    margin-right: 0.25em;
+}
+
+.vertical-mode .meikyo [data-sc-class="columntitle"] {
+    margin-bottom: 0 !important;
+    margin-left: 0.5em;
+}
+
+.vertical-mode .meikyo span[data-sc-bc] {
+    margin-right: 0 !important;
+    margin-bottom: 0.2em;
+}
+
+.vertical-mode .meikyo div[data-sc-class="shikiri"] td[data-sc-td][data-sc-class="red"] {
+    margin-right: 0 !important;
+    margin-bottom: 0.25em;
+}
+
+.vertical-mode .meikyo span[data-sc-fbox] {
+    margin-right: 0 !important;
+    margin-bottom: 0.25em;
+}
+
+.vertical-mode .meikyo span[data-sc-fbox0] {
+    margin-right: 0 !important;
+    margin-bottom: 0.25em;
+}
+
+.vertical-mode .meikyo span[data-sc-pos] {
+    margin-right: 0 !important;
+    margin-bottom: 0.5em;
+}
+
+.vertical-mode .meikyo span[data-sc-p-o-s] {
+    margin-right: 0 !important;
+    margin-bottom: 0.5em;
+}
+
+.vertical-mode .meikyo span[data-sc-p-os] {
+    margin-right: 0 !important;
+    margin-bottom: 0.5em;
+}
+
+.vertical-mode .meikyo span[data-sc-headword][data-sc-class="旧かな"] {
+    margin-left: 0 !important;
+    margin-top: 0.5em;
+}
+
+.vertical-mode .meikyo span[data-sc-katsuyo] {
+    margin-left: 0 !important;
+    margin-top: 0.25em;
+}
+
+.vertical-mode .meikyo span[data-sc-rect]+span[data-sc-rect] {
+    margin-left: 0 !important;
+    margin-top: 0.1em;
+}
+
+.vertical-mode .meikyo table[data-sc-class="img"] {
+    margin-left: 0 !important;
+    margin-top: 1em;
 }

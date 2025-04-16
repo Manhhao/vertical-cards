@@ -36,6 +36,7 @@ logs/
 dist/
 build/
 out/
+/test/
 
 config.json
 settings.json

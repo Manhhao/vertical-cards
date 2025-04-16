@@ -11,308 +11,355 @@
     --kadokawa-kodaimoji-branch-separator: #b0b0b0;
     --kadokawa-kodaimoji-type-separator: #606060;
     --kadokawa-canvas-background: rgb(30, 30, 30);
+    --kadokawa-jukugo-hyoki-color: rgb(101, 146, 201);
+
+    .yomitan-glossary span[data-sc-kodaimojilistg] span[data-sc-img] {
+        -webkit-filter: invert(87%);
+        filter: invert(87%);
+    }
 }
 
-.yomitan-glossary span[data-sc-kodaimojilistg] {
-    display: none !important;
+span[data-sc-head],
+span[data-sc-yomi][data-sc-w3],
+span[data-sc-okuri],
+span[data-sc-wari],
+span[data-sc-jukugoyomi],
+span[data-sc-jionrekishikana],
+span[data-sc-kaeriten][data-sc-w3] {
+    font-family: "SHINJIMinchoW3", "SHINJIMinchoW3 W3";
 }
 
+span[data-sc-kanji],
+span[data-sc-yomi],
+span[data-sc-kaeriten],
+span[data-sc-bimidashijic][data-sc-joyo] {
+    font-family: "SHINJIMinchoW7", "SHINJIMinchoW7 W7";
+}
+
+span[data-sc-rect],
+span[title="熟語義"],
+span[data-sc-rect_oval],
+span[data-sc-ref][data-sc-furoku],
+span[data-sc-kodaimojitype],
+span[data-sc-kokujilogo],
+span[data-sc-itaijilabel],
+span[data-sc-kokugoshisakulabel],
+span[data-sc-nocode],
+span[data-sc-kenjinumber],
+span[data-sc-circle],
+span[data-sc-circlenumber],
+span[data-sc-circlekana],
+span[data-sc-bracket],
+span[data-sc-busyukakusulabel],
+span[data-sc-busyubusyulabel],
+div[data-sc-busyuyomicontent],
+span[data-sc-busyukakusu] {
+    font-family: "Source Han Sans JP", "Hiragino Kaku Gothic ProN";
+}
+
+
+/* Show 古代文字 for horizontal layout */
+.yomitan-glossary span[data-sc-kodaimojilistg] span[data-sc-img] > a > span {
+    width: 25em !important;
+    vertical-align: -7em !important;
+}
+
+/* I really cant make the images display inline in vertical mode for some reason */
+.vertical-mode .yomitan-glossary span[data-sc-kodaimojilistg] {
+    display: none;
+}
+
+/* Hide 韻目 gaiji */
 .yomitan-glossary span[data-sc-img][data-sc-gaiji_h],
 .yomitan-glossary span[data-sc-img][data-sc-gaiji] {
     display: none;
 }
 
-.yomitan-glossary div[data-sc-jukugog],
-.yomitan-glossary span[data-sc-jukugohead] {
+/* Completely hide the 熟語 section */
+.yomitan-glossary div[data-sc-jukugog] {
     display: none !important;
 }
 
-@media (min-width: 601px) {
-
-    .yomitan-glossary td[data-sc-kanjibusyug],
-    .yomitan-glossary td[data-sc-kanjisoukakusug],
-    .yomitan-glossary td[data-sc-menkutencodeg],
-    .yomitan-glossary td[data-sc-itaijilabelg],
-    .yomitan-glossary td[data-sc-kokugoshisakulabelg],
-    .yomitan-glossary td[data-sc-unicodeg] {
-        border-top: none !important;
-        border-bottom: none !important;
-        border-left: none !important;
-        border-right: solid 0.05em var(--kadokawa-black, black) !important;
-    }
-
-    .yomitan-glossary td[data-sc-kenjinumberg][data-sc-oyaji],
-    .yomitan-glossary td[data-sc-kanjig][data-sc-oyaji] {
-        border-top: none !important;
-        border-bottom: none !important;
-        border-left: none !important;
-        border-right: solid 0.23em var(--kadokawa-black, black) !important;
-    }
-
-    .yomitan-glossary td[data-sc-kenjinumberg][data-sc-itaiji-kyuji],
-    .yomitan-glossary td[data-sc-kanjig][data-sc-itaiji-kyuji] {
-        border-top: none !important;
-        border-bottom: none !important;
-        border-left: none !important;
-        border-right: solid 0.17em var(--kadokawa-black, black) !important;
-    }
-
-    .yomitan-glossary span[data-sc-busyunumber] {
-        margin-left: 0 !important;
-        margin-top: 0.25em;
-
-        margin-right: 0 !important;
-        margin-bottom: 0.25em;
-    }
-
-    .yomitan-glossary td[data-sc-busyubusyug] {
-        margin-left: 0 !important;
-        margin-top: 0.5em;
-
-        margin-right: 0 !important;
-        margin-bottom: 0.2em;
-
-        margin-top: 0 !important;
-        margin-left: 0.3em;
-
-        margin-bottom: 0 !important;
-        margin-right: 0.3em;
-    }
-
-    .yomitan-glossary div[data-sc-itaijikyujiinfog] {
-        margin-top: 0 !important;
-        margin-left: 0.4em;
-    }
-    
-    .yomitan-glossary div[data-sc-itaijikyujiinfog][data-sc-first] {
-        margin-top: 0 !important;
-        margin-left: 0.7em;
-    }
-    
-    .yomitan-glossary table[data-sc-kanjiinfoheadg] {
-        margin-top: 0 !important;
-        margin-left: 0.25em;
-    }
-
-    .yomitan-glossary div[data-sc-busyuyomig] {
-        margin-left: 0 !important;
-        margin-top: 1em;
-
-        margin-bottom: 0 !important;
-        margin-right: 0.3em;
-    }
-
-    .yomitan-glossary span[data-sc-busyukakusu] {
-        margin-right: 0 !important;
-        margin-bottom: 0.25em;
-    }
-
-    .yomitan-glossary div[data-sc-bushubetsuindexg] {
-        margin-left: 0 !important;
-        margin-top: 1em;
-
-        margin-top: 0 !important;
-        margin-left: 0.4em;
-
-        margin-bottom: 0 !important;
-        margin-right: 0.4em;
-    }
-
-    .yomitan-glossary span[data-sc-bimidashiji] {
-        margin-left: 0 !important;
-        margin-top: 0.24em;
-    }
-
-    .yomitan-glossary span[data-sc-shinsetsumidashisubg] {
-        margin-right: 0 !important;
-        margin-bottom: 1em;
-    }
-
-    .yomitan-glossary span[data-sc-bimidashiji][data-sc-itaiji] {
-        margin-left: 0 !important;
-        margin-top: 0.013em;
-    }
-
-    .yomitan-glossary div[data-sc-shinsetsumidashig] {
-        margin-left: 0 !important;
-        margin-top: 1em;
-    }
-
-    .yomitan-glossary span[data-sc-shinsetsumidashiarrow] {
-        margin-left: 0 !important;
-        margin-top: 0.15em;
-
-        margin-right: 0 !important;
-        margin-bottom: 0.15em;
-    }
-
-    .yomitan-glossary td[data-sc-kanjig] {
-        margin-right: 0 !important;
-        margin-bottom: 0.2em;
-    }
-
-    .yomitan-glossary span[data-sc-kodaimojilistafterspace] {
-        margin-right: 0 !important;
-        margin-bottom: 0.3em;
-    }
-
-    .yomitan-glossary div[data-sc-onlistsubg][data-sc-sub] {
-        margin-left: 0 !important;
-        margin-top: 1.08em;
-    }
-
-    .yomitan-glossary div[data-sc-honmong] {
-        margin-top: 0 !important;
-        margin-left: 0.8em;
-    }
-
-    .yomitan-glossary div[data-sc-honmong][data-sc-jukugo-item] {
-        margin-left: 0 !important;
-        margin-top: 0.5em;
-    }
-
-    .yomitan-glossary span[data-sc-kodaimojilistg] {
-        margin-left: 0 !important;
-        margin-top: 0.118em;
-    }
-
-    .yomitan-glossary span[data-sc-kodaimojibranchg]+span[data-sc-kodaimojibranchg] {
-        margin-left: 0 !important;
-        margin-top: 0.1em;
-    }
-
-    .yomitan-glossary span[data-sc-kodaimojitypeg] {
-        margin-left: 0 !important;
-        margin-top: 0.05em;
-    }
-
-    .yomitan-glossary div[data-sc-imagecontentg] {
-        margin-left: 0 !important;
-        margin-top: 1em;
-
-        margin-right: 0 !important;
-        margin-bottom: 2em;
-
-        margin-top: 0 !important;
-        margin-left: 0.2em;
-
-        margin-bottom: 0 !important;
-        margin-right: 0.2em;
-    }
-
-    .yomitan-glossary div[data-sc-jukugog] {
-        margin-top: 0 !important;
-        margin-left: 0.5em;
-    }
-
-    .yomitan-glossary span[data-sc-source] {
-        margin-left: 0 !important;
-        margin-top: 0.2em;
-
-        margin-right: 0 !important;
-        margin-bottom: 0.2em;
-    }
-
-    .yomitan-glossary span[data-sc-jukugosubhead] {
-        margin-right: 0 !important;
-        margin-bottom: 0.5em;
-    }
-
-    .yomitan-glossary span[data-sc-example] {
-        margin-right: 0 !important;
-        margin-bottom: 0.5em;
-    }
-
-    .yomitan-glossary span[data-sc-rect][data-sc-small] {
-        margin-left: 0 !important;
-        margin-top: 0.15em;
-
-        margin-right: 0 !important;
-        margin-bottom: 0.15em;
-    }
-
-    .yomitan-glossary span[data-sc-circlenumber][data-sc-small],
-    .yomitan-glossary span[data-sc-circlekana][data-sc-small] {
-        margin-left: 0 !important;
-        margin-top: 0.15em;
-
-        margin-right: 0 !important;
-        margin-bottom: 0.15em;
-    }
-
-    .yomitan-glossary span[data-sc-tate-c],
-    .yomitan-glossary span[data-sc-tate_c] {
-        margin-left: 0 !important;
-        margin-top: 0.1em;
-
-        margin-right: 0 !important;
-        margin-bottom: -0.1em;
-    }
-
-    .yomitan-glossary span[data-sc-f-m] {
-        margin-right: 0 !important;
-        margin-bottom: 0.15em;
-    }
-
-    .yomitan-glossary span[data-sc-logo_-f-m] {
-        margin-right: 0 !important;
-        margin-bottom: 0.3em;
-    }
-
-    .yomitan-glossary span[data-sc-b-m] {
-        margin-left: 0 !important;
-        margin-top: 0.15em;
-    }
-
-    .yomitan-glossary span[data-sc-b-m2] {
-        margin-left: 0 !important;
-        margin-top: 0.2em;
-    }
-
-    .yomitan-glossary span[data-sc-i-m] {
-        margin-left: 0 !important;
-        margin-top: 0.15em;
-
-        margin-right: 0 !important;
-        margin-bottom: 0.15em;
-    }
-
-    .yomitan-glossary span[data-sc-i-m2] {
-        margin-left: 0 !important;
-        margin-top: 0.2em;
-
-        margin-right: 0 !important;
-        margin-bottom: 0.15em;
-    }
+/* Hide the large kanji/itaiji tables */
+table[data-sc-kanjiinfoheadg],
+div[data-sc-kyujilistg],
+div[data-sc-itaijilistg] {
+    display: none !important;
 }
 
-@media (max-width: 600px) {
+/* --- Hidden by default but this fixes the table borders --- */
+.yomitan-glossary td[data-sc-kanjibusyug],
+.yomitan-glossary td[data-sc-kanjisoukakusug],
+.yomitan-glossary td[data-sc-menkutencodeg],
+.yomitan-glossary td[data-sc-itaijilabelg],
+.yomitan-glossary td[data-sc-kokugoshisakulabelg],
+.yomitan-glossary td[data-sc-unicodeg] {
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-top: solid 0.05em var(--kadokawa-black, black) !important;
+}
 
-    .yomitan-glossary td[data-sc-kanjibusyug],
-    .yomitan-glossary td[data-sc-kanjisoukakusug],
-    .yomitan-glossary td[data-sc-menkutencodeg],
-    .yomitan-glossary td[data-sc-itaijilabelg],
-    .yomitan-glossary td[data-sc-kokugoshisakulabelg],
-    .yomitan-glossary td[data-sc-unicodeg] {
-        border-right: none !important;
-        border-bottom: none !important;
-        border-left: none !important;
-        border-top: solid 0.05em var(--kadokawa-black, black) !important;
-    }
+.yomitan-glossary td[data-sc-kenjinumberg][data-sc-oyaji],
+.yomitan-glossary td[data-sc-kanjig][data-sc-oyaji] {
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-top: solid 0.23em var(--kadokawa-black, black) !important;
+}
 
-    .yomitan-glossary td[data-sc-kenjinumberg][data-sc-oyaji],
-    .yomitan-glossary td[data-sc-kanjig][data-sc-oyaji] {
-        border-right: none !important;
-        border-bottom: none !important;
-        border-left: none !important;
-        border-top: solid 0.23em var(--kadokawa-black, black) !important;
-    }
+.yomitan-glossary td[data-sc-kenjinumberg][data-sc-itaiji-kyuji],
+.yomitan-glossary td[data-sc-kanjig][data-sc-itaiji-kyuji] {
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-top: solid 0.17em var(--kadokawa-black, black) !important;
+}
 
-    .yomitan-glossary td[data-sc-kenjinumberg][data-sc-itaiji-kyuji],
-    .yomitan-glossary td[data-sc-kanjig][data-sc-itaiji-kyuji] {
-        border-right: none !important;
-        border-bottom: none !important;
-        border-left: none !important;
-        border-top: solid 0.17em var(--kadokawa-black, black) !important;
-    }
+
+.yomitan-glossary div:has(span[data-sc-rect]) {
+    margin: 0.2em 0;
+}
+
+/* --- Margin fixes for vertical layout --- */
+.vertical-mode .yomitan-glossary div:has(span[data-sc-rect]) {
+    margin: 0 0.2em;
+}
+
+.vertical-mode .yomitan-glossary td[data-sc-kanjibusyug],
+.vertical-mode .yomitan-glossary td[data-sc-kanjisoukakusug],
+.vertical-mode .yomitan-glossary td[data-sc-menkutencodeg],
+.vertical-mode .yomitan-glossary td[data-sc-itaijilabelg],
+.vertical-mode .yomitan-glossary td[data-sc-kokugoshisakulabelg],
+.vertical-mode .yomitan-glossary td[data-sc-unicodeg] {
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: solid 0.05em var(--kadokawa-black, black) !important;
+}
+
+.vertical-mode .yomitan-glossary td[data-sc-kenjinumberg][data-sc-oyaji],
+.vertical-mode .yomitan-glossary td[data-sc-kanjig][data-sc-oyaji] {
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: solid 0.23em var(--kadokawa-black, black) !important;
+}
+
+.vertical-mode .yomitan-glossary td[data-sc-kenjinumberg][data-sc-itaiji-kyuji],
+.vertical-mode .yomitan-glossary td[data-sc-kanjig][data-sc-itaiji-kyuji] {
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: solid 0.17em var(--kadokawa-black, black) !important;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-busyunumber] {
+    margin-left: 0 !important;
+    margin-top: 0.25em;
+    margin-right: 0 !important;
+    margin-bottom: 0.25em;
+}
+
+.vertical-mode .yomitan-glossary td[data-sc-busyubusyug] {
+    margin-left: 0 !important;
+    margin-top: 0.5em;
+    margin-right: 0 !important;
+    margin-bottom: 0.2em;
+    margin-top: 0 !important;
+    margin-left: 0.3em;
+    margin-bottom: 0 !important;
+    margin-right: 0.3em;
+}
+
+.vertical-mode .yomitan-glossary div[data-sc-itaijikyujiinfog] {
+    margin-top: 0 !important;
+    margin-left: 0.4em;
+}
+
+.vertical-mode .yomitan-glossary div[data-sc-itaijikyujiinfog][data-sc-first] {
+    margin-top: 0 !important;
+    margin-left: 0.7em;
+}
+
+.vertical-mode .yomitan-glossary table[data-sc-kanjiinfoheadg] {
+    margin-top: 0 !important;
+    margin-left: 0.25em;
+}
+
+.vertical-mode .yomitan-glossary div[data-sc-busyuyomig] {
+    margin-left: 0 !important;
+    margin-top: 1em;
+    margin-bottom: 0 !important;
+    margin-right: 0.3em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-busyukakusu] {
+    margin-right: 0 !important;
+    margin-bottom: 0.25em;
+}
+
+.vertical-mode .yomitan-glossary div[data-sc-bushubetsuindexg] {
+    margin-left: 0 !important;
+    margin-top: 1em;
+    margin-top: 0 !important;
+    margin-left: 0.4em;
+    margin-bottom: 0 !important;
+    margin-right: 0.4em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-bimidashiji] {
+    margin-left: 0 !important;
+    margin-top: 0.24em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-shinsetsumidashisubg] {
+    margin-right: 0 !important;
+    margin-bottom: 1em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-bimidashiji][data-sc-itaiji] {
+    margin-left: 0 !important;
+    margin-top: 0.013em;
+}
+
+.vertical-mode .yomitan-glossary div[data-sc-shinsetsumidashig] {
+    margin-left: 0 !important;
+    margin-top: 1em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-shinsetsumidashiarrow] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .yomitan-glossary td[data-sc-kanjig] {
+    margin-right: 0 !important;
+    margin-bottom: 0.2em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-kodaimojilistafterspace] {
+    margin-right: 0 !important;
+    margin-bottom: 0.3em;
+}
+
+.vertical-mode .yomitan-glossary div[data-sc-onlistsubg][data-sc-sub] {
+    margin-left: 0 !important;
+    margin-top: 1.08em;
+}
+
+.vertical-mode .yomitan-glossary div[data-sc-honmong] {
+    margin-top: 0 !important;
+}
+
+.vertical-mode .yomitan-glossary div[data-sc-honmong][data-sc-jukugo-item] {
+    margin-left: 0 !important;
+    margin-top: 0.5em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-kodaimojilistg] {
+    margin-left: 0 !important;
+    margin-top: 0.118em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-kodaimojibranchg]+span[data-sc-kodaimojibranchg] {
+    margin-left: 0 !important;
+    margin-top: 0.1em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-kodaimojitypeg] {
+    margin-left: 0 !important;
+    margin-top: 0.05em;
+}
+
+.vertical-mode .yomitan-glossary div[data-sc-imagecontentg] {
+    margin-left: 0 !important;
+    margin-top: 1em;
+    margin-right: 0 !important;
+    margin-bottom: 2em;
+    margin-top: 0 !important;
+    margin-left: 0.2em;
+    margin-bottom: 0 !important;
+    margin-right: 0.2em;
+}
+
+.vertical-mode .yomitan-glossary div[data-sc-jukugog] {
+    margin-top: 0 !important;
+    margin-left: 0.5em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-source] {
+    margin-left: 0 !important;
+    margin-top: 0.2em;
+    margin-right: 0 !important;
+    margin-bottom: 0.2em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-jukugosubhead] {
+    margin-right: 0 !important;
+    margin-bottom: 0.5em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-example] {
+    margin-right: 0 !important;
+    margin-bottom: 0.5em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-rect][data-sc-small] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-circlenumber][data-sc-small],
+.vertical-mode .yomitan-glossary span[data-sc-circlekana][data-sc-small] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-tate-c],
+.vertical-mode .yomitan-glossary span[data-sc-tate_c] {
+    margin-left: 0 !important;
+    margin-top: 0.1em;
+    margin-right: 0 !important;
+    margin-bottom: -0.1em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-f-m] {
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-logo_-f-m] {
+    margin-right: 0 !important;
+    margin-bottom: 0.3em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-b-m] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-b-m2] {
+    margin-left: 0 !important;
+    margin-top: 0.2em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-i-m] {
+    margin-left: 0 !important;
+    margin-top: 0.15em;
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
+}
+
+.vertical-mode .yomitan-glossary span[data-sc-i-m2] {
+    margin-left: 0 !important;
+    margin-top: 0.2em;
+    margin-right: 0 !important;
+    margin-bottom: 0.15em;
 }
