@@ -39,28 +39,6 @@ A lovely card template for Anki that I've made for my Yomitan dictionaries. Gran
 1. Pop over to the [releases page](https://github.com/kiwakiwaa/vertical-cards/releases) and download the latest version
 2. Import it into your Anki
 3. Create a new note type or tweak an existing one to use this template
-4. **Important for dictionary styling**: If you're using one of my Yomitan dictionaries and want the proper styling, you'll need to copy the CSS files from the `dictionary-css` folder to your Anki media collection folder
-
-### Finding your Anki media collection folder
-
-Your Anki media collection is typically located at:
-
-**Mac**: 
-```
-/Users/username/Library/Application Support/Anki2/YourProfileName/collection.media/
-```
-
-**Windows**: 
-```
-C:\Users\username\AppData\Roaming\Anki2\YourProfileName\collection.media\
-```
-
-**Linux**: 
-```
-/home/username/.local/share/Anki2/YourProfileName/collection.media/
-```
-
-Replace `username` with your system username and `YourProfileName` with the name of your Anki profile (usually "User 1" if you haven't changed it).
 
 ## My yomitan dictionaries
 

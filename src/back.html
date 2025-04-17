@@ -1,24 +1,29 @@
+<div id="writing-mode-toggle-container">
+    <label class="writing-mode-switch">
+        <input type="checkbox" id="writing-mode-toggle" checked>
+        <span class="slider round"></span>
+        <span class="toggle-label">縦書き</span>
+    </label>
+</div>
+
 <div class="center-wrapper back">
     <div id="container">
-        <div id="dictname" style="position: relative; right: 0; top: 0; margin-bottom: 0.5em;">{{DictionaryName}}</div>
-
+        <div id="dictname">{{DictionaryName}}</div>
         <div id="header-container">
-            <div class="audio-buttons">
-                <div class="word-audio">{{Audio}}</div>
-                <div class="sentence-audio">{{SentenceAudio}}</div>
-            </div>
             <div class="header-main-content">
                 <div id="expression">{{Word}}</div>
                 <div id="reading">{{Reading}}</div>
             </div>
+            <div class="audio-buttons">
+                <div class="word-audio">{{Audio}}</div>
+                <div class="sentence-audio">{{SentenceAudio}}</div>
+            </div>
         </div>
-
         <div id="content-container">
             <div id="glossary-container">
                 <div id="definition">{{Glossary}}</div>
                 <div id="sentence">{{Sentence}}</div>
             </div>
-
             <div id="image-container">
                 <div id="image">{{Picture}}</div>
             </div>
@@ -34,7 +39,9 @@
             "旺文社 全訳古語辞典": "obunsha-kogo",
             "角川新字源 改訂新版": "kadokawa-shinjigen",
             "明鏡国語辞典 第三版": "meikyo",
-            "大辞泉 第二版": "daijisen"
+            "大辞泉 第二版": "daijisen",
+            "漢検漢字辞典　第二版": "kankenkj2",
+            "新明解国語辞典　第八版": "smk8"
         },
 
         collapsibleSelectors: {
@@ -66,70 +73,85 @@
             "default": "div[data-sc画像-g], .image-container, .figure, figure, .img-container"
         },
 
-        elements: {
-            dictionaryEntries: null,
-            collapsibleContents: null,
-            definitionContainer: null,
-            contentContainer: null,
-            dictname: null,
-            expression: null,
-            reading: null,
-            sentence: null,
-            imageDiv: null,
-            imageContainer: null,
-            centerWrapperBack: null
-        },
-
+        // Cache elements centrally to avoid repeated DOM queries
+        elements: {},
         activeDictionaries: {},
         isVertical: false,
+        initialized: false,
 
+        userPreferences: {
+            tategakiEnabled: true
+        },
+
+        // Modify the detectVerticalMode method
         detectVerticalMode() {
-            const wasVertical = this.isVertical;
-            this.isVertical = window.getComputedStyle(document.body).writingMode === 'vertical-rl';
+            if (!this.elements.contentContainer) return false;
 
-            // Only modify classes if the mode has changed
-            if (wasVertical !== this.isVertical) {
-                document.body.classList.toggle('vertical-mode', this.isVertical);
+            const contentContainer = this.elements.contentContainer;
 
-                // Apply to content container
-                if (this.elements.contentContainer) {
-                    this.elements.contentContainer.classList.toggle('vertical-mode', this.isVertical);
-                }
+            // Check if mobile view (which should always be horizontal)
+            const isMobileView = window.innerWidth <= 600;
+
+            if (isMobileView) {
+                // Force horizontal mode on mobile
+                this.isVertical = false;
+                contentContainer.classList.remove('vertical-mode');
+                contentContainer.classList.add('horizontal-mode');
+            } else {
+                // On desktop, use the user preference
+                this.isVertical = this.userPreferences.tategakiEnabled;
+                contentContainer.classList.toggle('vertical-mode', this.isVertical);
+                contentContainer.classList.toggle('horizontal-mode', !this.isVertical);
             }
 
             return this.isVertical;
         },
 
-        cacheElements() {
-            // Cache common elements in a single pass
-            const elementsToCache = {
-                dictionaryEntries: "li[data-dictionary]",
-                definitionContainer: "definition",
-                contentContainer: "content-container",
-                dictname: "dictname",
-                expression: "expression",
-                reading: "reading",
-                sentence: "sentence",
-                imageDiv: "image",
-                imageContainer: "image-container",
-                centerWrapperBack: ".center-wrapper.back"
-            };
-
-            // Process id-based selectors
-            for (const [key, selector] of Object.entries(elementsToCache)) {
-                if (selector.startsWith("#")) {
-                    this.elements[key] = document.querySelector(selector);
-                } else if (selector.startsWith(".")) {
-                    this.elements[key] = document.querySelector(selector);
-                } else if (selector.includes("[")) {
-                    this.elements[key] = document.querySelectorAll(selector);
-                } else {
-                    this.elements[key] = document.getElementById(selector);
-                }
+        // Add a method to toggle writing mode
+        toggleWritingMode(enabled) {
+            if (typeof enabled === 'boolean') {
+                this.userPreferences.tategakiEnabled = enabled;
+            } else {
+                this.userPreferences.tategakiEnabled = !this.userPreferences.tategakiEnabled;
             }
 
-            // Cache collapsible contents separately as it might be dynamically created later
-            this.elements.collapsibleContents = document.querySelectorAll('.collapsible-content');
+            // Save preference to localStorage
+            localStorage.setItem('tategakiEnabled', this.userPreferences.tategakiEnabled);
+
+            // Update the UI
+            this.detectVerticalMode();
+
+            // Update toggle if it exists
+            const toggle = document.getElementById('writing-mode-toggle');
+            if (toggle) {
+                toggle.checked = this.userPreferences.tategakiEnabled;
+            }
+
+            // Trigger a resize event to refresh any components that depend on writing mode
+            window.dispatchEvent(new Event('resize'));
+        },
+
+
+        cacheElements() {
+            const selectors = {
+                dictionaryEntries: { selector: "li[data-dictionary]", all: true },
+                definitionContainer: { selector: "#definition" },
+                contentContainer: { selector: "#content-container" },
+                dictname: { selector: "#dictname" },
+                expression: { selector: "#expression" },
+                reading: { selector: "#reading" },
+                sentence: { selector: "#sentence" },
+                imageDiv: { selector: "#image" },
+                imageContainer: { selector: "#image-container" },
+                centerWrapperBack: { selector: ".center-wrapper.back" }
+            };
+
+            // Cache all elements in a single batch
+            for (const [key, { selector, all }] of Object.entries(selectors)) {
+                this.elements[key] = all
+                    ? document.querySelectorAll(selector)
+                    : document.querySelector(selector);
+            }
         },
 
         identifyActiveDictionaries() {
@@ -139,131 +161,142 @@
             }
 
             this.activeDictionaries = {};
-
-            // Find dictionaries from list items
             const entries = this.elements.dictionaryEntries;
+
             if (entries && entries.length > 0) {
-                entries.forEach((entry) => {
+                entries.forEach(entry => {
                     const dictName = entry.getAttribute("data-dictionary");
                     if (dictName) {
                         this.activeDictionaries[dictName] = true;
                     }
                 });
             }
-            // If no dictionaries found in list items, check the DictionaryName field
             else if (this.elements.dictname && this.elements.dictname.textContent.trim()) {
-                const dictionaryName = this.elements.dictname.textContent.trim();
-                this.activeDictionaries[dictionaryName] = true;
+                this.activeDictionaries[this.elements.dictname.textContent.trim()] = true;
             }
 
             return Object.keys(this.activeDictionaries);
         },
 
-        // Apply dictionary-specific class names
         applyDictionaryClasses() {
-            const { dictionaryClassNames, activeDictionaries } = window.dictionaryContext;
+            const { dictionaryClassNames, activeDictionaries } = this;
             const dictionariesToProcess = Object.keys(activeDictionaries);
 
             if (dictionariesToProcess.length === 0) return;
 
-            const contentContainer = window.dictionaryContext.elements.contentContainer;
-            const entries = window.dictionaryContext.elements.dictionaryEntries;
+            const entries = this.elements.dictionaryEntries;
+            const definitionContainer = this.elements.definitionContainer;
 
-            const classOperations = [];
-
-            // Process individual dictionary entries (li elements)
-            if (entries && entries.length > 0) {
-                entries.forEach(entry => {
-                    const dictName = entry.getAttribute("data-dictionary");
-                    if (dictName && dictionaryClassNames[dictName]) {
-                        classOperations.push(() => {
+            requestAnimationFrame(() => {
+                // Process individual dictionary entries
+                if (entries && entries.length > 0) {
+                    entries.forEach(entry => {
+                        const dictName = entry.getAttribute("data-dictionary");
+                        if (dictName && dictionaryClassNames[dictName]) {
                             entry.classList.add(dictionaryClassNames[dictName]);
-                        });
-                    }
-                });
-            }
-
-            // Process the main container (for single dictionary view)
-            if (contentContainer && dictionariesToProcess.length === 1) {
-                const dictName = dictionariesToProcess[0];
-                if (dictionaryClassNames[dictName]) {
-                    classOperations.push(() => {
-                        contentContainer.classList.add(dictionaryClassNames[dictName]);
+                        }
                     });
                 }
-            }
 
-            // Apply all class additions in a single batch
-            if (classOperations.length > 0) {
-                requestAnimationFrame(() => {
-                    classOperations.forEach(operation => operation());
-                });
-            }
+                // Process the main container (for single dictionary view)
+                if (definitionContainer && dictionariesToProcess.length === 1) {
+                    const dictName = dictionariesToProcess[0];
+                    if (dictionaryClassNames[dictName]) {
+                        definitionContainer.classList.add(dictionaryClassNames[dictName]);
+                    }
+                }
+            });
         },
 
+        // Initialise everything at once
         init() {
+            if (this.initialized) return;
+
+            // Load saved preference
+            const savedPreference = localStorage.getItem('tategakiEnabled');
+            if (savedPreference !== null) {
+                this.userPreferences.tategakiEnabled = savedPreference === 'true';
+            }
+
             this.cacheElements();
             this.detectVerticalMode();
             this.identifyActiveDictionaries();
             this.applyDictionaryClasses();
+
+            this.initialized = true;
         }
     };
 
     function initializeDictionaryCard() {
+        if (!window.dictionaryContext) return;
+
         window.dictionaryContext.init();
 
-        // Run the features that have their required elements
+        // feature operations with their requirements
         const ctx = window.dictionaryContext;
         const features = [
-            // Only run features if their required elements exist
             { fn: handleEmptySentence, requires: ['sentence'] },
             { fn: handleDuplicateContent, requires: ['expression', 'reading', 'sentence'] },
             { fn: setupCyclableDefinitions, requires: ['definitionContainer'] },
             { fn: setupCollapsibleElements, requires: [] },
             { fn: handleImages, requires: [] },
             { fn: hideEmptyImageContainer, requires: ['imageContainer', 'imageDiv'] },
-            { fn: setupAdaptiveMargin, requires: ['contentContainer', 'centerWrapperBack'] }
+            { fn: setupWritingModeToggle, requires: [] }
         ];
 
-        // Batch DOM reads first
+        // First check which elements exist
         const elementsExist = {};
         for (const key in ctx.elements) {
             elementsExist[key] = ctx.elements[key] !== null &&
                 !(ctx.elements[key] instanceof NodeList && ctx.elements[key].length === 0);
         }
 
-        const pendingOperations = [];
+        // Collect all operations that can run
+        const operationsToRun = features
+            .filter(feature => feature.requires.every(elem => elementsExist[elem]))
+            .map(feature => feature.fn);
 
-        // Check which features to run
-        features.forEach(feature => {
-            const canRun = feature.requires.every(elem => elementsExist[elem]);
-            if (canRun) {
-                pendingOperations.push(feature.fn);
-            }
+        // Execute all operations together in a single animation frame
+        if (operationsToRun.length > 0) {
+            requestAnimationFrame(() => {
+                operationsToRun.forEach(operation => operation());
+
+                // Setup event listeners after all operations are complete
+                setupGlobalEventListeners();
+            });
+        }
+    }
+
+    // Add a new feature function for the tategaki toggle
+    function setupWritingModeToggle() {
+        const { contentContainer } = window.dictionaryContext.elements;
+        const toggle = document.getElementById('writing-mode-toggle');
+
+        if (!toggle || !contentContainer) return;
+
+        // Set initial state based on dictionary context
+        toggle.checked = window.dictionaryContext.userPreferences.tategakiEnabled;
+
+        // Add change event listener
+        toggle.addEventListener('change', function () {
+            window.dictionaryContext.toggleWritingMode(this.checked);
         });
 
-        // Batch DOM writes with requestAnimationFrame
-        requestAnimationFrame(() => {
-            pendingOperations.forEach(operation => operation());
-
-            // Setup event listeners after all DOM operations
-            setupGlobalEventListeners();
-        });
+        // Initial check for mobile view
+        if (window.innerWidth <= 600) {
+            toggle.parentElement.parentElement.style.display = 'none';
+        }
     }
 
     // Feature: Hide image container if it's empty
     function hideEmptyImageContainer() {
         const { imageDiv, imageContainer } = window.dictionaryContext.elements;
-
         if (!imageContainer) return;
 
-        // Check if the image div is empty or only contains whitespace
-        const isEmpty = !imageDiv ||
-            (imageDiv.getElementsByTagName('img').length === 0 &&
-                imageDiv.innerText.trim() === '');
+        const hasImages = imageDiv && imageDiv.getElementsByTagName('img').length > 0;
+        const hasText = imageDiv && imageDiv.innerText.trim() !== '';
 
-        // Hide the container if empty
-        if (isEmpty) {
+        if (!hasImages && !hasText) {
             imageContainer.style.display = 'none';
         }
     }
@@ -280,38 +313,41 @@
     function handleDuplicateContent() {
         const { expression, reading, sentence } = window.dictionaryContext.elements;
 
-        // Batch DOM reads
-        const expressionText = expression ? expression.textContent.trim() : null;
+        if (!expression) return;
+
+        const expressionText = expression.textContent.trim();
         const readingText = reading ? reading.textContent.trim() : null;
         const sentenceText = sentence ? sentence.textContent.trim() : null;
 
-        const changes = [];
+        requestAnimationFrame(() => {
+            if (reading && expressionText === readingText) {
+                reading.style.display = "none";
+            }
 
-        if (expression && reading && expressionText === readingText) {
-            changes.push(() => reading.style.display = "none");
-        }
-
-        if (expression && sentence && expressionText === sentenceText) {
-            changes.push(() => sentence.style.display = "none");
-        }
-
-        // Apply all changes at once
-        if (changes.length > 0) {
-            requestAnimationFrame(() => {
-                changes.forEach(change => change());
-            });
-        }
+            if (sentence && expressionText === sentenceText) {
+                sentence.style.display = "none";
+            }
+        });
     }
 
-    // Feature: Cyclable definitions
+    // Update the setupCyclableDefinitions function to prevent the flash
+    // Update to setupCyclableDefinitions function to use dictionary names
     function setupCyclableDefinitions() {
         const definitionContainer = window.dictionaryContext.elements.definitionContainer;
         if (!definitionContainer) return;
 
-        const definitionItems = definitionContainer.querySelectorAll("li");
-        if (definitionItems.length <= 1) return; // No need for cycling if only one definition
+        const definitionItems = Array.from(definitionContainer.querySelectorAll("li[data-dictionary]"));
+        if (definitionItems.length <= 1) return; // No need for cycling
 
-        // Create elements needed for cycling
+        // Hide all definition items initially to prevent flash
+        definitionItems.forEach(item => item.style.display = "none");
+
+        // Only show the first one by default until proper calculation
+        if (definitionItems[0]) {
+            definitionItems[0].style.display = "";
+        }
+
+        // Create all UI elements in fragment
         const fragment = document.createDocumentFragment();
         const counterElement = document.createElement("div");
         const leftEdge = document.createElement("div");
@@ -328,187 +364,242 @@
         const containerToUse = window.dictionaryContext.elements.contentContainer || definitionContainer;
         containerToUse.style.position = "relative";
 
-        // Set initial state - hide all definitions except the first one
-        let currentIndex = 0;
-        for (let i = 1; i < definitionItems.length; i++) {
-            definitionItems[i].style.display = "none";
-        }
+        let currentStartIndex = 0;
+        let visibleCount = 1;
+        const totalDefinitions = definitionItems.length;
 
-        // Set counter text
-        counterElement.textContent = `1/${definitionItems.length}`;
-
-        // Batch DOM manipulation
-        requestAnimationFrame(() => {
-            containerToUse.appendChild(fragment);
-            adjustCyclablePositions();
+        // Map of dictionary indices to their names for display
+        const dictionaryNames = definitionItems.map(item => {
+            const dictName = item.getAttribute("data-dictionary");
+            return dictName || `辞書 ${definitionItems.indexOf(item) + 1}`; // Use generic name if none provided
         });
 
-        // Function to cycle to the next definition - Will run on user interaction, not during init
-        function cycleDefinition(direction) {
-            // Cache the elements for performance
-            const oldElement = definitionItems[currentIndex];
+        let lastMeasuredWidth = 0;
+        let lastMeasuredHeight = 0;
+        let hasCalculatedInitialLayout = false;
 
-            // Calculate new index
-            currentIndex = direction === "next"
-                ? (currentIndex + 1) % definitionItems.length
-                : (currentIndex - 1 + definitionItems.length) % definitionItems.length;
+        // Calculate visible definitions
+        function calculateVisibleCount() {
+            // Force a fresh check of vertical mode before calculating
+            window.dictionaryContext.detectVerticalMode();
+            const isVertical = window.dictionaryContext.isVertical;
 
-            const newElement = definitionItems[currentIndex];
+            const containerRect = containerToUse.getBoundingClientRect();
 
-            // Batch the DOM updates
-            requestAnimationFrame(() => {
-                oldElement.style.display = "none";
-                newElement.style.display = "";
-                counterElement.textContent = `${currentIndex + 1}/${definitionItems.length}`;
+            // Cache container dimensions to detect real size changes
+            const containerWidth = containerRect.width;
+            const containerHeight = containerRect.height;
+
+            // If dimensions haven't changed, skip recalculation
+            if (containerWidth === lastMeasuredWidth &&
+                containerHeight === lastMeasuredHeight &&
+                hasCalculatedInitialLayout) {
+                return visibleCount;
+            }
+
+            lastMeasuredWidth = containerWidth;
+            lastMeasuredHeight = containerHeight;
+
+            // For measurement only: temporarily show all definitions but with visibility:hidden
+            // This prevents the flash while still allowing accurate measurements
+            definitionItems.forEach(item => {
+                item.style.display = "";
+                item.style.visibility = "hidden";
             });
+
+            // The key dimension depends on writing mode
+            const containerSize = isVertical ? containerWidth : containerHeight;
+
+            // Use a more generous space allocation for horizontal mode
+            const safetyMargin = isVertical ? 0.9 : 0.9; // More space in horizontal mode
+            const usableSpace = containerSize * safetyMargin;
+
+            let totalUsedSpace = 0;
+            let count = 0;
+
+            // For horizontal mode, we need to be more precise with our measurements
+            if (!isVertical) {
+                // Force a layout calculation to ensure accurate measurements
+                containerToUse.offsetHeight; // This triggers a reflow
+
+                // Wait briefly for any pending layout adjustments
+                const tempItems = [...definitionItems];
+
+                // Sort items by height to prioritize showing more items if they're shorter
+                if (tempItems.length > 1) {
+                    tempItems.sort((a, b) => {
+                        const aRect = a.getBoundingClientRect();
+                        const bRect = b.getBoundingClientRect();
+                        return aRect.height - bRect.height;
+                    });
+                }
+
+                // Measure items one by one and see how many fit
+                for (const item of tempItems) {
+                    const itemRect = item.getBoundingClientRect();
+                    const style = window.getComputedStyle(item);
+
+                    // Height + margins in horizontal mode
+                    const itemSize = itemRect.height +
+                        parseFloat(style.marginTop) +
+                        parseFloat(style.marginBottom);
+
+                    // Include additional buffer for horizontal mode
+                    const itemWithBuffer = itemSize * 1.05; // 5% buffer for safety
+
+                    // Stop if adding this item would exceed container
+                    if (totalUsedSpace + itemWithBuffer > usableSpace) break;
+
+                    totalUsedSpace += itemWithBuffer;
+                    count++;
+                }
+            } else {
+                // Original vertical mode calculation
+                for (const item of definitionItems) {
+                    const itemRect = item.getBoundingClientRect();
+                    const style = window.getComputedStyle(item);
+
+                    // Width + margins in vertical mode
+                    const itemSize = itemRect.width +
+                        parseFloat(style.marginLeft) +
+                        parseFloat(style.marginRight);
+
+                    // Stop if adding this item would exceed container
+                    if (totalUsedSpace + itemSize > usableSpace) break;
+
+                    totalUsedSpace += itemSize;
+                    count++;
+                }
+            }
+
+            // Reset visibility
+            definitionItems.forEach(item => {
+                item.style.visibility = "";
+                item.style.display = "none"; // Hide all again
+            });
+
+            hasCalculatedInitialLayout = true;
+
+            // Always show at least one definition
+            return Math.max(1, count);
         }
 
-        // Add click events to the edges
-        leftEdge.addEventListener("click", () => cycleDefinition("prev"));
-        rightEdge.addEventListener("click", () => cycleDefinition("next"));
+        // Update which definitions are visible
+        function updateVisibleDefinitions() {
+            // Make sure all are hidden first
+            definitionItems.forEach(item => item.style.display = "none");
 
-        // Function to handle arrow key navigation
-        function handleArrowKeys(event) {
+            // Show correct subset of definitions
+            const actualVisibleCount = Math.min(visibleCount, totalDefinitions - currentStartIndex);
+
+            for (let i = 0; i < actualVisibleCount; i++) {
+                definitionItems[currentStartIndex + i].style.display = "";
+            }
+
+            const endIndex = currentStartIndex + actualVisibleCount - 1;
+
+            if (visibleCount >= totalDefinitions) {
+                counterElement.textContent = "全てを表示";
+            } else if (actualVisibleCount === 1) {
+                // Show current dictionary name and total
+                counterElement.textContent = `(${currentStartIndex + 1}/${totalDefinitions})`;
+            } else {
+                // Show range of dictionary names
+                counterElement.textContent = ` (${currentStartIndex + 1}-${endIndex + 1}/${totalDefinitions})`;
+            }
+
+            // Show/hide navigation elements
+            const showNavigation = visibleCount < totalDefinitions;
+            leftEdge.style.display = rightEdge.style.display = showNavigation ? "" : "none";
+        }
+
+        // Cycle to the next/previous set of definitions
+        function cycleDefinitions(direction) {
+            if (visibleCount >= totalDefinitions) return;
+
+            const totalGroups = Math.ceil(totalDefinitions / visibleCount);
+            const currentGroupIndex = Math.floor(currentStartIndex / visibleCount);
+
+            if (direction === "next") {
+                const nextGroupIndex = (currentGroupIndex + 1) % totalGroups;
+                currentStartIndex = nextGroupIndex * visibleCount;
+            } else {
+                const prevGroupIndex = (currentGroupIndex - 1 + totalGroups) % totalGroups;
+                currentStartIndex = prevGroupIndex * visibleCount;
+            }
+
+            updateVisibleDefinitions();
+        }
+
+        leftEdge.addEventListener("click", () => cycleDefinitions("prev"));
+        rightEdge.addEventListener("click", () => cycleDefinitions("next"));
+
+        // Add keyboard navigation
+        document.addEventListener("keydown", (event) => {
             if (event.key === "ArrowLeft" || event.keyCode === 37) {
-                cycleDefinition("prev");
+                cycleDefinitions("prev");
             } else if (event.key === "ArrowRight" || event.keyCode === 39) {
-                cycleDefinition("next");
+                cycleDefinitions("next");
             }
+        }, { passive: true });
+
+        // Efficient debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function () {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func(), wait);
+            };
         }
 
-        document.addEventListener("keydown", handleArrowKeys);
-    }
+        // Initialize the UI elements and perform initial calculations
+        containerToUse.appendChild(fragment);
 
-    // Helper function for cyclable definitions positioning
-    function adjustCyclablePositions() {
-        const isVertical = window.dictionaryContext.isVertical;
-        const containerToUse = window.dictionaryContext.elements.contentContainer ||
-            window.dictionaryContext.elements.definitionContainer;
-
-        if (containerToUse) {
-            containerToUse.classList.toggle("vertical-mode", isVertical);
+        // Initial counter state - now shows the dictionary name
+        if (dictionaryNames.length > 0) {
+            counterElement.textContent = `(1/${totalDefinitions})`;
         }
-    }
 
-    // Feature: Adaptive margin for vertical layout
-    function setupAdaptiveMargin() {
-        if (!window.dictionaryContext.isVertical) return;
+        // Show navigation if needed
+        const showNavigation = totalDefinitions > 1;
+        leftEdge.style.display = rightEdge.style.display = showNavigation ? "" : "none";
 
-        const { contentContainer, centerWrapperBack } = window.dictionaryContext.elements;
+        // Use requestIdleCallback for calculation if available, or requestAnimationFrame if not
+        const scheduleInitialCalculation = window.requestIdleCallback || requestAnimationFrame;
 
-        // Exit if required elements don't exist
-        if (!contentContainer || !centerWrapperBack) return;
+        scheduleInitialCalculation(() => {
+            visibleCount = calculateVisibleCount();
+            updateVisibleDefinitions();
+        });
 
-        // ===== CUSTOMIZABLE SETTINGS =====
-        const NARROW_CONTENT_MAX = 300;  // Content narrower than this is considered "narrow"
-        const MEDIUM_CONTENT_MAX = 600;  // Content between NARROW_MAX and this is "medium"
+        const debouncedResize = debounce(() => {
+            visibleCount = calculateVisibleCount();
+            updateVisibleDefinitions();
+        }, 250);
 
-        const NARROW_CONTENT_CLAMP = {
-            min: 16,   // Minimum margin in vw
-            max: 30,   // Maximum margin in vw
-            base: 16,  // Base value before viewport adjustment
-            factor: 0.01  // How much to adjust per pixel of viewport width
-        };
+        window.addEventListener('resize', debouncedResize, { passive: true });
 
-        const MEDIUM_CONTENT_CLAMP = {
-            min: 10,
-            max: 25,
-            base: 10,
-            factor: 0.01
-        };
+        // Handle writing mode changes
+        const originalDetectVerticalMode = window.dictionaryContext.detectVerticalMode;
+        window.dictionaryContext.detectVerticalMode = function () {
+            const wasVertical = this.isVertical;
+            const result = originalDetectVerticalMode.call(this);
 
-        const WIDE_CONTENT_CLAMP = {
-            min: 4,
-            max: 15,
-            base: 4,
-            factor: 0.007
-        };
+            if (wasVertical !== this.isVertical) {
+                // Reset cached dimensions to force recalculation
+                lastMeasuredWidth = lastMeasuredHeight = 0;
 
-        const REFERENCE_VIEWPORT_WIDTH = 601;
-
-        // Retina display adjustment
-        const RETINA_ADJUSTMENT = 2;
-
-        // Variable to store the last calculated margin to avoid unnecessary updates
-        let lastCalculatedMargin = null;
-
-        function calculateMargin() {
-            // Read phase - gather all needed measurements
-            const contentWidth = contentContainer.scrollWidth || contentContainer.offsetWidth;
-            const viewportWidth = window.innerWidth;
-            const isRetina = window.devicePixelRatio >= 2;
-
-            let clampValues;
-
-            if (contentWidth < NARROW_CONTENT_MAX) {
-                clampValues = NARROW_CONTENT_CLAMP;
-            }
-            else if (contentWidth < MEDIUM_CONTENT_MAX) {
-                clampValues = MEDIUM_CONTENT_CLAMP;
-            }
-            else {
-                clampValues = WIDE_CONTENT_CLAMP;
-            }
-
-            // Calculate the preferred value based on viewport width
-            const viewportAdjustment = (viewportWidth - REFERENCE_VIEWPORT_WIDTH) * clampValues.factor;
-            const preferredMargin = clampValues.base + viewportAdjustment;
-
-            let clampedMargin = Math.max(clampValues.min, Math.min(preferredMargin, clampValues.max));
-
-            // Apply Retina adjustment if needed
-            if (isRetina) {
-                clampedMargin = Math.max(clampValues.min, clampedMargin - RETINA_ADJUSTMENT);
-            }
-
-            // Only update the DOM if the margin has changed
-            if (lastCalculatedMargin !== clampedMargin) {
-                lastCalculatedMargin = clampedMargin;
-
-                // Write phase - update the DOM
+                // Recalculate on next frame
                 requestAnimationFrame(() => {
-                    centerWrapperBack.style.marginRight = clampedMargin + 'vw';
+                    visibleCount = calculateVisibleCount();
+                    updateVisibleDefinitions();
                 });
             }
-        }
 
-        // Initial calculation
-        calculateMargin();
-
-        // Optimize resize listener with debounce using requestAnimationFrame
-        let resizeRAF = null;
-        window.addEventListener('resize', () => {
-            if (resizeRAF) {
-                cancelAnimationFrame(resizeRAF);
-            }
-            resizeRAF = requestAnimationFrame(calculateMargin);
-        });
-
-        // Use a ResizeObserver for more efficient tracking of content changes
-        if (window.ResizeObserver) {
-            const resizeObserver = new ResizeObserver(() => {
-                requestAnimationFrame(calculateMargin);
-            });
-            resizeObserver.observe(contentContainer);
-            return resizeObserver;
-        }
-
-        // Fallback to MutationObserver if ResizeObserver isn't available
-        const observer = new MutationObserver(() => {
-            requestAnimationFrame(calculateMargin);
-        });
-
-        observer.observe(contentContainer, {
-            childList: true,
-            subtree: true,
-            characterData: true,
-            attributes: true
-        });
-
-        return observer;
+            return result;
+        };
     }
 
-    // Feature: Collapsible elements
     function setupCollapsibleElements() {
         const { collapsibleSelectors, displayNameMap, activeDictionaries } = window.dictionaryContext;
         const dictionariesToProcess = Object.keys(activeDictionaries);
@@ -516,9 +607,8 @@
         if (dictionariesToProcess.length === 0) return;
 
         const allContentElements = [];
-        const wrapperElements = [];
 
-        // Read phase - identify and prepare elements
+        // Read phase - identify elements that need to be collapsible
         dictionariesToProcess.forEach(dictionaryName => {
             const currentSelectors = collapsibleSelectors[dictionaryName];
             if (!currentSelectors) return;
@@ -538,14 +628,12 @@
                     const displayName = displayNameMap[rawAttrName] || rawAttrName;
 
                     elements.forEach(el => {
-                        // Avoid wrapping already-wrapped elements
-                        const parent = el.parentNode;
-                        if (parent && parent.classList?.contains('collapsible-content')) return;
+                        // Skip if already wrapped
+                        if (el.parentNode && el.parentNode.classList?.contains('collapsible-content')) return;
 
-                        // Prepare elements for batch processing
                         allContentElements.push({
                             element: el,
-                            parent: parent,
+                            parent: el.parentNode,
                             displayName: displayName
                         });
                     });
@@ -556,9 +644,8 @@
         // Skip if nothing to process
         if (allContentElements.length === 0) return;
 
-        // Write phase - create and insert wrappers
+        // Write phase - create wrappers and attach event listeners
         requestAnimationFrame(() => {
-            // Use a document fragment for better performance with multiple elements
             allContentElements.forEach(item => {
                 const { element, parent, displayName } = item;
 
@@ -572,50 +659,21 @@
                 const content = document.createElement('div');
                 content.className = 'collapsible-content';
 
-                // Hide initially for a smoother appearance
-                content.style.display = 'none';
-
+                // Insert into DOM
                 parent.insertBefore(wrapper, element);
                 wrapper.appendChild(header);
                 wrapper.appendChild(content);
                 content.appendChild(element);
 
-                wrapperElements.push(wrapper);
-            });
-
-            // Force a redraw after the wrappers are created
-            requestAnimationFrame(() => {
-                wrapperElements.forEach(wrapper => {
-                    const content = wrapper.querySelector('.collapsible-content');
-                    if (content) {
-                        content.style.display = '';
-                    }
-                });
-                forceRedraw(wrapperElements);
+                // Add click event listener to header only
+                header.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    wrapper.classList.toggle('collapsed');
+                }, { passive: false });
             });
         });
     }
-
-    // Helper function to force CSS redraw for collapsible elements
-    function forceRedraw(wrappers = null) {
-        const elements = wrappers || document.querySelectorAll('.collapsible-wrapper');
-        if (elements.length === 0) return;
-
-        // Add the force-redraw class
-        requestAnimationFrame(() => {
-            elements.forEach(wrapper => {
-                wrapper.classList.add('force-redraw');
-            });
-
-            // Remove it in the next frame
-            requestAnimationFrame(() => {
-                elements.forEach(wrapper => {
-                    wrapper.classList.remove('force-redraw');
-                });
-            });
-        });
-    }
-
     // Feature: Show only the first image in dictionary entries
     function handleImages() {
         const { imageSelectors, activeDictionaries } = window.dictionaryContext;
@@ -672,9 +730,15 @@
             }
 
             resizeRAF = requestAnimationFrame(function () {
+                // Handle toggle visibility on resize
+                const toggle = document.getElementById('writing-mode-toggle');
+                if (toggle) {
+                    const toggleContainer = toggle.parentElement.parentElement;
+                    toggleContainer.style.display = window.innerWidth <= 600 ? 'none' : '';
+                }
+
                 window.dictionaryContext.detectVerticalMode();
                 adjustCyclablePositions();
-                forceRedraw();
             });
         });
 
