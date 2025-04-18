@@ -32,18 +32,22 @@
 </div>
 
 <script>
-    // Main dictionary context object
+    // メイン辞書コンテキストオブジェクト
     window.dictionaryContext = {
+        // 辞書クラス名マッピング
         dictionaryClassNames: {
-            "三省堂 全訳読解古語辞典": "skogo",
-            "旺文社 全訳古語辞典": "obunsha-kogo",
-            "角川新字源 改訂新版": "kadokawa-shinjigen",
-            "明鏡国語辞典 第三版": "meikyo",
-            "大辞泉 第二版": "daijisen",
-            "漢検漢字辞典　第二版": "kankenkj2",
-            "新明解国語辞典　第八版": "smk8"
+            "三省堂 全訳読解古語辞典": "三省堂古語",
+            "旺文社 全訳古語辞典": "旺文社古語",
+            "角川新字源 改訂新版": "角川新字源",
+            "明鏡国語辞典 第三版": "明鏡",
+            "大辞泉 第二版": "大辞泉",
+            "漢検漢字辞典　第二版": "漢検検定辞典",
+            "新明解国語辞典　第八版": "新明解",
+            "現代心理学辞典": "心理学辞典",
+            "南山堂医学大辞典 第20版": "南山堂医学"
         },
 
+        // 折りたたみ可能な要素のセレクター
         collapsibleSelectors: {
             "三省堂 全訳読解古語辞典": [
                 "div[data-sc絵巻項目]",
@@ -55,83 +59,78 @@
             ]
         },
 
+        // 表示名マッピング
         displayNameMap: {
-            // 三省堂 全訳読解古語辞典
             "絵巻項目": "絵巻",
             "発展": "発展事項",
             "読解-g": "読解",
-
-            // 旺文社 全訳古語辞典
             "用例囲み-g": "例文・訳"
         },
 
+        // 画像要素のセレクター
         imageSelectors: {
             "三省堂 全訳読解古語辞典": "div[data-sc画像-g]",
             "大辞泉 第二版": "div[data-sc-m-image]",
-
-            // Default selectors
+            "現代心理学辞典": "div[data-sc-image]>div:has([data-sc-img])",
             "default": "div[data-sc画像-g], .image-container, .figure, figure, .img-container"
         },
 
-        // Cache elements centrally to avoid repeated DOM queries
         elements: {},
         activeDictionaries: {},
         isVertical: false,
         initialized: false,
-
         userPreferences: {
             tategakiEnabled: true
         },
 
-        // Modify the detectVerticalMode method
+        // ユーザー設定とデバイス幅に基づいて縦書きモードを検出
         detectVerticalMode() {
-            if (!this.elements.contentContainer) return false;
-
             const contentContainer = this.elements.contentContainer;
+            if (!contentContainer) return false;
 
-            // Check if mobile view (which should always be horizontal)
+            // モバイル表示かどうかチェック（常に横書き）
             const isMobileView = window.innerWidth <= 600;
+            this.isVertical = isMobileView ? false : this.userPreferences.tategakiEnabled;
 
-            if (isMobileView) {
-                // Force horizontal mode on mobile
-                this.isVertical = false;
-                contentContainer.classList.remove('vertical-mode');
-                contentContainer.classList.add('horizontal-mode');
+            // 正しいモードのクラスを適用
+            contentContainer.classList.toggle('縦書き', this.isVertical);
+            contentContainer.classList.toggle('横書き', !this.isVertical);
+
+            // 横書きモードのためにコンテナの高さを調整
+            if (!this.isVertical) {
+                // 横書きモードでは、コンテンツに合わせてコンテナが拡大できるようにする
+                contentContainer.style.height = 'auto';
+                contentContainer.style.minHeight = '300px'; // 最小高さ（見た目のため）
+
+                // スクロール可能なコンテンツのための十分な空間を確保するために最小高さを追加
+                const viewportHeight = window.innerHeight;
+                contentContainer.style.maxHeight = `${Math.min(viewportHeight * 0.7, 650)}px`;
             } else {
-                // On desktop, use the user preference
-                this.isVertical = this.userPreferences.tategakiEnabled;
-                contentContainer.classList.toggle('vertical-mode', this.isVertical);
-                contentContainer.classList.toggle('horizontal-mode', !this.isVertical);
+                // 縦書きモードでは固定高さを使用
+                contentContainer.style.height = '70vh';
+                contentContainer.style.minHeight = '';
             }
 
             return this.isVertical;
         },
 
-        // Add a method to toggle writing mode
+        // 文字方向（縦書き/横書き）切替
         toggleWritingMode(enabled) {
-            if (typeof enabled === 'boolean') {
-                this.userPreferences.tategakiEnabled = enabled;
-            } else {
-                this.userPreferences.tategakiEnabled = !this.userPreferences.tategakiEnabled;
-            }
-
-            // Save preference to localStorage
+            this.userPreferences.tategakiEnabled = typeof enabled === 'boolean' ? enabled : !this.userPreferences.tategakiEnabled;
             localStorage.setItem('tategakiEnabled', this.userPreferences.tategakiEnabled);
 
-            // Update the UI
             this.detectVerticalMode();
 
-            // Update toggle if it exists
             const toggle = document.getElementById('writing-mode-toggle');
-            if (toggle) {
-                toggle.checked = this.userPreferences.tategakiEnabled;
-            }
+            if (toggle) toggle.checked = this.userPreferences.tategakiEnabled;
 
-            // Trigger a resize event to refresh any components that depend on writing mode
+            // 正しい状態を適用したので、切替を表示
+            this.showWritingModeToggle();
+
             window.dispatchEvent(new Event('resize'));
         },
 
-
+        // 高速アクセスのためにDOM要素を保存
         cacheElements() {
             const selectors = {
                 dictionaryEntries: { selector: "li[data-dictionary]", all: true },
@@ -146,162 +145,204 @@
                 centerWrapperBack: { selector: ".center-wrapper.back" }
             };
 
-            // Cache all elements in a single batch
             for (const [key, { selector, all }] of Object.entries(selectors)) {
-                this.elements[key] = all
-                    ? document.querySelectorAll(selector)
-                    : document.querySelector(selector);
+                this.elements[key] = all ? document.querySelectorAll(selector) : document.querySelector(selector);
             }
         },
 
+        // 切替ボタンを表示
+        showWritingModeToggle() {
+            const toggleContainer = document.getElementById('writing-mode-toggle-container');
+            if (toggleContainer) {
+                // モバイルでない場合のみ表示
+                if (window.innerWidth > 600) {
+                    toggleContainer.classList.add('ready');
+                }
+            }
+        },
+
+        // DOMからアクティブな辞書を識別
         identifyActiveDictionaries() {
-            // Skip if already identified
             if (Object.keys(this.activeDictionaries).length > 0) {
                 return Object.keys(this.activeDictionaries);
             }
 
             this.activeDictionaries = {};
-            const entries = this.elements.dictionaryEntries;
+            const { dictionaryEntries, dictname } = this.elements;
 
-            if (entries && entries.length > 0) {
-                entries.forEach(entry => {
+            if (dictionaryEntries && dictionaryEntries.length > 0) {
+                dictionaryEntries.forEach(entry => {
                     const dictName = entry.getAttribute("data-dictionary");
-                    if (dictName) {
-                        this.activeDictionaries[dictName] = true;
-                    }
+                    if (dictName) this.activeDictionaries[dictName] = true;
                 });
             }
-            else if (this.elements.dictname && this.elements.dictname.textContent.trim()) {
-                this.activeDictionaries[this.elements.dictname.textContent.trim()] = true;
+            else if (dictname && dictname.textContent.trim()) {
+                this.activeDictionaries[dictname.textContent.trim()] = true;
             }
 
             return Object.keys(this.activeDictionaries);
         },
 
+        /**
+         * 辞書固有のCSSクラスを適用し、単一辞書表示の場合は適切なリスト構造を構築します
+         * 単一の辞書エントリでもかわいいスタイリングな枠線を一貫して適用するために拡張しました
+         */
         applyDictionaryClasses() {
-            const { dictionaryClassNames, activeDictionaries } = this;
+            const { dictionaryClassNames, activeDictionaries, elements } = this;
             const dictionariesToProcess = Object.keys(activeDictionaries);
 
             if (dictionariesToProcess.length === 0) return;
 
-            const entries = this.elements.dictionaryEntries;
-            const definitionContainer = this.elements.definitionContainer;
+            const { dictionaryEntries, definitionContainer, dictname } = elements;
 
-            requestAnimationFrame(() => {
-                // Process individual dictionary entries
-                if (entries && entries.length > 0) {
-                    entries.forEach(entry => {
-                        const dictName = entry.getAttribute("data-dictionary");
-                        if (dictName && dictionaryClassNames[dictName]) {
-                            entry.classList.add(dictionaryClassNames[dictName]);
-                        }
-                    });
-                }
+            // 単一辞書の場合のリスト構造の確認と構築
+            if (definitionContainer && dictionariesToProcess.length === 1) {
+                const dictName = dictionariesToProcess[0];
 
-                // Process the main container (for single dictionary view)
-                if (definitionContainer && dictionariesToProcess.length === 1) {
-                    const dictName = dictionariesToProcess[0];
-                    if (dictionaryClassNames[dictName]) {
-                        definitionContainer.classList.add(dictionaryClassNames[dictName]);
+                // 既存のリスト項目がない場合は、リスト構造を作成します
+                const existingListItems = definitionContainer.querySelectorAll("li[data-dictionary]");
+                if (existingListItems.length === 0 && dictname) {
+                    const actualDictName = dictname.textContent.trim();
+                    if (!actualDictName) return;
+
+                    // パフォーマンス向上のためにドキュメントフラグメントを使用
+                    const fragment = document.createDocumentFragment();
+
+                    // リスト構造を作成
+                    const listElement = document.createElement("ol");
+                    listElement.className = "dictionary-list";
+
+                    // 単一の辞書用のリストアイテムを作成
+                    const listItem = document.createElement("li");
+                    listItem.setAttribute("data-dictionary", actualDictName);
+
+                    // 変更前の現在のコンテンツを取得
+                    const currentContent = definitionContainer.innerHTML;
+
+                    // 辞書クラスが利用可能な場合は適用
+                    if (dictionaryClassNames[actualDictName]) {
+                        listItem.classList.add(dictionaryClassNames[actualDictName]);
                     }
+
+                    listItem.innerHTML = currentContent;
+                    listElement.appendChild(listItem);
+                    fragment.appendChild(listElement);
+
+                    // コンテナクラスを更新
+                    definitionContainer.className = "yomitan-glossary";
+
+                    // コンテナをクリアして、フラグメントを挿入
+                    definitionContainer.innerHTML = "";
+                    definitionContainer.appendChild(fragment);
+
+                    // 要素の保存を更新
+                    this.elements.dictionaryEntries = definitionContainer.querySelectorAll("li[data-dictionary]");
+                } else if (dictionaryClassNames[dictName]) {
+                    // 従来の単一辞書処理: メインコンテナにクラスを追加
+                    definitionContainer.classList.add(dictionaryClassNames[dictName]);
                 }
-            });
+            }
+
+            // 個別の辞書エントリを処理（既存の機能を維持）
+            if (this.elements.dictionaryEntries && this.elements.dictionaryEntries.length > 0) {
+                this.elements.dictionaryEntries.forEach(entry => {
+                    const dictName = entry.getAttribute("data-dictionary");
+                    if (dictName && dictionaryClassNames[dictName]) {
+                        entry.classList.add(dictionaryClassNames[dictName]);
+                    }
+                });
+            }
         },
 
-        // Initialise everything at once
+        // 全てを初期化
         init() {
             if (this.initialized) return;
 
-            // Load saved preference
+            // 保存された設定を読み込み
             const savedPreference = localStorage.getItem('tategakiEnabled');
             if (savedPreference !== null) {
                 this.userPreferences.tategakiEnabled = savedPreference === 'true';
             }
 
             this.cacheElements();
-            this.detectVerticalMode();
             this.identifyActiveDictionaries();
             this.applyDictionaryClasses();
+            this.detectVerticalMode();
+
+            const toggle = document.getElementById('writing-mode-toggle');
+            if (toggle) toggle.checked = this.userPreferences.tategakiEnabled;
+
+            // すべての設定が完了してから切替を表示
+            setTimeout(() => this.showWritingModeToggle(), 50);
 
             this.initialized = true;
         }
     };
 
+    // 辞書カードを初期化
     function initializeDictionaryCard() {
         if (!window.dictionaryContext) return;
 
         window.dictionaryContext.init();
 
-        // feature operations with their requirements
         const ctx = window.dictionaryContext;
-        const features = [
-            { fn: handleEmptySentence, requires: ['sentence'] },
-            { fn: handleDuplicateContent, requires: ['expression', 'reading', 'sentence'] },
-            { fn: setupCyclableDefinitions, requires: ['definitionContainer'] },
-            { fn: setupCollapsibleElements, requires: [] },
-            { fn: handleImages, requires: [] },
-            { fn: hideEmptyImageContainer, requires: ['imageContainer', 'imageDiv'] },
-            { fn: setupWritingModeToggle, requires: [] }
-        ];
 
-        // First check which elements exist
+        // どの要素が存在するかチェック
         const elementsExist = {};
         for (const key in ctx.elements) {
             elementsExist[key] = ctx.elements[key] !== null &&
                 !(ctx.elements[key] instanceof NodeList && ctx.elements[key].length === 0);
         }
 
-        // Collect all operations that can run
-        const operationsToRun = features
-            .filter(feature => feature.requires.every(elem => elementsExist[elem]))
-            .map(feature => feature.fn);
+        // バッチ操作を作成
+        requestAnimationFrame(() => {
+            // 条件を満たす全ての機能関数を実行
+            if (elementsExist.sentence) handleEmptySentence();
+            if (elementsExist.expression && elementsExist.reading && elementsExist.sentence) handleDuplicateContent();
+            if (elementsExist.definitionContainer) setupCyclableDefinitions();
+            setupCollapsibleElements();
+            handleImages();
+            if (elementsExist.imageContainer && elementsExist.imageDiv) hideEmptyImageContainer();
+            setupWritingModeToggle();
 
-        // Execute all operations together in a single animation frame
-        if (operationsToRun.length > 0) {
-            requestAnimationFrame(() => {
-                operationsToRun.forEach(operation => operation());
-
-                // Setup event listeners after all operations are complete
-                setupGlobalEventListeners();
-            });
-        }
+            // 全ての操作が完了した後にイベントリスナーを設定
+            setupGlobalEventListeners();
+        });
     }
 
-    // Add a new feature function for the tategaki toggle
+    // 縦書き切替の設定
     function setupWritingModeToggle() {
-        const { contentContainer } = window.dictionaryContext.elements;
         const toggle = document.getElementById('writing-mode-toggle');
+        if (!toggle) return;
 
-        if (!toggle || !contentContainer) return;
-
-        // Set initial state based on dictionary context
+        // 辞書コンテキストに基づいて初期状態を設定
         toggle.checked = window.dictionaryContext.userPreferences.tategakiEnabled;
 
-        // Add change event listener
+        // 変更イベントリスナーを追加
         toggle.addEventListener('change', function () {
             window.dictionaryContext.toggleWritingMode(this.checked);
         });
 
-        // Initial check for mobile view
+        // モバイルでは切替を非表示
         if (window.innerWidth <= 600) {
             toggle.parentElement.parentElement.style.display = 'none';
         }
     }
 
-    // Feature: Hide image container if it's empty
+    // 空の画像コンテナを非表示
     function hideEmptyImageContainer() {
         const { imageDiv, imageContainer } = window.dictionaryContext.elements;
-        if (!imageContainer) return;
+        if (!imageContainer || !imageDiv) return;
 
-        const hasImages = imageDiv && imageDiv.getElementsByTagName('img').length > 0;
-        const hasText = imageDiv && imageDiv.innerText.trim() !== '';
+        const hasImages = imageDiv.getElementsByTagName('img').length > 0;
+        const hasText = imageDiv.innerText.trim() !== '';
 
         if (!hasImages && !hasText) {
             imageContainer.style.display = 'none';
         }
     }
 
-    // Feature: Hide sentence field if empty
+    // 空の例文フィールドを非表示
     function handleEmptySentence() {
         const sentenceDiv = window.dictionaryContext.elements.sentence;
         if (sentenceDiv && sentenceDiv.textContent.trim() === "") {
@@ -309,45 +350,41 @@
         }
     }
 
-    // Feature: Hide reading and sentence if same as term
+    // 重複コンテンツを非表示
     function handleDuplicateContent() {
         const { expression, reading, sentence } = window.dictionaryContext.elements;
-
         if (!expression) return;
 
         const expressionText = expression.textContent.trim();
         const readingText = reading ? reading.textContent.trim() : null;
         const sentenceText = sentence ? sentence.textContent.trim() : null;
 
-        requestAnimationFrame(() => {
-            if (reading && expressionText === readingText) {
-                reading.style.display = "none";
-            }
+        if (reading && expressionText === readingText) {
+            reading.style.display = "none";
+        }
 
-            if (sentence && expressionText === sentenceText) {
-                sentence.style.display = "none";
-            }
-        });
+        if (sentence && expressionText === sentenceText) {
+            sentence.style.display = "none";
+        }
     }
 
-    // Update the setupCyclableDefinitions function to prevent the flash
-    // Update to setupCyclableDefinitions function to use dictionary names
+    // パフォーマンス改善による循環可能な定義の設定
     function setupCyclableDefinitions() {
         const definitionContainer = window.dictionaryContext.elements.definitionContainer;
         if (!definitionContainer) return;
 
         const definitionItems = Array.from(definitionContainer.querySelectorAll("li[data-dictionary]"));
-        if (definitionItems.length <= 1) return; // No need for cycling
+        if (definitionItems.length <= 1) return; // 循環の必要なし
 
-        // Hide all definition items initially to prevent flash
+        // 最初にすべての定義項目を非表示
         definitionItems.forEach(item => item.style.display = "none");
 
-        // Only show the first one by default until proper calculation
+        // デフォルトでは最初の1つだけ表示
         if (definitionItems[0]) {
             definitionItems[0].style.display = "";
         }
 
-        // Create all UI elements in fragment
+        // 一度のDOM操作で全ての要素をフラグメントに作成
         const fragment = document.createDocumentFragment();
         const counterElement = document.createElement("div");
         const leftEdge = document.createElement("div");
@@ -368,29 +405,101 @@
         let visibleCount = 1;
         const totalDefinitions = definitionItems.length;
 
-        // Map of dictionary indices to their names for display
+        // 表示用の辞書名
         const dictionaryNames = definitionItems.map(item => {
             const dictName = item.getAttribute("data-dictionary");
-            return dictName || `辞書 ${definitionItems.indexOf(item) + 1}`; // Use generic name if none provided
+            return dictName || `辞書 ${definitionItems.indexOf(item) + 1}`;
         });
 
         let lastMeasuredWidth = 0;
         let lastMeasuredHeight = 0;
         let hasCalculatedInitialLayout = false;
 
-        // Calculate visible definitions
+        // 表示可能な定義数を計算
         function calculateVisibleCount() {
-            // Force a fresh check of vertical mode before calculating
+            // 縦書きモードの新たなチェックを強制
             window.dictionaryContext.detectVerticalMode();
             const isVertical = window.dictionaryContext.isVertical;
 
-            const containerRect = containerToUse.getBoundingClientRect();
+            // 横書きモードを特別に処理
+            if (!isVertical) {
+                // 横書きモードでは、他のコンテンツの後の利用可能なスペースを考慮する必要がある
+                const sentenceEl = document.getElementById('sentence');
+                const contentRect = containerToUse.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
 
-            // Cache container dimensions to detect real size changes
+                // 利用可能な高さを計算
+                const otherContentHeight = sentenceEl ?
+                    sentenceEl.getBoundingClientRect().bottom - containerToUse.getBoundingClientRect().top :
+                    100; // 例文が見つからない場合のデフォルトパディング
+
+                // 使用可能な最大高さを計算（ﾋﾞｭｰﾎﾟｰﾄ) - (ﾍｯﾀﾞｰ) - (ﾊﾟﾃﾞｨﾝｸﾞ）
+                const maxHeight = viewportHeight * 0.7; // ビューポートの70%を最大とする
+                const availableHeight = Math.max(50, maxHeight - otherContentHeight);
+
+                // 少なくとも一つの定義が表示されるよう最小高さを設定
+                containerToUse.style.minHeight = otherContentHeight + 150 + 'px';
+
+                // 特定の利用可能な高さ計算がある場合
+                if (availableHeight > 100) {
+                    // 測定のためにアイテムを表示するが非表示に
+                    definitionItems.forEach(item => {
+                        item.style.display = "";
+                        item.style.visibility = "hidden";
+                    });
+
+                    // レイアウト計算を強制
+                    containerToUse.offsetHeight;
+
+                    let totalUsedSpace = 0;
+                    let count = 0;
+
+                    // 表示可能な数を最大化するために定義を高さでソート
+                    const tempItems = [...definitionItems];
+                    if (tempItems.length > 1) {
+                        tempItems.sort((a, b) => {
+                            const aRect = a.getBoundingClientRect();
+                            const bRect = b.getBoundingClientRect();
+                            return aRect.height - bRect.height;
+                        });
+                    }
+
+                    // アイテムを一つずつ測定
+                    for (const item of tempItems) {
+                        const itemRect = item.getBoundingClientRect();
+                        const style = window.getComputedStyle(item);
+
+                        const itemSize = itemRect.height +
+                            parseFloat(style.marginTop) +
+                            parseFloat(style.marginBottom);
+
+                        const itemWithBuffer = itemSize * 1.05;
+
+                        if (totalUsedSpace + itemWithBuffer > availableHeight) break;
+
+                        totalUsedSpace += itemWithBuffer;
+                        count++;
+                    }
+
+                    // 可視性をリセット
+                    definitionItems.forEach(item => {
+                        item.style.visibility = "";
+                        item.style.display = "none";
+                    });
+
+                    return Math.max(1, count);
+                } else {
+                    // 計算が信頼できない場合のフォールバック
+                    return Math.min(2, definitionItems.length);
+                }
+            }
+
+            // 縦書きモードの計算
+            const containerRect = containerToUse.getBoundingClientRect();
             const containerWidth = containerRect.width;
             const containerHeight = containerRect.height;
 
-            // If dimensions haven't changed, skip recalculation
+            // 寸法が変更されていない場合は再計算をスキップ
             if (containerWidth === lastMeasuredWidth &&
                 containerHeight === lastMeasuredHeight &&
                 hasCalculatedInitialLayout) {
@@ -400,98 +509,50 @@
             lastMeasuredWidth = containerWidth;
             lastMeasuredHeight = containerHeight;
 
-            // For measurement only: temporarily show all definitions but with visibility:hidden
-            // This prevents the flash while still allowing accurate measurements
+            // 測定のためにアイテムを表示するが非表示に
             definitionItems.forEach(item => {
                 item.style.display = "";
                 item.style.visibility = "hidden";
             });
 
-            // The key dimension depends on writing mode
-            const containerSize = isVertical ? containerWidth : containerHeight;
-
-            // Use a more generous space allocation for horizontal mode
-            const safetyMargin = isVertical ? 0.9 : 0.9; // More space in horizontal mode
+            const containerSize = containerWidth; // 縦書きモード用
+            const safetyMargin = 0.9;
             const usableSpace = containerSize * safetyMargin;
 
             let totalUsedSpace = 0;
             let count = 0;
 
-            // For horizontal mode, we need to be more precise with our measurements
-            if (!isVertical) {
-                // Force a layout calculation to ensure accurate measurements
-                containerToUse.offsetHeight; // This triggers a reflow
+            // 縦書きモード計算
+            for (const item of definitionItems) {
+                const itemRect = item.getBoundingClientRect();
+                const style = window.getComputedStyle(item);
 
-                // Wait briefly for any pending layout adjustments
-                const tempItems = [...definitionItems];
+                const itemSize = itemRect.width +
+                    parseFloat(style.marginLeft) +
+                    parseFloat(style.marginRight);
 
-                // Sort items by height to prioritize showing more items if they're shorter
-                if (tempItems.length > 1) {
-                    tempItems.sort((a, b) => {
-                        const aRect = a.getBoundingClientRect();
-                        const bRect = b.getBoundingClientRect();
-                        return aRect.height - bRect.height;
-                    });
-                }
+                if (totalUsedSpace + itemSize > usableSpace) break;
 
-                // Measure items one by one and see how many fit
-                for (const item of tempItems) {
-                    const itemRect = item.getBoundingClientRect();
-                    const style = window.getComputedStyle(item);
-
-                    // Height + margins in horizontal mode
-                    const itemSize = itemRect.height +
-                        parseFloat(style.marginTop) +
-                        parseFloat(style.marginBottom);
-
-                    // Include additional buffer for horizontal mode
-                    const itemWithBuffer = itemSize * 1.05; // 5% buffer for safety
-
-                    // Stop if adding this item would exceed container
-                    if (totalUsedSpace + itemWithBuffer > usableSpace) break;
-
-                    totalUsedSpace += itemWithBuffer;
-                    count++;
-                }
-            } else {
-                // Original vertical mode calculation
-                for (const item of definitionItems) {
-                    const itemRect = item.getBoundingClientRect();
-                    const style = window.getComputedStyle(item);
-
-                    // Width + margins in vertical mode
-                    const itemSize = itemRect.width +
-                        parseFloat(style.marginLeft) +
-                        parseFloat(style.marginRight);
-
-                    // Stop if adding this item would exceed container
-                    if (totalUsedSpace + itemSize > usableSpace) break;
-
-                    totalUsedSpace += itemSize;
-                    count++;
-                }
+                totalUsedSpace += itemSize;
+                count++;
             }
 
-            // Reset visibility
+            // 可視性をリセット
             definitionItems.forEach(item => {
                 item.style.visibility = "";
-                item.style.display = "none"; // Hide all again
+                item.style.display = "none";
             });
 
             hasCalculatedInitialLayout = true;
-
-            // Always show at least one definition
             return Math.max(1, count);
         }
 
-        // Update which definitions are visible
+        // 表示する定義を更新
         function updateVisibleDefinitions() {
-            // Make sure all are hidden first
+            // まず全てを非表示
             definitionItems.forEach(item => item.style.display = "none");
 
-            // Show correct subset of definitions
             const actualVisibleCount = Math.min(visibleCount, totalDefinitions - currentStartIndex);
-
             for (let i = 0; i < actualVisibleCount; i++) {
                 definitionItems[currentStartIndex + i].style.display = "";
             }
@@ -501,19 +562,17 @@
             if (visibleCount >= totalDefinitions) {
                 counterElement.textContent = "全てを表示";
             } else if (actualVisibleCount === 1) {
-                // Show current dictionary name and total
                 counterElement.textContent = `(${currentStartIndex + 1}/${totalDefinitions})`;
             } else {
-                // Show range of dictionary names
-                counterElement.textContent = ` (${currentStartIndex + 1}-${endIndex + 1}/${totalDefinitions})`;
+                counterElement.textContent = `(${currentStartIndex + 1}-${endIndex + 1}/${totalDefinitions})`;
             }
 
-            // Show/hide navigation elements
+            // ナビゲーション要素の表示/非表示
             const showNavigation = visibleCount < totalDefinitions;
             leftEdge.style.display = rightEdge.style.display = showNavigation ? "" : "none";
         }
 
-        // Cycle to the next/previous set of definitions
+        // 次／前の定義セットに循環
         function cycleDefinitions(direction) {
             if (visibleCount >= totalDefinitions) return;
 
@@ -531,10 +590,11 @@
             updateVisibleDefinitions();
         }
 
+        // ナビゲーション用のイベントリスナー
         leftEdge.addEventListener("click", () => cycleDefinitions("prev"));
         rightEdge.addEventListener("click", () => cycleDefinitions("next"));
 
-        // Add keyboard navigation
+        // キーボードナビゲーション
         document.addEventListener("keydown", (event) => {
             if (event.key === "ArrowLeft" || event.keyCode === 37) {
                 cycleDefinitions("prev");
@@ -543,35 +603,29 @@
             }
         }, { passive: true });
 
-        // Efficient debounce function
         function debounce(func, wait) {
             let timeout;
             return function () {
                 clearTimeout(timeout);
-                timeout = setTimeout(() => func(), wait);
+                timeout = setTimeout(func, wait);
             };
         }
 
-        // Initialize the UI elements and perform initial calculations
+        // 要素を初期化
         containerToUse.appendChild(fragment);
+        counterElement.textContent = `(1/${totalDefinitions})`;
 
-        // Initial counter state - now shows the dictionary name
-        if (dictionaryNames.length > 0) {
-            counterElement.textContent = `(1/${totalDefinitions})`;
-        }
+        // 必要に応じてナビゲーションを表示
+        leftEdge.style.display = rightEdge.style.display = totalDefinitions > 1 ? "" : "none";
 
-        // Show navigation if needed
-        const showNavigation = totalDefinitions > 1;
-        leftEdge.style.display = rightEdge.style.display = showNavigation ? "" : "none";
-
-        // Use requestIdleCallback for calculation if available, or requestAnimationFrame if not
+        // 初期計算をスケジュール
         const scheduleInitialCalculation = window.requestIdleCallback || requestAnimationFrame;
-
         scheduleInitialCalculation(() => {
             visibleCount = calculateVisibleCount();
             updateVisibleDefinitions();
         });
 
+        // デバウンスでリサイズを処理
         const debouncedResize = debounce(() => {
             visibleCount = calculateVisibleCount();
             updateVisibleDefinitions();
@@ -579,36 +633,83 @@
 
         window.addEventListener('resize', debouncedResize, { passive: true });
 
-        // Handle writing mode changes
+        // 書き方モードの変更を処理
         const originalDetectVerticalMode = window.dictionaryContext.detectVerticalMode;
         window.dictionaryContext.detectVerticalMode = function () {
             const wasVertical = this.isVertical;
             const result = originalDetectVerticalMode.call(this);
 
             if (wasVertical !== this.isVertical) {
-                // Reset cached dimensions to force recalculation
+                // 保存された寸法をリセット
                 lastMeasuredWidth = lastMeasuredHeight = 0;
 
-                // Recalculate on next frame
-                requestAnimationFrame(() => {
-                    visibleCount = calculateVisibleCount();
-                    updateVisibleDefinitions();
-                });
+                // レイアウトが落ち着くのを待つ小さな遅延で次のフレームで再計算
+                setTimeout(() => {
+                    requestAnimationFrame(() => {
+                        visibleCount = calculateVisibleCount();
+                        updateVisibleDefinitions();
+
+                        // 横書きモードの場合、コンテンツに基づいてコンテナの高さを調整
+                        if (!this.isVertical) {
+                            const visibleItems = definitionItems.filter(item => item.style.display === "");
+                            if (visibleItems.length > 0) {
+                                // 最後の表示アイテムの下部を見つける
+                                const lastItemRect = visibleItems[visibleItems.length - 1].getBoundingClientRect();
+                                const containerRect = containerToUse.getBoundingClientRect();
+                                const requiredHeight = lastItemRect.bottom - containerRect.top + 30; // パッディングを追加
+
+                                // すべての表示定義に対応するための最小の高さを設定
+                                containerToUse.closest('#content-container').style.minHeight =
+                                    `${Math.max(300, requiredHeight)}px`;
+                            }
+                        }
+                    });
+                }, 50); // レイアウトが確実に落ち着くための小さな遅延
             }
 
             return result;
         };
     }
 
+    // 折りたたみ要素の設定
     function setupCollapsibleElements() {
         const { collapsibleSelectors, displayNameMap, activeDictionaries } = window.dictionaryContext;
         const dictionariesToProcess = Object.keys(activeDictionaries);
+
+        // 要素を処理する前に、すぐにイベントハンドラーを登録
+        // これにより、ハンドラーができるだけ早く有効になる
+        if (!window.dictionaryContext.collapsibleHandlerRegistered) {
+            window.dictionaryContext.collapsibleHandlerRegistered = true;
+
+            // ポインターイベントを使用（タッチとマウス用）
+            document.addEventListener('pointerdown', function (e) {
+                if (e.target && (
+                    e.target.hasAttribute('data-clickable') ||
+                    e.target.classList.contains('collapsible-header')
+                )) {
+                    const wrapper = e.target.closest('.collapsible-wrapper');
+                    if (wrapper) {
+                        wrapper.classList.toggle('collapsed');
+                    }
+                }
+            }, { passive: true });
+
+            // 非常に早いクリック用のバックアップとしてmousedownを使用
+            document.addEventListener('mousedown', function (e) {
+                if (e.target && e.target.classList.contains('collapsible-header')) {
+                    const wrapper = e.target.closest('.collapsible-wrapper');
+                    if (wrapper) {
+                        wrapper.classList.toggle('collapsed');
+                    }
+                }
+            }, { passive: true, capture: true });
+        }
 
         if (dictionariesToProcess.length === 0) return;
 
         const allContentElements = [];
 
-        // Read phase - identify elements that need to be collapsible
+        // 折りたたみ可能にする必要のある要素を特定
         dictionariesToProcess.forEach(dictionaryName => {
             const currentSelectors = collapsibleSelectors[dictionaryName];
             if (!currentSelectors) return;
@@ -628,7 +729,7 @@
                     const displayName = displayNameMap[rawAttrName] || rawAttrName;
 
                     elements.forEach(el => {
-                        // Skip if already wrapped
+                        // 既にラップされている場合はスキップ
                         if (el.parentNode && el.parentNode.classList?.contains('collapsible-content')) return;
 
                         allContentElements.push({
@@ -641,47 +742,86 @@
             });
         });
 
-        // Skip if nothing to process
+        // 処理するものがない場合はスキップ
         if (allContentElements.length === 0) return;
 
-        // Write phase - create wrappers and attach event listeners
-        requestAnimationFrame(() => {
-            allContentElements.forEach(item => {
-                const { element, parent, displayName } = item;
+        // ドキュメントフラグメントを作成
+        const fragment = document.createDocumentFragment();
+        const wrappers = [];
 
-                const wrapper = document.createElement('div');
-                wrapper.className = 'collapsible-wrapper collapsed';
+        // 全ての要素のラッパーを作成
+        allContentElements.forEach(item => {
+            const { element, parent, displayName } = item;
 
-                const header = document.createElement('div');
-                header.className = 'collapsible-header';
-                header.textContent = displayName;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'collapsible-wrapper collapsed';
 
-                const content = document.createElement('div');
-                content.className = 'collapsible-content';
+            const header = document.createElement('div');
+            header.className = 'collapsible-header';
+            header.textContent = displayName;
 
-                // Insert into DOM
-                parent.insertBefore(wrapper, element);
-                wrapper.appendChild(header);
-                wrapper.appendChild(content);
-                content.appendChild(element);
+            // クリック可能としてデータ属性でマーク
+            header.setAttribute('data-clickable', 'true');
 
-                // Add click event listener to header only
-                header.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    wrapper.classList.toggle('collapsed');
-                }, { passive: false });
+            // 即時応答用の直接ハンドラーを追加
+            header.addEventListener('mousedown', function (e) {
+                wrapper.classList.toggle('collapsed');
+                e.stopPropagation();
+            }, { capture: true });
+
+            const content = document.createElement('div');
+            content.className = 'collapsible-content';
+
+            // ラッパーに追加
+            wrapper.appendChild(header);
+            wrapper.appendChild(content);
+
+            // バッチ挿入用に保存
+            wrappers.push({
+                wrapper,
+                content,
+                element,
+                parent
             });
         });
+
+        // Batch DOM insertion
+        wrappers.forEach(({ wrapper, content, element, parent }) => {
+            // 要素を現在の親から削除
+            if (element.parentNode) {
+                element.parentNode.removeChild(element);
+            }
+
+            // 要素をコンテンツラッパーに追加
+            content.appendChild(element);
+
+            // ラッパーを元の位置の前に挿入
+            parent.appendChild(wrapper);
+        });
+
+        // 既存のすべてのヘッダーをクリック可能としてマークし、直接ハンドラーを追加
+        document.querySelectorAll('.collapsible-header:not([data-clickable])').forEach(header => {
+            header.setAttribute('data-clickable', 'true');
+
+            // 即時クリック用の直接ハンドラーを追加
+            const wrapper = header.closest('.collapsible-wrapper');
+            if (wrapper) {
+                header.addEventListener('mousedown', function (e) {
+                    wrapper.classList.toggle('collapsed');
+                    e.stopPropagation();
+                }, { capture: true });
+            }
+        });
     }
-    // Feature: Show only the first image in dictionary entries
+
+    // 画像の処理
     function handleImages() {
         const { imageSelectors, activeDictionaries } = window.dictionaryContext;
         const dictionaries = Object.keys(activeDictionaries);
 
         if (dictionaries.length === 0) return;
 
-        // Batch operation for hiding images
+        // 非表示にする必要のあるすべての画像を収集
         const imagesToHide = [];
 
         function collectExtraImages(container, selector) {
@@ -693,14 +833,14 @@
             }
         }
 
-        // Handle <li> dictionary entries
+        // <li>辞書エントリを処理
         for (const dictName of dictionaries) {
             const selector = imageSelectors[dictName] || imageSelectors["default"];
             document.querySelectorAll(`li[data-dictionary="${dictName}"]`)
                 .forEach(entry => collectExtraImages(entry, selector));
         }
 
-        // Handle single dictionary entry layout
+        // 単一辞書エントリのレイアウトを処理
         const dictnameEl = window.dictionaryContext.elements.dictname;
         if (dictnameEl) {
             const singleDict = dictnameEl.textContent.trim();
@@ -710,19 +850,16 @@
             }
         }
 
-        // Apply all changes at once
+        // 変更を一度に適用
         if (imagesToHide.length > 0) {
-            requestAnimationFrame(() => {
-                imagesToHide.forEach(img => {
-                    img.style.display = "none";
-                });
+            imagesToHide.forEach(img => {
+                img.style.display = "none";
             });
         }
     }
 
-    // Set up global event listeners
+    // グローバルイベントリスナーの設定
     function setupGlobalEventListeners() {
-        // Optimize resize handler with requestAnimationFrame
         let resizeRAF = null;
         window.addEventListener('resize', function () {
             if (resizeRAF) {
@@ -730,7 +867,7 @@
             }
 
             resizeRAF = requestAnimationFrame(function () {
-                // Handle toggle visibility on resize
+                // リサイズ時に切替の表示／非表示を処理
                 const toggle = document.getElementById('writing-mode-toggle');
                 if (toggle) {
                     const toggleContainer = toggle.parentElement.parentElement;
@@ -738,37 +875,49 @@
                 }
 
                 window.dictionaryContext.detectVerticalMode();
-                adjustCyclablePositions();
             });
-        });
+        }, { passive: true });
 
-        // Add click handlers for collapsible headers - done once globally with event delegation
-        document.addEventListener('click', function (e) {
-            if (e.target && e.target.classList.contains('collapsible-header')) {
-                const wrapper = e.target.closest('.collapsible-wrapper');
-                if (wrapper) {
-                    wrapper.classList.toggle('collapsed');
+        // 折りたたみヘッダー用のイベントハンドラー
+        if (!window.dictionaryContext.collapsibleHandlerRegistered) {
+            window.dictionaryContext.collapsibleHandlerRegistered = true;
+
+            // ポインターイベントを使用
+            document.addEventListener('pointerdown', function (e) {
+                if (e.target && (
+                    e.target.hasAttribute('data-clickable') ||
+                    e.target.classList.contains('collapsible-header')
+                )) {
+                    const wrapper = e.target.closest('.collapsible-wrapper');
+                    if (wrapper) {
+                        wrapper.classList.toggle('collapsed');
+                    }
                 }
-            }
+            }, { passive: true });
+        }
+
+        // 必要に応じて既存のヘッダーをクリック可能としてマーク
+        document.querySelectorAll('.collapsible-header:not([data-clickable])').forEach(header => {
+            header.setAttribute('data-clickable', 'true');
         });
     }
 
-    // Use MutationObserver to wait for dictionary content to be fully loaded
+    // 読み込みによる辞書コンテンツの待機
     function waitForDictionaryContent() {
         const criticalElements = ['definition', 'content-container', 'dictname'];
 
-        // Check if all critical elements are ready
+        // 重要な要素が準備できているかチェック
         function checkReadiness() {
             return criticalElements.every(id => document.getElementById(id));
         }
 
-        // Init if everything is already ready
+        // すべての準備ができていれば初期化
         if (checkReadiness()) {
             initializeDictionaryCard();
             return;
         }
 
-        // Otherwise, set up a MutationObserver to wait
+        // MutationObserverを使用
         const observer = new MutationObserver(() => {
             if (checkReadiness()) {
                 observer.disconnect();
@@ -776,21 +925,17 @@
             }
         });
 
-        // Start observing the document for added nodes
+        // 追加されたノード用にbodyのみを監視
         observer.observe(document.body, {
             childList: true,
             subtree: true
         });
 
-        // Fallback: initialize after a timeout even if not all elements are ready
-        // Using requestAnimationFrame for more precise timing
+        // RAFによるフォールバックタイムアウト
         let frameCount = 0;
         function checkAfterFrames() {
-            if (checkReadiness() || frameCount > 60) { // 60 frames ≈ 1 second at 60fps
+            if (checkReadiness() || frameCount > 60) {
                 observer.disconnect();
-                if (!checkReadiness()) {
-                    console.warn('Some dictionary elements not found, initializing anyway');
-                }
                 initializeDictionaryCard();
             } else {
                 frameCount++;
@@ -801,7 +946,7 @@
         requestAnimationFrame(checkAfterFrames);
     }
 
-    // Start the initialization process
+    // 適切なタイミングで初期化を開始
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', waitForDictionaryContent);
     } else {

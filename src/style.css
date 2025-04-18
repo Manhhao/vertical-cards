@@ -1,3 +1,6 @@
+/* ------------------------- */
+/* --- ダークモードの調色板 --- */
+/* ------------------------- */
 :root {
     --background-color: #1e1e1e;
     --content-background-color: #252525;
@@ -13,6 +16,21 @@
     --reading-font: "SHINJIMinchoW3", "SHINJIMinchoW3 W3";
     --primary-font: "ヒラギノ明朝 ProN";
     --dictname-font: "FOT-テロップ明朝 Pro";
+
+    /* --- 辞書境界線の色設定 --- */
+    --general-dict-border-color: #444;
+    --skogo-border-color: rgb(183, 138, 207);
+    --obunsha-kogo-border-color: rgb(111, 184, 186);
+    --shinjigen-border-color: rgb(249, 207, 152);
+    --meikyo-border-color: rgb(35, 53, 113);
+    --daijisen-border-color: rgb(121, 11, 20);
+    --kanken-border-color: rgb(224, 193, 98);
+    --smk8-border-color: rgb(155, 13, 44);
+    --shinrigaku-border-image: linear-gradient(to bottom,
+            #b5446e,
+            #cc7d26,
+            #6ba76b,
+            #4aa3a3);
 }
 
 /* ------------------------- */
@@ -27,6 +45,21 @@
     --dictname-color: #666666;
     --image-border-color: #e0e0e0;
     --divider-color: #bbbbbb;
+
+    /* --- 辞書境界線の色設定 --- */
+    --general-dict-border-color: #e8e8e8;
+    --skogo-border-color: rgb(239, 214, 254);
+    --obunsha-kogo-border-color: rgb(177, 228, 230);
+    --shinjigen-border-color: rgb(250, 237, 204);
+    --meikyo-border-color: rgb(173, 197, 208);
+    --daijisen-border-color: rgb(184, 124, 126);
+    --kanken-border-color: rgb(242, 228, 185);
+    --smk8-border-color: rgb(220, 145, 161);
+    --shinrigaku-border-image: linear-gradient(to bottom,
+            #e15286,
+            #ff9e2c,
+            #9ed39e,
+            #7ad1d1);
 }
 
 
@@ -38,6 +71,15 @@
     top: 15px;
     right: 15px;
     z-index: 1000;
+    opacity: 0;
+    /* Start hidden */
+    transition: opacity 0.3s ease;
+    visibility: hidden
+}
+
+#writing-mode-toggle-container.ready {
+    opacity: 1;
+    visibility: visible;
 }
 
 .writing-mode-switch {
@@ -150,19 +192,21 @@ body {
     box-sizing: border-box;
     writing-mode: vertical-rl;
     height: 70vh;
+    transition: height 0.2s ease-out;
+}
+
+#content-container.縦書き {
+    height: 60vh;
+    /* 縦書きモードでの最大高さを減らす */
+    max-height: 650px;
+    /* 過剰な高さを防ぐための追加制約 */
     overflow: auto;
 }
 
-#content-container.vertical-mode {
-    height: 60vh;
-    /* Reduce the maximum height in vertical mode */
-    max-height: 650px;
-    /* Additional constraint to prevent excessive height */
-}
-
-#content-container.horizontal-mode {
+#content-container.横書き {
     writing-mode: horizontal-tb;
     height: auto;
+    min-height: 300px;
     max-height: 70vh;
     overflow-y: auto;
     overflow-x: hidden;
@@ -179,23 +223,27 @@ body {
     align-self: flex-end;
 }
 
+.縦書き #dictname {
+    margin-top: 0.5em;
+}
+
 /* ヘッダーコンテナ - 常に水平表示 */
 #header-container {
     background-color: var(--content-background-color);
     padding: 1em 3.5em;
-    /* Increased horizontal padding to prevent overlap with audio buttons */
+    /* 音声ボタンとの重なりを防ぐための水平パディング増加 */
     border-radius: 8px;
     width: 100%;
     box-sizing: border-box;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: relative;
     min-height: 80px;
-    /* Ensure consistent height */
+    /* 一貫した高さを確保 */
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: visible;
-    /* Ensure content isn't clipped */
+    /* コンテンツが切り取られないように */
 }
 
 .header-main-content {
@@ -204,7 +252,7 @@ body {
     align-items: center;
     text-align: center;
     max-width: calc(100% - 80px);
-    /* Prevent overlap with audio buttons */
+    /* 音声ボタンとの重なりを防止 */
 }
 
 /* 表現と読みのスタイリング */
@@ -242,22 +290,21 @@ body {
     text-align: justify;
 }
 
-/* Sentence styling - vertical divider in vertical mode */
+/* 例文のスタイリング - 縦書きモードでは縦の仕切り線 */
 #sentence {
     margin-top: 1em;
     color: var(--dictname-color);
+}
+
+.縦書き #sentence {
     padding-right: 1em;
     margin-right: 1em;
     border-right: 1px solid var(--divider-color);
 }
 
-/* Adjust sentence styling for horizontal mode */
-#content-container.horizontal-mode #sentence {
+/* 横書きモードでの例文スタイル調整 */
+.横書き #sentence {
     padding-top: 1em;
-    margin-top: 1em;
-    padding-right: 0;
-    margin-right: 0;
-    border-right: none;
     border-top: 1px solid var(--divider-color);
 }
 
@@ -303,7 +350,7 @@ body {
     z-index: 2;
 }
 
-/* Fade-in animation for images */
+/* 画像のフェードインアニメーション */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -333,14 +380,16 @@ body {
     }
 
     #content-container {
+        writing-mode: horizontal-tb;
         height: auto;
-        max-height: 95vh !important;
+        max-height: unset !important;
+        overflow-y: auto;
     }
 
     #header-container {
         min-height: 70px;
         padding: 1em 3em 1em 1em;
-        /* Asymmetric padding to make more room for content */
+        /* コンテンツのためのスペースを確保する非対称パディング */
     }
 
     .header-main-content {
@@ -367,7 +416,7 @@ body {
         text-align: left;
     }
 
-    /* Adjust the sentence spacing and border for horizontal mode */
+    /* 横書きモードでの例文の間隔と境界線を調整 */
     #sentence {
         padding-top: 1em;
         margin-top: 1em;
@@ -403,29 +452,25 @@ body {
 /* ------------------------ */
 /* --- ヨミタンの辞書リスト --- */
 /* ------------------------ */
-:not(.vertical-mode) .yomitan-glossary>ol {
-    padding-inline-start: 1.4em !important;
+:not(.縦書き) .yomitan-glossary>ol {
+    padding-inline-start: 0 !important;
     margin-block-end: 0;
 }
 
-.vertical-mode .yomitan-glossary>ol {
+.縦書き .yomitan-glossary>ol {
     padding-inline-start: 1em !important;
 }
 
-.vertical-mode ol {
+.縦書き ol {
     writing-mode: vertical-rl;
     list-style-position: outside;
 }
 
-.vertical-mode ol li::marker {
+.縦書き ol li::marker {
     writing-mode: horizontal-tb;
     text-combine-upright: all;
 }
 
-/* Make sure dictname has proper spacing in vertical layout */
-.vertical-mode #dictname {
-    margin-top: 0.5em;
-}
 
 
 
@@ -465,93 +510,94 @@ li[data-dictionary] a::after {
 /* ------------------------------------ */
 /* --- 折りたたみ可能な要素のスタイリング --- */
 /* ------------------------------------ */
-/* Improved Collapsible Elements */
 .collapsible-wrapper {
     position: relative;
     margin: 5px 0;
-    width: 100%; /* Full width container */
-  }
-  
-  .collapsible-header {
+    width: 100%;
+    /* 幅100%のコンテナ */
+}
+
+.collapsible-header {
     padding: 2px 5px;
     background-color: rgba(100, 100, 100, 0.2);
     border-radius: 4px;
     margin: 3px 0;
-    display: inline-flex; /* Changed to inline-flex */
+    display: inline-flex;
     align-items: center;
     font-size: 0.85em;
     cursor: pointer;
-    user-select: none; /* Prevent text selection */
-  }
-  
-  /* Arrow indicator */
-  .collapsible-header::after {
+    user-select: none;
+    /* テキスト選択を防止 */
+}
+
+/* 矢印 */
+.collapsible-header::after {
     content: "▼";
     font-size: 0.8em;
     margin-left: 5px;
     transition: transform 0.3s;
-  }
-  
-  /* Arrow rotation when collapsed */
-  .collapsed .collapsible-header::after {
+}
+
+/* 折りたたみ時の矢印回転 */
+.collapsed .collapsible-header::after {
     transform: rotate(-90deg);
-  }
-  
-  /* Hover state for header only */
-  .collapsible-header:hover {
+}
+
+/* ヘッダーのみのホバー状態 */
+.collapsible-header:hover {
     background-color: rgba(120, 120, 120, 0.3);
-  }
-  
-  /* Content transition for both modes */
-  .collapsible-content {
+}
+
+/* 両モード用のコンテンツ遷移 */
+.collapsible-content {
     overflow: hidden;
     transition: height 0.25s ease-out, opacity 0.25s ease-out, width 0.25s ease-out;
-  }
-  
-  /* Horizontal mode - height transition */
-  :not(.vertical-mode) .collapsible-content {
+}
+
+/* 横書きモード、高さの遷移 */
+:not(.縦書き) .collapsible-content {
     height: auto;
     opacity: 1;
-  }
-  
-  :not(.vertical-mode) .collapsed .collapsible-content {
+}
+
+:not(.縦書き) .collapsed .collapsible-content {
     height: 0;
     opacity: 0;
     padding-top: 0;
     padding-bottom: 0;
-  }
-  
-  /* Vertical mode - width transition */
-  .vertical-mode .collapsible-content {
+}
+
+/* 縦書きモード、幅の遷移 */
+.縦書き .collapsible-content {
     height: auto;
     width: auto;
     opacity: 1;
     margin: 0;
     padding: 0.5em 0;
-  }
-  
-  .vertical-mode .collapsed .collapsible-content {
+}
+
+.縦書き .collapsed .collapsible-content {
     width: 0;
     opacity: 0;
     overflow: hidden;
     padding: 0;
-  }
-  
-  /* Wrapper element adjustment for vertical mode */
-  .vertical-mode .collapsible-wrapper {
+}
+
+/* 縦書きモード用のラッパー要素調整 */
+.縦書き .collapsible-wrapper {
     display: inline-block;
     vertical-align: top;
-  }
-  
-  /* Dark mode adjustments */
-  .nightMode .collapsible-header {
+}
+
+/* ダークモード調整 */
+.nightMode .collapsible-header {
     background-color: rgba(80, 80, 80, 0.3);
     color: #ddd;
-  }
-  
-  .nightMode .collapsible-header:hover {
+}
+
+.nightMode .collapsible-header:hover {
     background-color: rgba(100, 100, 100, 0.4);
-  }
+}
 
 
 
@@ -626,7 +672,7 @@ li[data-dictionary] a::after {
 }
 
 /* 垂直モードの調整 */
-.vertical-mode .definition-counter {
+.縦書き .definition-counter {
     writing-mode: horizontal-tb;
     top: auto;
     bottom: 0.5em;
@@ -634,14 +680,14 @@ li[data-dictionary] a::after {
     margin-bottom: 0.5em;
 }
 
-.vertical-mode .definition-left-edge {
+.縦書き .definition-left-edge {
     width: 100%;
     height: 50px;
     top: 0;
     left: 0;
 }
 
-.vertical-mode .definition-right-edge {
+.縦書き .definition-right-edge {
     width: 100%;
     height: 50px;
     bottom: 0;
@@ -650,13 +696,13 @@ li[data-dictionary] a::after {
 }
 
 /* 垂直モードでの矢印のインジケーターの調整 */
-.vertical-mode .definition-left-edge:hover::after {
+.縦書き .definition-left-edge:hover::after {
     left: 50%;
     top: 18px;
     transform: translateX(-50%) rotate(135deg);
 }
 
-.vertical-mode .definition-right-edge:hover::after {
+.縦書き .definition-right-edge:hover::after {
     right: 50%;
     bottom: 18px;
     top: auto;
@@ -665,15 +711,14 @@ li[data-dictionary] a::after {
 
 
 
-
-/* Dictionary Label Styling */
+/* 辞書名のスタイリング */
 li[data-dictionary] {
     position: relative;
     list-style-type: none;
     padding-left: 0.8em;
     padding-top: 0;
     margin-top: 2em;
-    border-left: 3px solid #e8e8e8;
+    border-left: 3px solid var(--general-dict-border-color);
 }
 
 li[data-dictionary]:first-child {
@@ -692,40 +737,40 @@ li[data-dictionary]::before {
     letter-spacing: 0.02em;
 }
 
-li.skogo{
-    /*border-left-color: #e0ccd1;*/
-    border-left-color: rgb(239, 214, 254)
+li.三省堂古語 {
+    border-left-color: var(--skogo-border-color);
 }
 
-li.obunsha-kogo {
-    /* border-left-color: #d6e9f8; */
-    border-left-color: rgb(177, 228, 230);
+li.旺文社古語 {
+    border-left-color: var(--obunsha-kogo-border-color);
 }
 
-li.kadokawa-shinjigen {
-    /* border-left-color: #e1e8e5; */
-    border-left-color: rgb(250, 237, 204);
+li.角川新字源 {
+    border-left-color: var(--shinjigen-border-color);
 }
 
-li.meikyo {
-    /* border-left-color: #f5edda; */
-    border-left-color: rgb(173, 197, 208);
+li.明鏡 {
+    border-left-color: var(--meikyo-border-color);
 }
 
-li.daijisen {
-    /* border-left-color: #e5d7cc; */
-    border-left-color: rgb(184, 124, 126);
+li.大辞泉 {
+    border-left-color: var(--daijisen-border-color);
 }
 
-li.kankenkj2 {
-    border-left-color: rgb(242, 228, 185);
+li.漢検検定辞典 {
+    border-left-color: var(--kanken-border-color);
 }
 
-li.smk8 {
-    border-left-color: rgb(220, 145, 161);
+li.新明解 {
+    border-left-color: var(--smk8-border-color);
 }
 
-.vertical-mode li[data-dictionary] {
+li.心理学辞典 {
+    border-left: 4px solid;
+    border-image: var(--shinrigaku-border-image) 1;
+}
+
+.縦書き li[data-dictionary] {
     border-left: none;
     border-right: 3px solid #e8e8e8;
     margin-top: 0;
@@ -734,11 +779,11 @@ li.smk8 {
     margin-right: 1.5em;
 }
 
-.vertical-mode li[data-dictionary]:first-child {
+.縦書き li[data-dictionary]:first-child {
     margin-right: 0;
 }
 
-.vertical-mode li[data-dictionary]::before {
+.縦書き li[data-dictionary]::before {
     writing-mode: vertical-rl;
     text-orientation: mixed;
     top: 0;
@@ -747,37 +792,37 @@ li.smk8 {
     padding: 0;
 }
 
-.vertical-mode li.skogo {
-    /*border-right-color: #e0ccd1;*/
-    border-right-color: rgb(239, 214, 254)
+.縦書き li.三省堂古語 {
+    border-right-color: var(--skogo-border-color);
 }
 
-.vertical-mode li.obunsha-kogo {
-    /* border-right-color: #d6e9f8; */
-    border-right-color: rgb(177, 228, 230);
+.縦書き li.旺文社古語 {
+    border-right-color: var(--obunsha-kogo-border-color);
 }
 
-.vertical-mode li.kadokawa-shinjigen {
-    /* border-right-color: #e1e8e5; */
-    border-right-color: rgb(250, 237, 204);
+.縦書き li.角川新字源 {
+    border-right-color: var(--shinjigen-border-color);
 }
 
-.vertical-mode li.meikyo {
-    /* border-right-color: #f5edda; */
-    border-right-color: rgb(173, 197, 208);
+.縦書き li.明鏡 {
+    border-right-color: var(--meikyo-border-color);
 }
 
-.vertical-mode li.daijisen {
-    /* border-right-color: #e5d7cc; */
-    border-right-color: rgb(184, 124, 126);
+.縦書き li.大辞泉 {
+    border-right-color: var(--daijisen-border-color);
 }
 
-.vertical-mode li.kankenkj2 {
-    border-right-color: rgb(242, 228, 185);
+.縦書き li.漢検検定辞典 {
+    border-right-color: var(--kanken-border-color);
 }
 
-.vertical-mode li.smk8 {
-    border-right-color: rgb(220, 145, 161);
+.縦書き li.新明解 {
+    border-right-color: var(--smk8-border-color);
+}
+
+.縦書き li.心理学辞典 {
+    border-right: 4px solid;
+    border-image: var(--shinrigaku-border-image) 1;
 }
 
 .nightMode li[data-dictionary] {
@@ -788,58 +833,84 @@ li.smk8 {
     color: #ccc;
 }
 
-.nightMode .vertical-mode li[data-dictionary] {
-    border-right-color: #444;
+.nightMode .縦書き li[data-dictionary] {
+    border-right-color: var(--general-dict-border-color);
     border-left: none;
 }
 
-.nightMode li.skogo {
-    border-left-color: #472f33;
+.nightMode li.三省堂古語 {
+    border-left-color: var(--skogo-border-color);
 }
 
-.nightMode li.obunsha-kogo {
-    border-left-color: #263a4a;
+.nightMode li.旺文社古語 {
+    border-left-color: var(--obunsha-kogo-border-color);
 }
 
-.nightMode li.kadokawa-shinjigen {
-    border-left-color: #2e403a;
+.nightMode li.角川新字源 {
+    border-left-color: var(--shinjigen-border-color);
 }
 
-.nightMode li.meikyo {
-    border-left-color: #46402f;
+.nightMode li.明鏡 {
+    border-left-color: var(--meikyo-border-color);
 }
 
-.nightMode li.daijisen {
-    border-left-color: #40352f;
+.nightMode li.大辞泉 {
+    border-left-color: var(--daijisen-border-color);
 }
 
-.nightMode .vertical-mode li.skogo {
-    border-right-color: #472f33;
+.nightMode li.漢検検定辞典 {
+    border-left-color: var(--kanken-border-color);
 }
 
-.nightMode .vertical-mode li.obunsha-kogo {
-    border-right-color: #263a4a;
+.nightMode li.新明解 {
+    border-left-color: var(--smk8-border-color);
 }
 
-.nightMode .vertical-mode li.kadokawa-shinjigen {
-    border-right-color: #2e403a;
+.nightMode li.心理学辞典 {
+    border-left: 4px solid;
+    border-image: var(--shinrigaku-border-image) 1;
 }
 
-.nightMode .vertical-mode li.meikyo {
-    border-right-color: #46402f;
+.nightMode .縦書き li.三省堂古語 {
+    border-left-color: var(--skogo-border-color);
 }
 
-.nightMode .vertical-mode li.daijisen {
-    border-right-color: #40352f;
+.nightMode .縦書き li.旺文社古語 {
+    border-right-color: var(--obunsha-kogo-border-color);
+}
+
+.nightMode .縦書き li.角川新字源 {
+    border-right-color: var(--shinjigen-border-color);
+}
+
+.nightMode .縦書き li.明鏡 {
+    border-right-color: var(--meikyo-border-color);
+}
+
+.nightMode .縦書き li.大辞泉 {
+    border-right-color: var(--daijisen-border-color);
+}
+
+.nightMode .縦書き li.漢検検定辞典 {
+    border-right-color: var(--kanken-border-color);
+}
+
+.nightMode .縦書き li.新明解 {
+    border-right-color: var(--smk8-border-color);
+}
+
+.nightMode .縦書き li.心理学辞典 {
+    border-right: 4px solid;
+    border-image: var(--shinrigaku-border-image) 1;
 }
 
 
 
+/* =================================================== */
+/* ============ ヨミタン辞書の対応スタイリング ============ */
+/* =================================================== */
 
-
-/* ======================================================================================= */
-
-/* --- Limit image size for monokakido dicts --- */
+/* --- 物書堂辞書の画像サイズの限定 --- */
 .yomitan-glossary [data-sc-img]>a>span {
     max-width: 300px !important;
 }
@@ -851,7 +922,7 @@ li.smk8 {
 /* -------------------------- */
 /* --- 角川新字源スタイリング --- */
 /* -------------------------- */
-.card.nightMode .kadokawa-shinjigen {
+.card.nightMode .角川新字源 {
     --kadokawa-black: #dddddd;
     --kadokawa-white: #000000;
     --kadokawa-blue: #00aaff;
@@ -866,103 +937,103 @@ li.smk8 {
     --kadokawa-canvas-background: rgb(30, 30, 30);
     --kadokawa-jukugo-hyoki-color: rgb(101, 146, 201);
 
-    .kadokawa-shinjigen span[data-sc-kodaimojilistg] span[data-sc-img] {
+    .角川新字源 span[data-sc-kodaimojilistg] span[data-sc-img] {
         -webkit-filter: invert(87%);
         filter: invert(87%);
     }
 }
 
-.kadokawa-shinjigen span[data-sc-head],
-.kadokawa-shinjigen span[data-sc-yomi][data-sc-w3],
-.kadokawa-shinjigen span[data-sc-okuri],
-.kadokawa-shinjigen span[data-sc-wari],
-.kadokawa-shinjigen span[data-sc-jukugoyomi],
-.kadokawa-shinjigen span[data-sc-jionrekishikana],
-.kadokawa-shinjigen span[data-sc-kaeriten][data-sc-w3] {
+.角川新字源 span[data-sc-head],
+.角川新字源 span[data-sc-yomi][data-sc-w3],
+.角川新字源 span[data-sc-okuri],
+.角川新字源 span[data-sc-wari],
+.角川新字源 span[data-sc-jukugoyomi],
+.角川新字源 span[data-sc-jionrekishikana],
+.角川新字源 span[data-sc-kaeriten][data-sc-w3] {
     font-family: "SHINJIMinchoW3", "SHINJIMinchoW3 W3";
 }
 
-.kadokawa-shinjigen span[data-sc-kanji],
-.kadokawa-shinjigen span[data-sc-yomi],
-.kadokawa-shinjigen span[data-sc-kaeriten],
-.kadokawa-shinjigen span[data-sc-bimidashijic][data-sc-joyo] {
+.角川新字源 span[data-sc-kanji],
+.角川新字源 span[data-sc-yomi],
+.角川新字源 span[data-sc-kaeriten],
+.角川新字源 span[data-sc-bimidashijic][data-sc-joyo] {
     font-family: "SHINJIMinchoW7", "SHINJIMinchoW7 W7";
 }
 
-.kadokawa-shinjigen span[data-sc-rect],
-.kadokawa-shinjigen span[title="熟語義"],
-.kadokawa-shinjigen span[data-sc-rect_oval],
-.kadokawa-shinjigen span[data-sc-ref][data-sc-furoku],
-.kadokawa-shinjigen span[data-sc-kodaimojitype],
-.kadokawa-shinjigen span[data-sc-kokujilogo],
-.kadokawa-shinjigen span[data-sc-itaijilabel],
-.kadokawa-shinjigen span[data-sc-kokugoshisakulabel],
-.kadokawa-shinjigen span[data-sc-nocode],
-.kadokawa-shinjigen span[data-sc-kenjinumber],
-.kadokawa-shinjigen span[data-sc-circle],
-.kadokawa-shinjigen span[data-sc-circlenumber],
-.kadokawa-shinjigen span[data-sc-circlekana],
-.kadokawa-shinjigen span[data-sc-bracket],
-.kadokawa-shinjigen span[data-sc-busyukakusulabel],
-.kadokawa-shinjigen span[data-sc-busyubusyulabel],
-.kadokawa-shinjigen div[data-sc-busyuyomicontent],
-.kadokawa-shinjigen span[data-sc-busyukakusu] {
+.角川新字源 span[data-sc-rect],
+.角川新字源 span[title="熟語義"],
+.角川新字源 span[data-sc-rect_oval],
+.角川新字源 span[data-sc-ref][data-sc-furoku],
+.角川新字源 span[data-sc-kodaimojitype],
+.角川新字源 span[data-sc-kokujilogo],
+.角川新字源 span[data-sc-itaijilabel],
+.角川新字源 span[data-sc-kokugoshisakulabel],
+.角川新字源 span[data-sc-nocode],
+.角川新字源 span[data-sc-kenjinumber],
+.角川新字源 span[data-sc-circle],
+.角川新字源 span[data-sc-circlenumber],
+.角川新字源 span[data-sc-circlekana],
+.角川新字源 span[data-sc-bracket],
+.角川新字源 span[data-sc-busyukakusulabel],
+.角川新字源 span[data-sc-busyubusyulabel],
+.角川新字源 div[data-sc-busyuyomicontent],
+.角川新字源 span[data-sc-busyukakusu] {
     font-family: "Source Han Sans JP", "Hiragino Kaku Gothic ProN";
 }
 
 
-/* Show 古代文字 for horizontal layout */
-.kadokawa-shinjigen span[data-sc-kodaimojilistg] span[data-sc-img]>a>span {
+/* 横書きレイアウト用に古代文字を表示 */
+.角川新字源 span[data-sc-kodaimojilistg] span[data-sc-img]>a>span {
     width: 25em !important;
     vertical-align: -7em !important;
 }
 
-/* I really cant make the images display inline in vertical mode for some reason */
-.vertical-mode .kadokawa-shinjigen span[data-sc-kodaimojilistg] {
+/* なぜか縦書きモードでは画像をインライン表示できない */
+.縦書き .角川新字源 span[data-sc-kodaimojilistg] {
     display: none;
 }
 
-/* Hide 韻目 gaiji */
-.kadokawa-shinjigen span[data-sc-img][data-sc-gaiji_h],
-.kadokawa-shinjigen span[data-sc-img][data-sc-gaiji] {
+/* 韻目の外字を非表示 */
+.角川新字源 span[data-sc-img][data-sc-gaiji_h],
+.角川新字源 span[data-sc-img][data-sc-gaiji] {
     display: none;
 }
 
-/* Completely hide the 熟語 section */
-.kadokawa-shinjigen div[data-sc-jukugog] {
+/* 熟語部を完全に非表示 */
+.角川新字源 div[data-sc-jukugog] {
     display: none !important;
 }
 
-/* Hide the large kanji/itaiji tables */
-.kadokawa-shinjigen table[data-sc-kanjiinfoheadg],
-.kadokawa-shinjigen div[data-sc-kyujilistg],
-.kadokawa-shinjigen div[data-sc-itaijilistg] {
+/* 大きな漢／異体／旧字テーブルを非表示 */
+.角川新字源 table[data-sc-kanjiinfoheadg],
+.角川新字源 div[data-sc-kyujilistg],
+.角川新字源 div[data-sc-itaijilistg] {
     display: none !important;
 }
 
-/* --- Hidden by default but this fixes the table borders --- */
-.kadokawa-shinjigen td[data-sc-kanjibusyug],
-.kadokawa-shinjigen td[data-sc-kanjisoukakusug],
-.kadokawa-shinjigen td[data-sc-menkutencodeg],
-.kadokawa-shinjigen td[data-sc-itaijilabelg],
-.kadokawa-shinjigen td[data-sc-kokugoshisakulabelg],
-.kadokawa-shinjigen td[data-sc-unicodeg] {
+/* --- デフォルトでは非表示だが、これでテーブルの境界線を修正 --- */
+.角川新字源 td[data-sc-kanjibusyug],
+.角川新字源 td[data-sc-kanjisoukakusug],
+.角川新字源 td[data-sc-menkutencodeg],
+.角川新字源 td[data-sc-itaijilabelg],
+.角川新字源 td[data-sc-kokugoshisakulabelg],
+.角川新字源 td[data-sc-unicodeg] {
     border-right: none !important;
     border-bottom: none !important;
     border-left: none !important;
     border-top: solid 0.05em var(--kadokawa-black, black) !important;
 }
 
-.kadokawa-shinjigen td[data-sc-kenjinumberg][data-sc-oyaji],
-.kadokawa-shinjigen td[data-sc-kanjig][data-sc-oyaji] {
+.角川新字源 td[data-sc-kenjinumberg][data-sc-oyaji],
+.角川新字源 td[data-sc-kanjig][data-sc-oyaji] {
     border-right: none !important;
     border-bottom: none !important;
     border-left: none !important;
     border-top: solid 0.23em var(--kadokawa-black, black) !important;
 }
 
-.kadokawa-shinjigen td[data-sc-kenjinumberg][data-sc-itaiji-kyuji],
-.kadokawa-shinjigen td[data-sc-kanjig][data-sc-itaiji-kyuji] {
+.角川新字源 td[data-sc-kenjinumberg][data-sc-itaiji-kyuji],
+.角川新字源 td[data-sc-kanjig][data-sc-itaiji-kyuji] {
     border-right: none !important;
     border-bottom: none !important;
     border-left: none !important;
@@ -970,51 +1041,51 @@ li.smk8 {
 }
 
 
-.kadokawa-shinjigen div:has(span[data-sc-rect]) {
+.角川新字源 div:has(span[data-sc-rect]) {
     margin: 0.2em 0;
 }
 
-/* --- Margin fixes for vertical layout --- */
-.vertical-mode .kadokawa-shinjigen div:has(span[data-sc-rect]) {
+/* --- 縦書きレイアウトのマージン修正 --- */
+.縦書き .角川新字源 div:has(span[data-sc-rect]) {
     margin: 0 0.2em;
 }
 
-.vertical-mode .kadokawa-shinjigen td[data-sc-kanjibusyug],
-.vertical-mode .kadokawa-shinjigen td[data-sc-kanjisoukakusug],
-.vertical-mode .kadokawa-shinjigen td[data-sc-menkutencodeg],
-.vertical-mode .kadokawa-shinjigen td[data-sc-itaijilabelg],
-.vertical-mode .kadokawa-shinjigen td[data-sc-kokugoshisakulabelg],
-.vertical-mode .kadokawa-shinjigen td[data-sc-unicodeg] {
+.縦書き .角川新字源 td[data-sc-kanjibusyug],
+.縦書き .角川新字源 td[data-sc-kanjisoukakusug],
+.縦書き .角川新字源 td[data-sc-menkutencodeg],
+.縦書き .角川新字源 td[data-sc-itaijilabelg],
+.縦書き .角川新字源 td[data-sc-kokugoshisakulabelg],
+.縦書き .角川新字源 td[data-sc-unicodeg] {
     border-top: none !important;
     border-bottom: none !important;
     border-left: none !important;
     border-right: solid 0.05em var(--kadokawa-black, black) !important;
 }
 
-.vertical-mode .kadokawa-shinjigen td[data-sc-kenjinumberg][data-sc-oyaji],
-.vertical-mode .kadokawa-shinjigen td[data-sc-kanjig][data-sc-oyaji] {
+.縦書き .角川新字源 td[data-sc-kenjinumberg][data-sc-oyaji],
+.縦書き .角川新字源 td[data-sc-kanjig][data-sc-oyaji] {
     border-top: none !important;
     border-bottom: none !important;
     border-left: none !important;
     border-right: solid 0.23em var(--kadokawa-black, black) !important;
 }
 
-.vertical-mode .kadokawa-shinjigen td[data-sc-kenjinumberg][data-sc-itaiji-kyuji],
-.vertical-mode .kadokawa-shinjigen td[data-sc-kanjig][data-sc-itaiji-kyuji] {
+.縦書き .角川新字源 td[data-sc-kenjinumberg][data-sc-itaiji-kyuji],
+.縦書き .角川新字源 td[data-sc-kanjig][data-sc-itaiji-kyuji] {
     border-top: none !important;
     border-bottom: none !important;
     border-left: none !important;
     border-right: solid 0.17em var(--kadokawa-black, black) !important;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-busyunumber] {
+.縦書き .角川新字源 span[data-sc-busyunumber] {
     margin-left: 0 !important;
     margin-top: 0.25em;
     margin-right: 0 !important;
     margin-bottom: 0.25em;
 }
 
-.vertical-mode .kadokawa-shinjigen td[data-sc-busyubusyug] {
+.縦書き .角川新字源 td[data-sc-busyubusyug] {
     margin-left: 0 !important;
     margin-top: 0.5em;
     margin-right: 0 !important;
@@ -1025,34 +1096,34 @@ li.smk8 {
     margin-right: 0.3em;
 }
 
-.vertical-mode .kadokawa-shinjigen div[data-sc-itaijikyujiinfog] {
+.縦書き .角川新字源 div[data-sc-itaijikyujiinfog] {
     margin-top: 0 !important;
     margin-left: 0.4em;
 }
 
-.vertical-mode .kadokawa-shinjigen div[data-sc-itaijikyujiinfog][data-sc-first] {
+.縦書き .角川新字源 div[data-sc-itaijikyujiinfog][data-sc-first] {
     margin-top: 0 !important;
     margin-left: 0.7em;
 }
 
-.vertical-mode .kadokawa-shinjigen table[data-sc-kanjiinfoheadg] {
+.縦書き .角川新字源 table[data-sc-kanjiinfoheadg] {
     margin-top: 0 !important;
     margin-left: 0.25em;
 }
 
-.vertical-mode .kadokawa-shinjigen div[data-sc-busyuyomig] {
+.縦書き .角川新字源 div[data-sc-busyuyomig] {
     margin-left: 0 !important;
     margin-top: 1em;
     margin-bottom: 0 !important;
     margin-right: 0.3em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-busyukakusu] {
+.縦書き .角川新字源 span[data-sc-busyukakusu] {
     margin-right: 0 !important;
     margin-bottom: 0.25em;
 }
 
-.vertical-mode .kadokawa-shinjigen div[data-sc-bushubetsuindexg] {
+.縦書き .角川新字源 div[data-sc-bushubetsuindexg] {
     margin-left: 0 !important;
     margin-top: 1em;
     margin-top: 0 !important;
@@ -1061,73 +1132,73 @@ li.smk8 {
     margin-right: 0.4em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-bimidashiji] {
+.縦書き .角川新字源 span[data-sc-bimidashiji] {
     margin-left: 0 !important;
     margin-top: 0.24em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-shinsetsumidashisubg] {
+.縦書き .角川新字源 span[data-sc-shinsetsumidashisubg] {
     margin-right: 0 !important;
     margin-bottom: 1em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-bimidashiji][data-sc-itaiji] {
+.縦書き .角川新字源 span[data-sc-bimidashiji][data-sc-itaiji] {
     margin-left: 0 !important;
     margin-top: 0.013em;
 }
 
-.vertical-mode .kadokawa-shinjigen div[data-sc-shinsetsumidashig] {
+.縦書き .角川新字源 div[data-sc-shinsetsumidashig] {
     margin-left: 0 !important;
     margin-top: 1em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-shinsetsumidashiarrow] {
+.縦書き .角川新字源 span[data-sc-shinsetsumidashiarrow] {
     margin-left: 0 !important;
     margin-top: 0.15em;
     margin-right: 0 !important;
     margin-bottom: 0.15em;
 }
 
-.vertical-mode .kadokawa-shinjigen td[data-sc-kanjig] {
+.縦書き .角川新字源 td[data-sc-kanjig] {
     margin-right: 0 !important;
     margin-bottom: 0.2em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-kodaimojilistafterspace] {
+.縦書き .角川新字源 span[data-sc-kodaimojilistafterspace] {
     margin-right: 0 !important;
     margin-bottom: 0.3em;
 }
 
-.vertical-mode .kadokawa-shinjigen div[data-sc-onlistsubg][data-sc-sub] {
+.縦書き .角川新字源 div[data-sc-onlistsubg][data-sc-sub] {
     margin-left: 0 !important;
     margin-top: 1.08em;
 }
 
-.vertical-mode .kadokawa-shinjigen div[data-sc-honmong] {
+.縦書き .角川新字源 div[data-sc-honmong] {
     margin-top: 0 !important;
 }
 
-.vertical-mode .kadokawa-shinjigen div[data-sc-honmong][data-sc-jukugo-item] {
+.縦書き .角川新字源 div[data-sc-honmong][data-sc-jukugo-item] {
     margin-left: 0 !important;
     margin-top: 0.5em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-kodaimojilistg] {
+.縦書き .角川新字源 span[data-sc-kodaimojilistg] {
     margin-left: 0 !important;
     margin-top: 0.118em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-kodaimojibranchg]+span[data-sc-kodaimojibranchg] {
+.縦書き .角川新字源 span[data-sc-kodaimojibranchg]+span[data-sc-kodaimojibranchg] {
     margin-left: 0 !important;
     margin-top: 0.1em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-kodaimojitypeg] {
+.縦書き .角川新字源 span[data-sc-kodaimojitypeg] {
     margin-left: 0 !important;
     margin-top: 0.05em;
 }
 
-.vertical-mode .kadokawa-shinjigen div[data-sc-imagecontentg] {
+.縦書き .角川新字源 div[data-sc-imagecontentg] {
     margin-left: 0 !important;
     margin-top: 1em;
     margin-right: 0 !important;
@@ -1138,79 +1209,79 @@ li.smk8 {
     margin-right: 0.2em;
 }
 
-.vertical-mode .kadokawa-shinjigen div[data-sc-jukugog] {
+.縦書き .角川新字源 div[data-sc-jukugog] {
     margin-top: 0 !important;
     margin-left: 0.5em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-source] {
+.縦書き .角川新字源 span[data-sc-source] {
     margin-left: 0 !important;
     margin-top: 0.2em;
     margin-right: 0 !important;
     margin-bottom: 0.2em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-jukugosubhead] {
+.縦書き .角川新字源 span[data-sc-jukugosubhead] {
     margin-right: 0 !important;
     margin-bottom: 0.5em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-example] {
+.縦書き .角川新字源 span[data-sc-example] {
     margin-right: 0 !important;
     margin-bottom: 0.5em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-rect][data-sc-small] {
+.縦書き .角川新字源 span[data-sc-rect][data-sc-small] {
     margin-left: 0 !important;
     margin-top: 0.15em;
     margin-right: 0 !important;
     margin-bottom: 0.15em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-circlenumber][data-sc-small],
-.vertical-mode .kadokawa-shinjigen span[data-sc-circlekana][data-sc-small] {
+.縦書き .角川新字源 span[data-sc-circlenumber][data-sc-small],
+.縦書き .角川新字源 span[data-sc-circlekana][data-sc-small] {
     margin-left: 0 !important;
     margin-top: 0.15em;
     margin-right: 0 !important;
     margin-bottom: 0.15em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-tate-c],
-.vertical-mode .kadokawa-shinjigen span[data-sc-tate_c] {
+.縦書き .角川新字源 span[data-sc-tate-c],
+.縦書き .角川新字源 span[data-sc-tate_c] {
     margin-left: 0 !important;
     margin-top: 0.1em;
     margin-right: 0 !important;
     margin-bottom: -0.1em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-f-m] {
+.縦書き .角川新字源 span[data-sc-f-m] {
     margin-right: 0 !important;
     margin-bottom: 0.15em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-logo_-f-m] {
+.縦書き .角川新字源 span[data-sc-logo_-f-m] {
     margin-right: 0 !important;
     margin-bottom: 0.3em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-b-m] {
+.縦書き .角川新字源 span[data-sc-b-m] {
     margin-left: 0 !important;
     margin-top: 0.15em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-b-m2] {
+.縦書き .角川新字源 span[data-sc-b-m2] {
     margin-left: 0 !important;
     margin-top: 0.2em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-i-m] {
+.縦書き .角川新字源 span[data-sc-i-m] {
     margin-left: 0 !important;
     margin-top: 0.15em;
     margin-right: 0 !important;
     margin-bottom: 0.15em;
 }
 
-.vertical-mode .kadokawa-shinjigen span[data-sc-i-m2] {
+.縦書き .角川新字源 span[data-sc-i-m2] {
     margin-left: 0 !important;
     margin-top: 0.2em;
     margin-right: 0 !important;
@@ -1222,7 +1293,7 @@ li.smk8 {
 /* --------------------------------- */
 /* --- 三省堂全訳古語辞典スタイリング --- */
 /* --------------------------------- */
-.card.nightMode .skogo {
+.card.nightMode .三省堂古語 {
     --skogo-black: #DDDDDD;
     --skogo-white: #000000;
     --skogo-blue: #00AAFF;
@@ -1234,65 +1305,65 @@ li.smk8 {
     --skogo-gendai-mark: #CCCCCC;
 }
 
-.skogo span[data-sc-body],
-.skogo span[data-sc見出歴史仮名],
-.skogo span[data-sc見出現代仮名],
-.skogo span[data-sc段落歴史仮名],
-.skogo span[data-sc段落現代仮名],
-.skogo span[data-sc中黒語義],
-.skogo span[data-sc-em][data-sc小書き],
-.skogo span[data-scルビ],
-.skogo span[data-sc返り点] {
+.三省堂古語 span[data-sc-body],
+.三省堂古語 span[data-sc見出歴史仮名],
+.三省堂古語 span[data-sc見出現代仮名],
+.三省堂古語 span[data-sc段落歴史仮名],
+.三省堂古語 span[data-sc段落現代仮名],
+.三省堂古語 span[data-sc中黒語義],
+.三省堂古語 span[data-sc-em][data-sc小書き],
+.三省堂古語 span[data-scルビ],
+.三省堂古語 span[data-sc返り点] {
     font-family: "Hiragino Mincho ProN";
 }
 
-.skogo span[data-sc見出G],
-.skogo span[data-sc絵巻タイトル],
-.skogo span[data-scGendai見出],
-.skogo span[data-sc活用分節],
-.skogo span[data-sc語構成],
-.skogo span[data-sc-f-w-hyphen],
-.skogo span[data-sc活用表-label],
-.skogo span[data-sc詩歌全形],
-.skogo span[data-sc見出相当部],
-.skogo span[data-sc詩歌技法ロゴ],
-.skogo span[data-sc用例訳注ロゴ],
-.skogo span[data-sc参考ロゴ],
-.skogo span[data-sc注釈ロゴ],
-.skogo span[data-sc冒頭文ロゴテキスト],
-.skogo span[data-sc作品例ロゴテキスト],
-.skogo span[data-sc-em][data-sc-gothic],
-.skogo span[data-sc-em][data-sc赤],
-.skogo span[data-sc補説小見出],
-.skogo span[data-sc読解見出],
-.skogo span[data-sc現代見出],
-.skogo span[data-sc読解小見出],
-.skogo span[data-sc現代小見出],
-.skogo span[data-scチャート見出],
-.skogo span[data-sc付録参照ロゴ],
-.skogo span[data-sc絵巻図版],
-.skogo span[data-sc識別見出],
-.skogo td[data-sc識別ヘッダ項],
-.skogo span[data-sc識別説明],
-.skogo span[data-sc-gendai-ref品詞],
-.skogo span[data-sc-gendai-ref-品詞],
-.skogo span[data-sc-gendai-ref-desc],
-.skogo span[data-sc-gendai-ref-desc],
-.skogo span[data-sc-rectr] {
+.三省堂古語 span[data-sc見出G],
+.三省堂古語 span[data-sc絵巻タイトル],
+.三省堂古語 span[data-scGendai見出],
+.三省堂古語 span[data-sc活用分節],
+.三省堂古語 span[data-sc語構成],
+.三省堂古語 span[data-sc-f-w-hyphen],
+.三省堂古語 span[data-sc活用表-label],
+.三省堂古語 span[data-sc詩歌全形],
+.三省堂古語 span[data-sc見出相当部],
+.三省堂古語 span[data-sc詩歌技法ロゴ],
+.三省堂古語 span[data-sc用例訳注ロゴ],
+.三省堂古語 span[data-sc参考ロゴ],
+.三省堂古語 span[data-sc注釈ロゴ],
+.三省堂古語 span[data-sc冒頭文ロゴテキスト],
+.三省堂古語 span[data-sc作品例ロゴテキスト],
+.三省堂古語 span[data-sc-em][data-sc-gothic],
+.三省堂古語 span[data-sc-em][data-sc赤],
+.三省堂古語 span[data-sc補説小見出],
+.三省堂古語 span[data-sc読解見出],
+.三省堂古語 span[data-sc現代見出],
+.三省堂古語 span[data-sc読解小見出],
+.三省堂古語 span[data-sc現代小見出],
+.三省堂古語 span[data-scチャート見出],
+.三省堂古語 span[data-sc付録参照ロゴ],
+.三省堂古語 span[data-sc絵巻図版],
+.三省堂古語 span[data-sc識別見出],
+.三省堂古語 td[data-sc識別ヘッダ項],
+.三省堂古語 span[data-sc識別説明],
+.三省堂古語 span[data-sc-gendai-ref品詞],
+.三省堂古語 span[data-sc-gendai-ref-品詞],
+.三省堂古語 span[data-sc-gendai-ref-desc],
+.三省堂古語 span[data-sc-gendai-ref-desc],
+.三省堂古語 span[data-sc-rectr] {
     font-family: "Hiragino Kaku Gothic ProN";
 }
 
-.skogo span[data-sc-body] {
+.三省堂古語 span[data-sc-body] {
     line-height: 1.4em;
 }
 
-/* Fix margins for vertical layout */
-.vertical-mode .skogo div[data-sc見出部] {
+/* 縦書きレイアウトのマージン修正 */
+.縦書き .三省堂古語 div[data-sc見出部] {
     margin-left: 0 !important;
     margin-top: 0.909em;
 }
 
-.vertical-mode .skogo span[data-sc-rank] {
+.縦書き .三省堂古語 span[data-sc-rank] {
     margin-left: 0 !important;
     margin-top: -0.44em;
 
@@ -1300,8 +1371,8 @@ li.smk8 {
     margin-bottom: 0.1em;
 }
 
-.vertical-mode .skogo span[data-sc表記-g],
-.vertical-mode .skogo span[data-scチャート表記-g] {
+.縦書き .三省堂古語 span[data-sc表記-g],
+.縦書き .三省堂古語 span[data-scチャート表記-g] {
     margin-left: 0 !important;
     margin-top: 0.15em;
 
@@ -1309,10 +1380,10 @@ li.smk8 {
     margin-bottom: 0.15em;
 }
 
-.vertical-mode .skogo span[data-sc見出歴史仮名],
-.vertical-mode .skogo span[data-sc見出現代仮名],
-.vertical-mode .skogo span[data-sc段落歴史仮名],
-.vertical-mode .skogo span[data-sc段落現代仮名] {
+.縦書き .三省堂古語 span[data-sc見出歴史仮名],
+.縦書き .三省堂古語 span[data-sc見出現代仮名],
+.縦書き .三省堂古語 span[data-sc段落歴史仮名],
+.縦書き .三省堂古語 span[data-sc段落現代仮名] {
     margin-left: 0 !important;
     margin-top: 0.15em;
 
@@ -1320,7 +1391,7 @@ li.smk8 {
     margin-bottom: 0.1em;
 }
 
-.vertical-mode .skogo span[data-sc活用語尾-g] {
+.縦書き .三省堂古語 span[data-sc活用語尾-g] {
     margin-left: 0 !important;
     margin-top: 0.15em;
 
@@ -1328,24 +1399,24 @@ li.smk8 {
     margin-bottom: 0.15em;
 }
 
-.vertical-mode .skogo div[data-sc箇条書] {
+.縦書き .三省堂古語 div[data-sc箇条書] {
     margin-left: 0 !important;
     margin-top: 1.15em;
 }
 
-.vertical-mode .skogo div[data-sc箇条書][data-sc-noindent] {
+.縦書き .三省堂古語 div[data-sc箇条書][data-sc-noindent] {
     margin-top: 0;
 }
 
-.vertical-mode .skogo div[data-sc箇条書][data-sc-findent] {
+.縦書き .三省堂古語 div[data-sc箇条書][data-sc-findent] {
     margin-top: 0;
 }
 
-.vertical-mode .skogo table[data-sc箇条書][data-sc連結語義] {
+.縦書き .三省堂古語 table[data-sc箇条書][data-sc連結語義] {
     margin-top: 0;
 }
 
-.vertical-mode .skogo span[data-sc括弧語義] {
+.縦書き .三省堂古語 span[data-sc括弧語義] {
     margin-left: 0 !important;
     margin-top: 0.1em;
 
@@ -1353,12 +1424,12 @@ li.smk8 {
     margin-bottom: 0.1em;
 }
 
-.vertical-mode .skogo div[data-sc用例-g][data-sc-inline] {
+.縦書き .三省堂古語 div[data-sc用例-g][data-sc-inline] {
     margin-top: 0;
 }
 
-.vertical-mode .skogo span[data-sc文法情報],
-.vertical-mode .skogo span[data-sc百人一首] {
+.縦書き .三省堂古語 span[data-sc文法情報],
+.縦書き .三省堂古語 span[data-sc百人一首] {
     margin-left: 0 !important;
     margin-top: 0.15em;
 
@@ -1366,27 +1437,27 @@ li.smk8 {
     margin-bottom: 0.15em;
 }
 
-.vertical-mode .skogo span[data-sc言換イコール] {
+.縦書き .三省堂古語 span[data-sc言換イコール] {
     margin-right: 0 !important;
     margin-bottom: 0.1em;
 }
 
-.vertical-mode .skogo span[data-sc段落][data-sc字下0_1] {
+.縦書き .三省堂古語 span[data-sc段落][data-sc字下0_1] {
     margin-left: 0 !important;
     margin-top: 1em;
 }
 
-.vertical-mode .skogo span[data-sc段落][data-sc字下1_1] {
+.縦書き .三省堂古語 span[data-sc段落][data-sc字下1_1] {
     margin-left: 0 !important;
     margin-top: 1em;
 }
 
-.vertical-mode .skogo span[data-sc段落][data-sc字下2_2] {
+.縦書き .三省堂古語 span[data-sc段落][data-sc字下2_2] {
     margin-left: 0 !important;
     margin-top: 2em;
 }
 
-.vertical-mode .skogo span[data-sc付録参照ロゴ] {
+.縦書き .三省堂古語 span[data-sc付録参照ロゴ] {
     margin-left: 0 !important;
     margin-top: 0.1em;
 
@@ -1394,34 +1465,34 @@ li.smk8 {
     margin-bottom: 0.1em;
 }
 
-.vertical-mode .skogo table[data-sc識別-g] {
+.縦書き .三省堂古語 table[data-sc識別-g] {
     margin-left: 0 !important;
     margin-top: 1em;
 }
 
-.vertical-mode .skogo span[data-sc列-c] {
+.縦書き .三省堂古語 span[data-sc列-c] {
     margin-right: 0 !important;
     margin-bottom: 1em;
 }
 
-.vertical-mode .skogo span[data-sc識別見出サブ] {
+.縦書き .三省堂古語 span[data-sc識別見出サブ] {
     margin-left: 0 !important;
     margin-top: 0.1em;
 }
 
-.vertical-mode .skogo span[data-sc-gendai-ref品詞],
-.vertical-mode .skogo span[data-sc-gendai-ref-品詞],
-.vertical-mode .skogo span[data-sc-gendai-ref-desc] {
+.縦書き .三省堂古語 span[data-sc-gendai-ref品詞],
+.縦書き .三省堂古語 span[data-sc-gendai-ref-品詞],
+.縦書き .三省堂古語 span[data-sc-gendai-ref-desc] {
     margin-left: 0 !important;
     margin-top: 0.25em;
 }
 
-.vertical-mode .skogo span[data-sc-gendai-ref-desc] {
+.縦書き .三省堂古語 span[data-sc-gendai-ref-desc] {
     margin-left: 0 !important;
     margin-top: 0.25em;
 }
 
-.vertical-mode .skogo span[data-sc縦中横][data-sc-small] {
+.縦書き .三省堂古語 span[data-sc縦中横][data-sc-small] {
     margin-left: 0 !important;
     margin-top: 0.1em;
 
@@ -1429,12 +1500,12 @@ li.smk8 {
     margin-bottom: 0.1em;
 }
 
-.vertical-mode .skogo [data-sc-b-m] {
+.縦書き .三省堂古語 [data-sc-b-m] {
     margin-left: 0 !important;
     margin-top: 0.15em;
 }
 
-.vertical-mode .skogo [data-sc-i-m] {
+.縦書き .三省堂古語 [data-sc-i-m] {
     margin-left: 0 !important;
     margin-top: 0.15em;
 
@@ -1442,22 +1513,22 @@ li.smk8 {
     margin-bottom: 0.15em;
 }
 
-.vertical-mode .skogo span[data-sc箇条書-h] {
+.縦書き .三省堂古語 span[data-sc箇条書-h] {
     margin-right: 0 !important;
     margin-bottom: 0.15em;
 }
 
-.vertical-mode .skogo [data-sc-f-m] {
+.縦書き .三省堂古語 [data-sc-f-m] {
     margin-right: 0 !important;
     margin-bottom: 0.15em;
 }
 
-.vertical-mode .skogo [data-sc-logo_-f-m] {
+.縦書き .三省堂古語 [data-sc-logo_-f-m] {
     margin-right: 0 !important;
     margin-bottom: 0.3em;
 }
 
-.vertical-mode .skogo table[data-sc活用表] {
+.縦書き .三省堂古語 table[data-sc活用表] {
     margin-top: 0 !important;
     margin-right: 0.3em;
 
@@ -1465,7 +1536,7 @@ li.smk8 {
     margin-left: 0.3em;
 }
 
-.vertical-mode .skogo div[data-sc語義要説-g] {
+.縦書き .三省堂古語 div[data-sc語義要説-g] {
     margin-top: 0 !important;
     margin-right: 0.6em;
 
@@ -1473,7 +1544,7 @@ li.smk8 {
     margin-left: 0.6em;
 }
 
-.vertical-mode .skogo div[data-sc関連語] {
+.縦書き .三省堂古語 div[data-sc関連語] {
     margin-top: 0 !important;
     margin-right: 0.3em;
 
@@ -1481,10 +1552,10 @@ li.smk8 {
     margin-left: 0.3em;
 }
 
-.vertical-mode .skogo div[data-sc読解-g],
-.vertical-mode .skogo div[data-sc現代-g],
-.vertical-mode .skogo div[data-scチャート項目],
-.vertical-mode .skogo div[data-sc絵巻項目] {
+.縦書き .三省堂古語 div[data-sc読解-g],
+.縦書き .三省堂古語 div[data-sc現代-g],
+.縦書き .三省堂古語 div[data-scチャート項目],
+.縦書き .三省堂古語 div[data-sc絵巻項目] {
     margin-top: 0 !important;
     margin-right: 0.4em;
 
@@ -1492,7 +1563,7 @@ li.smk8 {
     margin-left: 0.4em;
 }
 
-.vertical-mode .skogo table[data-sc表-g] {
+.縦書き .三省堂古語 table[data-sc表-g] {
     margin-top: 0 !important;
     margin-right: 0.3em;
 
@@ -1500,13 +1571,13 @@ li.smk8 {
     margin-left: 0.3em;
 }
 
-.vertical-mode .skogo div[data-sc-gendai-ref-g] {
+.縦書き .三省堂古語 div[data-sc-gendai-ref-g] {
     margin-top: 0 !important;
     margin-right: 0.4em;
 }
 
-.vertical-mode .skogo div[data-sc画像-g],
-.vertical-mode .skogo div[data-sc絵巻画像-g] {
+.縦書き .三省堂古語 div[data-sc画像-g],
+.縦書き .三省堂古語 div[data-sc絵巻画像-g] {
     margin-top: 0 !important;
     margin-right: 0.3em;
 
@@ -1519,7 +1590,7 @@ li.smk8 {
 /* ----------------------- */
 /* --- 旺文社全訳古語辞典 --- */
 /* ----------------------- */
-.card.nightMode .obunsha-kogo {
+.card.nightMode .旺文社古語 {
     --ozk5-black: #DDDDDD;
     --ozk5-white: #000000;
     --ozk5-blue: #00AAFF;
@@ -1538,211 +1609,211 @@ li.smk8 {
     --ozk5-gendai-mark: #CCCCCC;
 }
 
-.obunsha-kogo [data-sc-audio_play_button],
-.obunsha-kogo [data-sc-audio_stop_button] {
+.旺文社古語 [data-sc-audio_play_button],
+.旺文社古語 [data-sc-audio_stop_button] {
     display: none !important;
 }
 
-.obunsha-kogo span[data-sc-body],
-.obunsha-kogo span[data-sc巻頭カラーテキストタイトル] span[data-sc割],
-.obunsha-kogo span[data-sc-hyoki],
-.obunsha-kogo div[data-sc活用インライン-g],
-.obunsha-kogo span[data-sc参照矢印] {
+.旺文社古語 span[data-sc-body],
+.旺文社古語 span[data-sc巻頭カラーテキストタイトル] span[data-sc割],
+.旺文社古語 span[data-sc-hyoki],
+.旺文社古語 div[data-sc活用インライン-g],
+.旺文社古語 span[data-sc参照矢印] {
     font-family: "游明朝体 Pr6N", "Yu Mincho Pr6N";
 }
 
-.obunsha-kogo span[data-sc主見出],
-.obunsha-kogo div[data-sc用例メタデータ],
-.obunsha-kogo span[data-sc用例訳],
-.obunsha-kogo span[data-sc巻頭カラーテキストタイトル],
-.obunsha-kogo div[data-sc訳語-g],
-.obunsha-kogo span[data-sc活用タイトル],
-.obunsha-kogo div[data-sc活用型],
-.obunsha-kogo div[data-scパネルタイトル],
-.obunsha-kogo span[data-sc重点義タイトル],
-.obunsha-kogo div[data-scガイド大語義項],
-.obunsha-kogo td[data-scガイド項タイトル],
-.obunsha-kogo div[data-sc発展タイトル],
-.obunsha-kogo div[data-sc語の広がりタイトル],
-.obunsha-kogo div[data-sc敬語ガイドタイトル],
-.obunsha-kogo div[data-sc図解学習タイトル],
-.obunsha-kogo div[data-sc慣用表現タイトル],
-.obunsha-kogo span[data-sc発展-m],
-.obunsha-kogo span[data-sc語の広がり-m],
-.obunsha-kogo span[data-sc共通義タイトル],
-.obunsha-kogo td[data-sc類語項][data-sc語句],
-.obunsha-kogo div[data-sc識別ボードタイトル],
-.obunsha-kogo div[data-sc文法要語解説小見出],
-.obunsha-kogo span[data-sc-rect],
-.obunsha-kogo span[data-sc-rectr],
-.obunsha-kogo span[data-sc-circle],
-.obunsha-kogo span[data-sc語義-m],
-.obunsha-kogo span[data-sc小語義-m],
-.obunsha-kogo span[data-sc-bold],
-.obunsha-kogo span[data-sc-color],
-.obunsha-kogo span[data-sc-strong],
-.obunsha-kogo span[data-sc-gendai見出] {
+.旺文社古語 span[data-sc主見出],
+.旺文社古語 div[data-sc用例メタデータ],
+.旺文社古語 span[data-sc用例訳],
+.旺文社古語 span[data-sc巻頭カラーテキストタイトル],
+.旺文社古語 div[data-sc訳語-g],
+.旺文社古語 span[data-sc活用タイトル],
+.旺文社古語 div[data-sc活用型],
+.旺文社古語 div[data-scパネルタイトル],
+.旺文社古語 span[data-sc重点義タイトル],
+.旺文社古語 div[data-scガイド大語義項],
+.旺文社古語 td[data-scガイド項タイトル],
+.旺文社古語 div[data-sc発展タイトル],
+.旺文社古語 div[data-sc語の広がりタイトル],
+.旺文社古語 div[data-sc敬語ガイドタイトル],
+.旺文社古語 div[data-sc図解学習タイトル],
+.旺文社古語 div[data-sc慣用表現タイトル],
+.旺文社古語 span[data-sc発展-m],
+.旺文社古語 span[data-sc語の広がり-m],
+.旺文社古語 span[data-sc共通義タイトル],
+.旺文社古語 td[data-sc類語項][data-sc語句],
+.旺文社古語 div[data-sc識別ボードタイトル],
+.旺文社古語 div[data-sc文法要語解説小見出],
+.旺文社古語 span[data-sc-rect],
+.旺文社古語 span[data-sc-rectr],
+.旺文社古語 span[data-sc-circle],
+.旺文社古語 span[data-sc語義-m],
+.旺文社古語 span[data-sc小語義-m],
+.旺文社古語 span[data-sc-bold],
+.旺文社古語 span[data-sc-color],
+.旺文社古語 span[data-sc-strong],
+.旺文社古語 span[data-sc-gendai見出] {
     font-family: "ヒラギノ角ゴシック", "Hiragino Kaku Gothic ProN", sans-serif;
 }
 
-.obunsha-kogo span[data-sc-img][data-sc-audio] {
+.旺文社古語 span[data-sc-img][data-sc-audio] {
     display: none;
 }
 
-.obunsha-kogo div[data-sc用例囲み-g],
-.obunsha-kogo div[data-sc和歌俳句囲み-g],
-.obunsha-kogo div[data-sc冒頭文囲み-g],
-.obunsha-kogo div[data-sc小倉囲み-g] {
+.旺文社古語 div[data-sc用例囲み-g],
+.旺文社古語 div[data-sc和歌俳句囲み-g],
+.旺文社古語 div[data-sc冒頭文囲み-g],
+.旺文社古語 div[data-sc小倉囲み-g] {
     margin-top: 0 !important;
 }
 
-.vertical-mode .obunsha-kogo [data-sc-img]>a>span {
+.縦書き .旺文社古語 [data-sc-img]>a>span {
     white-space: normal !important;
 }
 
-.vertical-mode .obunsha-kogo [data-sc-img] img {
+.縦書き .旺文社古語 [data-sc-img] img {
     position: inherit !important;
 }
 
-.vertical-mode .obunsha-kogo div[data-sc小倉参照] {
+.縦書き .旺文社古語 div[data-sc小倉参照] {
     margin-top: 0.3em;
 }
 
-.vertical-mode .obunsha-kogo span[data-sc文法テキスト][data-sc文法インデント2],
-.vertical-mode .obunsha-kogo span[data-sc文法テキスト][data-sc文法インデント-2] {
+.縦書き .旺文社古語 span[data-sc文法テキスト][data-sc文法インデント2],
+.縦書き .旺文社古語 span[data-sc文法テキスト][data-sc文法インデント-2] {
     margin-top: 2.0em !important;
     margin-left: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo span[data-sc大語義インデックス][data-sc-l-m] {
+.縦書き .旺文社古語 span[data-sc大語義インデックス][data-sc-l-m] {
     margin-top: 0.2em;
 }
 
-.vertical-mode .obunsha-kogo div[data-sc活用インライン-g] {
+.縦書き .旺文社古語 div[data-sc活用インライン-g] {
     margin-top: 0.6em;
     margin-left: 0em !important;
     /* font-family: "Yu Mincho Pr6N"; */
 }
 
-.vertical-mode .obunsha-kogo div[data-sc語義パネル語義][data-sc-n] {
+.縦書き .旺文社古語 div[data-sc語義パネル語義][data-sc-n] {
     margin-top: 1.15em;
     margin-left: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo table[data-scガイド項][data-sc-l-m] {
+.縦書き .旺文社古語 table[data-scガイド項][data-sc-l-m] {
     margin-top: 2.15em;
     margin-left: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo td[data-scガイド項テキスト] {
+.縦書き .旺文社古語 td[data-scガイド項テキスト] {
     margin-top: 0.3em;
     margin-left: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo div[data-sc接続大語義項] {
+.縦書き .旺文社古語 div[data-sc接続大語義項] {
     margin-top: 1.15em;
     margin-left: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo span[data-sc-f-m] {
+.縦書き .旺文社古語 span[data-sc-f-m] {
     margin-bottom: 0.15em;
     margin-right: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo span[data-sc-b-m] {
+.縦書き .旺文社古語 span[data-sc-b-m] {
     margin-top: 0.15em;
     margin-left: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo span[data-sc-i-m] {
+.縦書き .旺文社古語 span[data-sc-i-m] {
     margin-top: 0.15em;
     margin-left: 0em !important;
     margin-bottom: 0.15em;
     margin-right: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo span[data-scヘッドライン括弧番号] {
+.縦書き .旺文社古語 span[data-scヘッドライン括弧番号] {
     margin-top: 0.2em;
     margin-left: 0em !important;
     text-combine-upright: all;
 }
 
-.vertical-mode .obunsha-kogo span[data-sc文法要語nijyusen],
-.vertical-mode .obunsha-kogo span[data-sc文法要語-nijyusen] {
+.縦書き .旺文社古語 span[data-sc文法要語nijyusen],
+.縦書き .旺文社古語 span[data-sc文法要語-nijyusen] {
     margin-top: 0.05em;
     margin-left: 0em !important;
     margin-bottom: 0.05em;
     margin-right: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo div[data-sc用例-g] {
+.縦書き .旺文社古語 div[data-sc用例-g] {
     margin-top: 0.3em;
     margin-left: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo div[data-sc用例み-g],
-.vertical-mode .obunsha-kogo div[data-sc用例訳-g] {
+.縦書き .旺文社古語 div[data-sc用例み-g],
+.縦書き .旺文社古語 div[data-sc用例訳-g] {
     margin: 0.3em 0.1em !important;
 }
 
-.vertical-mode .obunsha-kogo div[data-sc用例囲み-g],
-.vertical-mode .obunsha-kogo div[data-sc和歌俳句囲み-g],
-.vertical-mode .obunsha-kogo div[data-sc冒頭文囲み-g],
-.vertical-mode .obunsha-kogo div[data-sc小倉囲み-g] {
+.縦書き .旺文社古語 div[data-sc用例囲み-g],
+.縦書き .旺文社古語 div[data-sc和歌俳句囲み-g],
+.縦書き .旺文社古語 div[data-sc冒頭文囲み-g],
+.縦書き .旺文社古語 div[data-sc小倉囲み-g] {
     margin-left: 0.2em;
     margin-bottom: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo table[data-sc活用テーブル] {
+.縦書き .旺文社古語 table[data-sc活用テーブル] {
     margin-left: 0.4em;
     margin-bottom: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo div[data-sc語義パネル-g],
-.vertical-mode .obunsha-kogo div[data-scガイド-g],
-.vertical-mode .obunsha-kogo div[data-sc接続囲み-g],
-.vertical-mode .obunsha-kogo div[data-sc類語パネル-g] {
+.縦書き .旺文社古語 div[data-sc語義パネル-g],
+.縦書き .旺文社古語 div[data-scガイド-g],
+.縦書き .旺文社古語 div[data-sc接続囲み-g],
+.縦書き .旺文社古語 div[data-sc類語パネル-g] {
     margin-left: 0.4em;
     margin-bottom: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo div[data-sc囲み-g] {
+.縦書き .旺文社古語 div[data-sc囲み-g] {
     margin-left: 0.4em;
     margin-bottom: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo div[data-sc囲み2-g],
-.vertical-mode .obunsha-kogo div[data-sc囲み-2-g] {
+.縦書き .旺文社古語 div[data-sc囲み2-g],
+.縦書き .旺文社古語 div[data-sc囲み-2-g] {
     margin-left: 0.4em;
     margin-bottom: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo div[data-sc囲み用例メタデータ],
-.vertical-mode .obunsha-kogo div[data-sc文法要語解説用例G],
-.vertical-mode .obunsha-kogo div[data-sc修辞解説用例G] {
+.縦書き .旺文社古語 div[data-sc囲み用例メタデータ],
+.縦書き .旺文社古語 div[data-sc文法要語解説用例G],
+.縦書き .旺文社古語 div[data-sc修辞解説用例G] {
     margin-left: 0.2em;
     margin-bottom: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo div[data-sc訳語-g] {
+.縦書き .旺文社古語 div[data-sc訳語-g] {
     margin-left: 0.2em;
 }
 
-.vertical-mode .obunsha-kogo span[data-sc括弧番号] {
+.縦書き .旺文社古語 span[data-sc括弧番号] {
     text-combine-upright: all;
     margin-bottom: 0.1em;
     margin-right: 0em !important;
 }
 
-.vertical-mode .obunsha-kogo span[data-sc活用タイトル] {
+.縦書き .旺文社古語 span[data-sc活用タイトル] {
     text-combine-upright: all;
 }
 
-.vertical-mode .obunsha-kogo span[data-sc縦中横] {
+.縦書き .旺文社古語 span[data-sc縦中横] {
     text-combine-upright: all;
 }
 
-.vertical-mode .obunsha-kogo span[data-sc-img][data-sc外字] {
+.縦書き .旺文社古語 span[data-sc-img][data-sc外字] {
     text-combine-upright: all;
 }
 
@@ -1751,7 +1822,7 @@ li.smk8 {
 /* ------------------ */
 /* --- 明鏡国語辞典 --- */
 /* ------------------ */
-.card.nightMode .meikyo {
+.card.nightMode .明鏡 {
     --meikyo-white: #000000;
     --meikyo-black: #cccccc;
     --meikyo-blue: #33ccff;
@@ -1764,140 +1835,484 @@ li.smk8 {
     --meikyo-box-gray: #663333;
 }
 
-.meikyo span[data-sc-img][data-sc-audio] {
+.明鏡 span[data-sc-img][data-sc-audio] {
     display: none;
 }
 
-.vertical-mode .meikyo span[data-sc-img][data-sc-gaiji] {
+.縦書き .明鏡 span[data-sc-img][data-sc-gaiji] {
     display: none !important;
 }
 
-.meikyo span[data-sc-img][data-sc-gaiji]>a>span {
+.明鏡 span[data-sc-img][data-sc-gaiji]>a>span {
     width: 20em !important;
     margin-right: 2em;
     vertical-align: -4em !important;
 }
 
-.meikyo [data-sc-body],
-.meikyo span[data-sc-rect],
-.meikyo span[data-sc-katsuyo],
-.meikyo span[data-sc-headword][data-sc-class="旧かな"],
-.meikyo span[data-sc-fbox0],
-.meikyo span[data-sc-fbox],
-.meikyo span[data-sc-e-m],
-.meikyo span[data-sc-em],
-.meikyo div[data-sc-class="shikiri"] div[data-sc-meaning],
-.meikyo span[data-sc-meaning][data-sc-class="columntitle"],
-.meikyo div[data-sc-meaning][data-sc-class="columntitle"],
-.meikyo span[data-sc-b],
-.meikyo a,
-.meikyo span[data-sc-bc] {
+.明鏡 [data-sc-body],
+.明鏡 span[data-sc-rect],
+.明鏡 span[data-sc-katsuyo],
+.明鏡 span[data-sc-headword][data-sc-class="旧かな"],
+.明鏡 span[data-sc-fbox0],
+.明鏡 span[data-sc-fbox],
+.明鏡 span[data-sc-e-m],
+.明鏡 span[data-sc-em],
+.明鏡 div[data-sc-class="shikiri"] div[data-sc-meaning],
+.明鏡 span[data-sc-meaning][data-sc-class="columntitle"],
+.明鏡 div[data-sc-meaning][data-sc-class="columntitle"],
+.明鏡 span[data-sc-b],
+.明鏡 a,
+.明鏡 span[data-sc-bc] {
     font-family: "Hiragino Kaku Gothic ProN";
 }
 
-.meikyo div[data-sc-example],
-.meikyo span[data-sc-fbox][data-sc-class="品格"],
-.meikyo span[data-sc-headword][data-sc-class="表記"],
-.meikyo span[data-sc-headword][data-sc-class="原綴"],
-.meikyo span[data-sc-zoomkanji] {
+.明鏡 div[data-sc-example],
+.明鏡 span[data-sc-fbox][data-sc-class="品格"],
+.明鏡 span[data-sc-headword][data-sc-class="表記"],
+.明鏡 span[data-sc-headword][data-sc-class="原綴"],
+.明鏡 span[data-sc-zoomkanji] {
     font-family: "Hiragino Mincho ProN";
 }
 
-.meikyo span[data-sc-pron] {
+.明鏡 span[data-sc-pron] {
     font-family: "Doulos SIL";
 }
 
-.vertical-mode .meikyo [data-sc-child_item] {
+.縦書き .明鏡 [data-sc-child_item] {
     margin-top: 0 !important;
     margin-right: 0.5em;
 }
 
-.vertical-mode .meikyo [data-sc-column] {
+.縦書き .明鏡 [data-sc-column] {
     margin-top: 0 !important;
     margin-right: 0.5em;
 }
 
-.vertical-mode .meikyo div[data-sc-class="hinkaku"] {
+.縦書き .明鏡 div[data-sc-class="hinkaku"] {
     margin-top: 0 !important;
     margin-right: 0.5em;
 }
 
-.vertical-mode .meikyo div:has(> span[data-sc-zoomkanji]) {
+.縦書き .明鏡 div:has(> span[data-sc-zoomkanji]) {
     margin-top: 0 !important;
     margin-right: 0.8em;
 }
 
-.vertical-mode .meikyo [data-sc-class="ruigo-items"]+[data-sc-class="ruigo-items"] {
+.縦書き .明鏡 [data-sc-class="ruigo-items"]+[data-sc-class="ruigo-items"] {
     margin-top: 0 !important;
     margin-right: 0.5em;
 }
 
-.vertical-mode .meikyo table[data-sc-class="img"] {
+.縦書き .明鏡 table[data-sc-class="img"] {
     margin-top: 0 !important;
     margin-right: 1em;
 }
 
-.vertical-mode .meikyo div[data-sc-head2] {
+.縦書き .明鏡 div[data-sc-head2] {
     margin-top: 0 !important;
     margin-right: 0.25em;
 }
 
-.vertical-mode .meikyo [data-sc-class="columntitle"] {
+.縦書き .明鏡 [data-sc-class="columntitle"] {
     margin-bottom: 0 !important;
     margin-left: 0.5em;
 }
 
-.vertical-mode .meikyo span[data-sc-bc] {
+.縦書き .明鏡 span[data-sc-bc] {
     margin-right: 0 !important;
     margin-bottom: 0.2em;
 }
 
-.vertical-mode .meikyo div[data-sc-class="shikiri"] td[data-sc-td][data-sc-class="red"] {
+.縦書き .明鏡 div[data-sc-class="shikiri"] td[data-sc-td][data-sc-class="red"] {
     margin-right: 0 !important;
     margin-bottom: 0.25em;
 }
 
-.vertical-mode .meikyo span[data-sc-fbox] {
+.縦書き .明鏡 span[data-sc-fbox] {
     margin-right: 0 !important;
     margin-bottom: 0.25em;
 }
 
-.vertical-mode .meikyo span[data-sc-fbox0] {
+.縦書き .明鏡 span[data-sc-fbox0] {
     margin-right: 0 !important;
     margin-bottom: 0.25em;
 }
 
-.vertical-mode .meikyo span[data-sc-pos] {
+.縦書き .明鏡 span[data-sc-pos] {
     margin-right: 0 !important;
     margin-bottom: 0.5em;
 }
 
-.vertical-mode .meikyo span[data-sc-p-o-s] {
+.縦書き .明鏡 span[data-sc-p-o-s] {
     margin-right: 0 !important;
     margin-bottom: 0.5em;
 }
 
-.vertical-mode .meikyo span[data-sc-p-os] {
+.縦書き .明鏡 span[data-sc-p-os] {
     margin-right: 0 !important;
     margin-bottom: 0.5em;
 }
 
-.vertical-mode .meikyo span[data-sc-headword][data-sc-class="旧かな"] {
+.縦書き .明鏡 span[data-sc-headword][data-sc-class="旧かな"] {
     margin-left: 0 !important;
     margin-top: 0.5em;
 }
 
-.vertical-mode .meikyo span[data-sc-katsuyo] {
+.縦書き .明鏡 span[data-sc-katsuyo] {
     margin-left: 0 !important;
     margin-top: 0.25em;
 }
 
-.vertical-mode .meikyo span[data-sc-rect]+span[data-sc-rect] {
+.縦書き .明鏡 span[data-sc-rect]+span[data-sc-rect] {
     margin-left: 0 !important;
     margin-top: 0.1em;
 }
 
-.vertical-mode .meikyo table[data-sc-class="img"] {
+.縦書き .明鏡 table[data-sc-class="img"] {
     margin-left: 0 !important;
     margin-top: 1em;
+}
+
+
+
+
+/* ----------------------------------- */
+/* --- 有斐閣現代心理学辞典スタイリング --- */
+/* ----------------------------------- */
+.card.nightMode .心理学辞典 {
+    --ydp-black: #CCCCCC;
+    --ydp-image-background: #333333;
+    --ydp-blue: #00AAFF;
+
+    .心理学辞典 [data-sc-img][data-sc-class="数式"] .gloss-image {
+        -webkit-filter: invert(100%);
+        filter: invert(100%);
+    }
+}
+
+.心理学辞典 [data-sc-body],
+.心理学辞典 rt,
+.心理学辞典 span[data-sc-ref_group] span[data-sc-ref],
+.心理学辞典 span[data-sc-ref_items] span[data-sc-ref] {
+    font-family: "Hiragino Mincho ProN", "ヒラギノ明朝 ProN";
+}
+
+.心理学辞典 span[data-sc-em],
+.心理学辞典 div[data-sc-entryrefs],
+.心理学辞典 span[data-sc-headword][data-sc見出],
+.心理学辞典 span[data-sc-ref_group] {
+    font-family: "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴシック";
+}
+
+.心理学辞典 span[data-sc-i],
+.心理学辞典 span[data-sc-headword][data-sc英語],
+.心理学辞典 span[data-sc-headword][data-sc独語],
+.心理学辞典 span[data-sc-headword][data-sc仏語] {
+    font-family: "Times New Roman";
+}
+
+.心理学辞典 div[data-sc-image_caption] {
+    font-family: "Hiragino Kaku Gothic ProN";
+}
+
+.心理学辞典 span[data-sc-lang] {
+    font-family: "Helvetica Neue";
+}
+
+.心理学辞典 [data-sc-image] {
+    background-color: transparent !important;
+}
+
+/* 画像要素が存在しない場合に画像ディブを非表示 */
+.心理学辞典 div[data-sc-image]:not(:has(> div:not([style*="display: none"]) span[data-sc-img])) {
+    display: none;
+}
+
+/* 非表示の画像の後にある説明テキストを非表示 */
+.心理学辞典 div[data-sc-image]>div[style*="display: none"]+div:not(:has(span[data-sc-img])) {
+    display: none;
+}
+
+/* または、すべての画像が非表示の場合、すべての説明要素も非表示 */
+.心理学辞典 div[data-sc-image]:not(:has(> div:not([style*="display: none"]) span[data-sc-img]))>div:not(:has(span[data-sc-img])) {
+    display: none;
+}
+
+.縦書き .心理学辞典 [data-sc-img]>a>span {
+    white-space: normal !important;
+}
+
+.縦書き .心理学辞典 [data-sc-img] img {
+    position: inherit !important;
+}
+
+.縦書き .心理学辞典 div[data-sc表] {
+    margin-top: 0 !important;
+    margin-right: 0.5em;
+    margin-bottom: 0 !important;
+    margin-left: 0.5em;
+}
+
+.縦書き .心理学辞典 span[data-sc-meaning][data-sc見よ項目] {
+    margin-left: 0 !important;
+    margin-top: 1em;
+}
+
+.縦書き .心理学辞典 span[data-sc-class="数式 math_letter"] span:first-child {
+    margin-left: 0 !important;
+    margin-top: 0.1em;
+}
+
+.縦書き .心理学辞典 span[data-sc-sup] {
+    margin-left: 0 !important;
+    margin-top: 0.25em;
+}
+
+.縦書き .心理学辞典 div[data-sc-img] {
+    margin-left: 0 !important;
+    margin-top: 2em;
+}
+
+.縦書き .心理学辞典 span[data-sc-sub] {
+    margin-left: 0 !important;
+    margin-top: 0.25em;
+}
+
+.縦書き .心理学辞典 div[data-sc-image] {
+    margin-top: 0 !important;
+    margin-right: 0.5em;
+}
+
+.縦書き .心理学辞典 div[data-sc-image_caption] {
+    margin-top: 0 !important;
+    margin-right: 0.5em;
+}
+
+.縦書き .心理学辞典 div[data-sc-image_note] {
+    margin-top: 0 !important;
+    margin-right: 1em;
+}
+
+.縦書き .心理学辞典 div[data-sc-image_source] {
+    margin-top: 0 !important;
+    margin-right: 1.2em;
+}
+
+.縦書き .心理学辞典 div[data-sc-entryrefs] {
+    margin-top: 0 !important;
+    margin-right: 0.5em;
+}
+
+.縦書き .心理学辞典 span[data-sc-meaning] {
+    margin-top: 0 !important;
+    margin-right: 0.5em;
+}
+
+.縦書き .心理学辞典 span[data-sc-ref_items] {
+    margin-top: 0 !important;
+    margin-right: 0.25em;
+}
+
+
+
+/* ------------------------------- */
+/* --- 南山堂医学大辞典スタイリング --- */
+/* ------------------------------- */
+/* フォント */
+.南山堂医学 {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif;
+}
+
+.南山堂医学 [data-sc-midashi_hyoki] {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif;
+    font-weight: bold;
+}
+
+.南山堂医学 [data-sc-midashi_yomi] {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif;
+}
+
+.南山堂医学 [data-sc-gaikokugo_title],
+.南山堂医学 [data-sc-dougigo_title],
+.南山堂医学 [data-sc-image-mark1],
+.南山堂医学 [data-sc-image-mark5] {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    font-weight: bold;
+}
+
+.南山堂医学 [data-sc-image-mark2] {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    font-weight: bold;
+}
+
+.南山堂医学 [data-sc-lang]>span:not([data-sc-image-mark2]) {
+    font-family: "Times New Roman", Times, serif;
+}
+
+.南山堂医学 [data-sc-dougigo-h] {
+    font-family: "Times New Roman", Times, serif;
+}
+
+.南山堂医学 [data-sc-exp] {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif;
+}
+
+.南山堂医学 [data-sc-syn] > span:first-child {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif;
+}
+
+/* ダークモード */
+.card.nightMode .南山堂医学 span[data-sc-gaiji_img] img {
+    -webkit-filter: invert(90%);
+    filter: invert(90%);
+}
+
+.card.nightMode .南山堂医学 [data-sc-body] {
+    color: var(--nanmed-base-color, #e0e0e0);
+}
+
+.card.nightMode .南山堂医学 [data-sc-midashi] {
+    border-bottom-color: var(--nanmed-midashi-border, #555);
+}
+
+.card.nightMode .南山堂医学 [data-sc-midashi]::after {
+    background-color: var(--nanmed-red, #d66);
+}
+
+.card.nightMode .南山堂医学 [data-sc-link-aster] {
+    color: var(--nanmed-red, #d66);
+}
+
+.card.nightMode .南山堂医学 [data-sc-midashi_hyoki] {
+    color: var(--nanmed-red, #d66);
+}
+
+.card.nightMode .南山堂医学 [data-sc-midashi_yomi] {
+    color: var(--nanmed-light-text-color, #aaa);
+}
+
+.card.nightMode .南山堂医学 [data-sc-gaikokugo_layer],
+.card.nightMode .南山堂医学 [data-sc-dougigo_layer] {
+    border-left-color: var(--nanmed-border-color, #555);
+}
+
+.card.nightMode .南山堂医学 [data-sc-gaikokugo_title],
+.card.nightMode .南山堂医学 [data-sc-dougigo_title],
+.card.nightMode .南山堂医学 [data-sc-image-mark1],
+.card.nightMode .南山堂医学 [data-sc-image-mark5] {
+    color: var(--nanmed-light-text-color, #aaa);
+}
+
+.card.nightMode .南山堂医学 [data-sc-image-mark2] {
+    color: var(--nanmed-red, #d66);
+}
+
+.card.nightMode [data-sc-roman_numeral] {
+    color: var(--nanmed-red, #d66);
+}
+
+.card.nightMode .南山堂医学 [data-sc-dougigo-h] {
+    color: var(--nanmed-link-color, #9aacbf);
+}
+
+.card.nightMode .南山堂医学 a {
+    color: var(--nanmed-link-color, #9aacbf);
+}
+
+.card.nightMode .南山堂医学 a:hover {
+    color: var(--nanmed-red, #d66);
+}
+
+.card.nightMode .南山堂医学 .gloss-image-container {
+    border-color: var(--nanmed-border-color, #555);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.縦書き .南山堂医学 [data-sc-contents],
+.縦書き .南山堂医学 [data-sc-exp] {
+    margin-top: 0 !important;
+    margin-right: 0.5rem;
+}
+
+.縦書き .南山堂医学 [data-sc-midashi] {
+    margin-bottom: 0 !important;
+    margin-left: 0.8rem;
+}
+
+.縦書き .南山堂医学 [data-sc-midashi_yomi],
+.縦書き .南山堂医学 [data-sc-gaikokugo_title],
+.縦書き .南山堂医学 [data-sc-lang],
+.縦書き .南山堂医学 [data-sc-dougigo_title] {
+    margin-bottom: 0 !important;
+    margin-left: 0.4rem;
+}
+
+.縦書き .南山堂医学 [data-sc-midashi_hyoki],
+.縦書き .南山堂医学 [data-sc-gaikokugo_layer],
+.縦書き .南山堂医学 [data-sc-dougigo_layer] {
+    margin-bottom: 0 !important;
+    margin-left: 0.2rem;
+}
+
+.縦書き .南山堂医学 [data-sc-image-mark5] {
+    margin-right: 0 !important;
+    margin-bottom: 0.3rem;
+}
+
+.縦書き .南山堂医学 [data-sc-image-mark1] {
+    margin-right: 0 !important;
+    margin-bottom: 0.2rem;
+}
+
+.縦書き .南山堂医学 [data-sc-syn] > span:first-child,
+.縦書き .南山堂医学 [data-sc-image-mark2] {
+    margin-right: 0 !important;
+    margin-bottom: 0.5rem;
+}
+
+.縦書き .南山堂医学 [data-sc-lang] {
+    margin-right: 0 !important;
+    margin-bottom: 1.8rem;
+}
+
+.縦書き .南山堂医学 [data-sc-link-aster] {
+    margin-right: 0 !important;
+    margin-bottom: 0.05rem;
+    margin-left: 0 !important;
+    margin-top: 0.05em;
+}
+
+.縦書き .南山堂医学 [data-sc-image-mark2] {
+    margin-bottom: 0.3em !important;
+}
+
+.縦書き .南山堂医学 [data-sc-lang]>span:not([data-sc-image-mark2]) {
+    text-orientation: upright !important;
+    font-size: 0.8em !important;
+    letter-spacing: -0.35em !important;
+    margin-bottom: 1em !important;
+}
+
+.縦書き .南山堂医学 [data-sc-gaikokugo_layer],
+.縦書き .南山堂医学 [data-sc-dougigo_layer] {
+    border-left: none !important;
+    border-top: 2px solid var(--nanmed-border-color, #ddd);
+}
+
+.card.nightMode .縦書き .南山堂医学 [data-sc-gaikokugo_layer],
+.card.nightMode .縦書き .南山堂医学 [data-sc-dougigo_layer] {
+    border-left: none !important;
+    border-top: 2px solid var(--nanmed-border-color, #555);
+}
+
+.縦書き .南山堂医学 [data-sc-midashi]:after {
+    background-color: transparent !important;
+}
+
+.縦書き .南山堂医学 [data-sc-midashi] {
+    border-bottom: none !important;
+}
+
+.card.nightMode .縦書き .南山堂医学 [data-sc-midashi] {
+    border-bottom: none !important;
 }
