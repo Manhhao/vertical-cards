@@ -44,7 +44,8 @@
             "漢検漢字辞典　第二版": "漢検検定辞典",
             "新明解国語辞典　第八版": "新明解",
             "現代心理学辞典": "心理学辞典",
-            "南山堂医学大辞典 第20版": "南山堂医学"
+            "南山堂医学大辞典 第20版": "南山堂医学",
+            "三省堂国語辞典　第八版": "三省堂国語"
         },
 
         // 折りたたみ可能な要素のセレクター
@@ -95,21 +96,6 @@
             // 正しいモードのクラスを適用
             contentContainer.classList.toggle('縦書き', this.isVertical);
             contentContainer.classList.toggle('横書き', !this.isVertical);
-
-            // 横書きモードのためにコンテナの高さを調整
-            if (!this.isVertical) {
-                // 横書きモードでは、コンテンツに合わせてコンテナが拡大できるようにする
-                contentContainer.style.height = 'auto';
-                contentContainer.style.minHeight = '300px'; // 最小高さ（見た目のため）
-
-                // スクロール可能なコンテンツのための十分な空間を確保するために最小高さを追加
-                const viewportHeight = window.innerHeight;
-                contentContainer.style.maxHeight = `${Math.min(viewportHeight * 0.7, 650)}px`;
-            } else {
-                // 縦書きモードでは固定高さを使用
-                contentContainer.style.height = '70vh';
-                contentContainer.style.minHeight = '';
-            }
 
             return this.isVertical;
         },
@@ -368,23 +354,24 @@
         }
     }
 
-    // パフォーマンス改善による循環可能な定義の設定
+    // 辞書の定義を切り替えられるようにするための便利な機能です。
     function setupCyclableDefinitions() {
         const definitionContainer = window.dictionaryContext.elements.definitionContainer;
         if (!definitionContainer) return;
 
         const definitionItems = Array.from(definitionContainer.querySelectorAll("li[data-dictionary]"));
-        if (definitionItems.length <= 1) return; // 循環の必要なし
+        if (definitionItems.length <= 1) return; // 定義が一つだけならサイクルする必要ない
 
-        // 最初にすべての定義項目を非表示
+        console.log(definitionItems)
+        // 最初は全ての定義を非表示にしておきます
         definitionItems.forEach(item => item.style.display = "none");
 
-        // デフォルトでは最初の1つだけ表示
+        // デフォルトでは最初の定義だけ表示する
         if (definitionItems[0]) {
             definitionItems[0].style.display = "";
         }
 
-        // 一度のDOM操作で全ての要素をフラグメントに作成
+         // パフォーマンスを良くするために、全ての要素を一度にドキュメントフラグメントで作成します
         const fragment = document.createDocumentFragment();
         const counterElement = document.createElement("div");
         const leftEdge = document.createElement("div");
@@ -405,101 +392,116 @@
         let visibleCount = 1;
         const totalDefinitions = definitionItems.length;
 
-        // 表示用の辞書名
+        // 表示用の辞書名を取得します
         const dictionaryNames = definitionItems.map(item => {
             const dictName = item.getAttribute("data-dictionary");
-            return dictName || `辞書 ${definitionItems.indexOf(item) + 1}`;
+            return dictName || `Dictionary ${definitionItems.indexOf(item) + 1}`;
         });
 
         let lastMeasuredWidth = 0;
         let lastMeasuredHeight = 0;
         let hasCalculatedInitialLayout = false;
 
-        // 表示可能な定義数を計算
+        // 表示できる定義の数を計算します
         function calculateVisibleCount() {
-            // 縦書きモードの新たなチェックを強制
+            // 縦モードかどうかを再チェックします
             window.dictionaryContext.detectVerticalMode();
             const isVertical = window.dictionaryContext.isVertical;
 
-            // 横書きモードを特別に処理
+            // 横モードの場合は特別な処理が必要です
             if (!isVertical) {
-                // 横書きモードでは、他のコンテンツの後の利用可能なスペースを考慮する必要がある
+                // 横モードでは、他のコンテンツの後に利用可能なスペースを考慮する必要があります
                 const sentenceEl = document.getElementById('sentence');
                 const contentRect = containerToUse.getBoundingClientRect();
                 const viewportHeight = window.innerHeight;
 
-                // 利用可能な高さを計算
+                // 利用可能な高さを計算します
+                const contentTop = containerToUse.getBoundingClientRect().top;
                 const otherContentHeight = sentenceEl ?
-                    sentenceEl.getBoundingClientRect().bottom - containerToUse.getBoundingClientRect().top :
-                    100; // 例文が見つからない場合のデフォルトパディング
+                    sentenceEl.getBoundingClientRect().bottom - contentTop :
+                    100; // 見つからない場合のデフォルトのパディング
 
-                // 使用可能な最大高さを計算（ﾋﾞｭｰﾎﾟｰﾄ) - (ﾍｯﾀﾞｰ) - (ﾊﾟﾃﾞｨﾝｸﾞ）
-                const maxHeight = viewportHeight * 0.7; // ビューポートの70%を最大とする
+                // 最大使用可能高さを計算します（ビューポート） - （ヘッダー） - （パディング）
+                const maxHeight = viewportHeight * 0.65; // ビューポートの65%を最大値として使用
                 const availableHeight = Math.max(50, maxHeight - otherContentHeight);
 
-                // 少なくとも一つの定義が表示されるよう最小高さを設定
+                // 少なくとも一つの定義が表示されるように最小の高さを設定します
                 containerToUse.style.minHeight = otherContentHeight + 150 + 'px';
 
-                // 特定の利用可能な高さ計算がある場合
-                if (availableHeight > 100) {
-                    // 測定のためにアイテムを表示するが非表示に
-                    definitionItems.forEach(item => {
-                        item.style.display = "";
-                        item.style.visibility = "hidden";
-                    });
+                // 測定のためにアイテムを一時的に表示しますが、非表示にしておきます
+                definitionItems.forEach(item => {
+                    item.style.display = "";
+                    item.style.visibility = "hidden";
+                });
 
-                    // レイアウト計算を強制
-                    containerToUse.offsetHeight;
+                // レイアウト計算を強制します
+                containerToUse.offsetHeight;
 
-                    let totalUsedSpace = 0;
-                    let count = 0;
+                // 少なくとも一つの定義を常に表示し、
+                // 完全に収まる場合のみ追加します
+                let count = 0;
+                let firstItemHeight = 0;
 
-                    // 表示可能な数を最大化するために定義を高さでソート
-                    const tempItems = [...definitionItems];
-                    if (tempItems.length > 1) {
-                        tempItems.sort((a, b) => {
-                            const aRect = a.getBoundingClientRect();
-                            const bRect = b.getBoundingClientRect();
-                            return aRect.height - bRect.height;
-                        });
-                    }
+                // まず、バッファー付きの最初のアイテムの高さを測定します
+                if (definitionItems[0]) {
+                    const firstItemRect = definitionItems[0].getBoundingClientRect();
+                    const firstItemStyle = window.getComputedStyle(definitionItems[0]);
 
-                    // アイテムを一つずつ測定
-                    for (const item of tempItems) {
-                        const itemRect = item.getBoundingClientRect();
-                        const style = window.getComputedStyle(item);
+                    firstItemHeight = firstItemRect.height +
+                        parseFloat(firstItemStyle.marginTop) +
+                        parseFloat(firstItemStyle.marginBottom);
 
-                        const itemSize = itemRect.height +
-                            parseFloat(style.marginTop) +
-                            parseFloat(style.marginBottom);
+                    // 安全バッファーを追加します（10%）
+                    firstItemHeight = firstItemHeight * 1.1;
 
-                        const itemWithBuffer = itemSize * 1.05;
-
-                        if (totalUsedSpace + itemWithBuffer > availableHeight) break;
-
-                        totalUsedSpace += itemWithBuffer;
-                        count++;
-                    }
-
-                    // 可視性をリセット
-                    definitionItems.forEach(item => {
-                        item.style.visibility = "";
-                        item.style.display = "none";
-                    });
-
-                    return Math.max(1, count);
-                } else {
-                    // 計算が信頼できない場合のフォールバック
-                    return Math.min(2, definitionItems.length);
+                    // 常に最初の定義を表示します
+                    count = 1;
                 }
+
+                // もっと定義を表示するスペースがあれば、追加の定義を慎重に測定します
+                if (firstItemHeight < availableHeight * 0.7) { // 最初の定義には最大70%を使用
+                    let remainingSpace = availableHeight - firstItemHeight;
+
+                    // 完全に収まる場合は追加の定義を追加してみます
+                    for (let i = 1; i < definitionItems.length; i++) {
+                        const item = definitionItems[i];
+                        const itemRect = item.getBoundingClientRect();
+                        const itemStyle = window.getComputedStyle(item);
+
+                        const itemHeight = itemRect.height +
+                            parseFloat(itemStyle.marginTop) +
+                            parseFloat(itemStyle.marginBottom);
+
+                        // 安全のために10%のバッファーを追加します
+                        const itemWithBuffer = itemHeight * 1.1;
+
+                        // 余裕を持って完全に収まる場合のみ追加します
+                        if (remainingSpace >= itemWithBuffer) {
+                            remainingSpace -= itemWithBuffer;
+                            count++;
+                        } else {
+                            // これ以上収まらない場合は停止します
+                            break;
+                        }
+                    }
+                }
+
+                // 可視性をリセットします
+                definitionItems.forEach(item => {
+                    item.style.visibility = "";
+                    item.style.display = "none";
+                });
+
+                // 少なくとも一つ、最大でも全ての定義を表示します
+                return Math.max(1, Math.min(count, totalDefinitions));
             }
 
-            // 縦書きモードの計算
+            // 縦モードの計算はリクエスト通り変更しません
             const containerRect = containerToUse.getBoundingClientRect();
             const containerWidth = containerRect.width;
             const containerHeight = containerRect.height;
 
-            // 寸法が変更されていない場合は再計算をスキップ
+            // 寸法が変わっていなければ再計算をスキップします
             if (containerWidth === lastMeasuredWidth &&
                 containerHeight === lastMeasuredHeight &&
                 hasCalculatedInitialLayout) {
@@ -509,20 +511,20 @@
             lastMeasuredWidth = containerWidth;
             lastMeasuredHeight = containerHeight;
 
-            // 測定のためにアイテムを表示するが非表示に
+            // 測定のためにアイテムを一時的に表示しますが、非表示にしておきます
             definitionItems.forEach(item => {
                 item.style.display = "";
                 item.style.visibility = "hidden";
             });
 
-            const containerSize = containerWidth; // 縦書きモード用
+            const containerSize = containerWidth; // 縦モードの場合
             const safetyMargin = 0.9;
             const usableSpace = containerSize * safetyMargin;
 
             let totalUsedSpace = 0;
             let count = 0;
 
-            // 縦書きモード計算
+            // 縦モードの計算
             for (const item of definitionItems) {
                 const itemRect = item.getBoundingClientRect();
                 const style = window.getComputedStyle(item);
@@ -537,7 +539,7 @@
                 count++;
             }
 
-            // 可視性をリセット
+            // 可視性をリセットします
             definitionItems.forEach(item => {
                 item.style.visibility = "";
                 item.style.display = "none";
@@ -547,9 +549,9 @@
             return Math.max(1, count);
         }
 
-        // 表示する定義を更新
+        // 表示する定義を更新します
         function updateVisibleDefinitions() {
-            // まず全てを非表示
+            // まず全て非表示にします
             definitionItems.forEach(item => item.style.display = "none");
 
             const actualVisibleCount = Math.min(visibleCount, totalDefinitions - currentStartIndex);
@@ -567,12 +569,12 @@
                 counterElement.textContent = `(${currentStartIndex + 1}-${endIndex + 1}/${totalDefinitions})`;
             }
 
-            // ナビゲーション要素の表示/非表示
+            // ナビゲーション要素の表示/非表示を切り替えます
             const showNavigation = visibleCount < totalDefinitions;
             leftEdge.style.display = rightEdge.style.display = showNavigation ? "" : "none";
         }
 
-        // 次／前の定義セットに循環
+        // 次/前の定義セットにサイクルします
         function cycleDefinitions(direction) {
             if (visibleCount >= totalDefinitions) return;
 
@@ -590,7 +592,7 @@
             updateVisibleDefinitions();
         }
 
-        // ナビゲーション用のイベントリスナー
+        // ナビゲーションのイベントリスナー
         leftEdge.addEventListener("click", () => cycleDefinitions("prev"));
         rightEdge.addEventListener("click", () => cycleDefinitions("next"));
 
@@ -611,21 +613,21 @@
             };
         }
 
-        // 要素を初期化
+        // 要素を初期化します
         containerToUse.appendChild(fragment);
         counterElement.textContent = `(1/${totalDefinitions})`;
 
-        // 必要に応じてナビゲーションを表示
+        // 必要に応じてナビゲーションを表示します
         leftEdge.style.display = rightEdge.style.display = totalDefinitions > 1 ? "" : "none";
 
-        // 初期計算をスケジュール
+        // 初期計算をスケジュールします
         const scheduleInitialCalculation = window.requestIdleCallback || requestAnimationFrame;
         scheduleInitialCalculation(() => {
             visibleCount = calculateVisibleCount();
             updateVisibleDefinitions();
         });
 
-        // デバウンスでリサイズを処理
+        // デバウンスでリサイズを処理します
         const debouncedResize = debounce(() => {
             visibleCount = calculateVisibleCount();
             updateVisibleDefinitions();
@@ -633,38 +635,38 @@
 
         window.addEventListener('resize', debouncedResize, { passive: true });
 
-        // 書き方モードの変更を処理
+        // 書き込みモードの変更を処理します
         const originalDetectVerticalMode = window.dictionaryContext.detectVerticalMode;
         window.dictionaryContext.detectVerticalMode = function () {
             const wasVertical = this.isVertical;
             const result = originalDetectVerticalMode.call(this);
 
             if (wasVertical !== this.isVertical) {
-                // 保存された寸法をリセット
+                // 保存された寸法をリセットします
                 lastMeasuredWidth = lastMeasuredHeight = 0;
 
-                // レイアウトが落ち着くのを待つ小さな遅延で次のフレームで再計算
+                // レイアウトが落ち着くまで少し遅延させて次のフレームで再計算します
                 setTimeout(() => {
                     requestAnimationFrame(() => {
                         visibleCount = calculateVisibleCount();
                         updateVisibleDefinitions();
 
-                        // 横書きモードの場合、コンテンツに基づいてコンテナの高さを調整
+                        // 横モードの場合、コンテンツに基づいてコンテナの高さを調整します
                         if (!this.isVertical) {
                             const visibleItems = definitionItems.filter(item => item.style.display === "");
                             if (visibleItems.length > 0) {
-                                // 最後の表示アイテムの下部を見つける
+                                // 最後の表示アイテムの下部を見つけます
                                 const lastItemRect = visibleItems[visibleItems.length - 1].getBoundingClientRect();
                                 const containerRect = containerToUse.getBoundingClientRect();
                                 const requiredHeight = lastItemRect.bottom - containerRect.top + 30; // パッディングを追加
 
-                                // すべての表示定義に対応するための最小の高さを設定
-                                containerToUse.closest('#content-container').style.minHeight =
-                                    `${Math.max(300, requiredHeight)}px`;
+                                // 表示されている全ての定義に対応するために最小の高さを設定します
+                                const minHeight = visibleItems.length === 1 ? requiredHeight : Math.max(300, requiredHeight);
+                                containerToUse.closest('#content-container').style.minHeight = `${minHeight}px`;
                             }
                         }
                     });
-                }, 50); // レイアウトが確実に落ち着くための小さな遅延
+                }, 50); // レイアウトが落ち着くまでの小さな遅延
             }
 
             return result;
@@ -785,7 +787,6 @@
             });
         });
 
-        // Batch DOM insertion
         wrappers.forEach(({ wrapper, content, element, parent }) => {
             // 要素を現在の親から削除
             if (element.parentNode) {
