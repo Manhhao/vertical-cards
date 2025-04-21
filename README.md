@@ -1,14 +1,23 @@
 # Vertical Cards
 
-A lovely card template for Anki that I've made for my Yomitan dictionaries <img src="assets/SaberLion.png" width="20" height="20" alt="SaberLion" />. Grand for studying on any device! 
+A lovely card template for Anki that I've made for my Yomitan dictionaries <img src="assets/SaberLion.png" width="20" height="20" alt="SaberLion" style="vertical-align: text-bottom;" />. Grand for studying on any device! 
 
 ## How it looks
 
 ### Desktop
-<video src="./assets/desktop-demo.mp4" width="400" controls></video>
+<p align="center">
+  <a href="./assets/desktop-demo.webm" target="_blank">
+    <picture>
+      <source srcset="./assets/desktop-demo.webm" type="video/webm">
+      <img src="./assets/desktop-demo.gif" width="600" alt="High quality demo">
+    </picture>
+  </a>
+  <br>
+  <em>Click for full quality (WebM)</em>
+</p>
 
 ### Mobile
-<img src="./assets/mobile-horizontal.png" width="300" alt="Mobile layout" /> 
+<img src="./assets/mobile.jpg" width="300" alt="Mobile layout" /> 
 
 - **Smart layout that adapts to your screen**: 
   - Flips horizontal when you're on your mobile or have a narrow window open
