@@ -2,33 +2,58 @@
     <label class="writing-mode-switch">
         <input type="checkbox" id="writing-mode-toggle" checked>
         <span class="slider round"></span>
-        <span class="toggle-label">縦書き</span>
+        <span class="toggle-label"></span>
     </label>
 </div>
 
-<div class="center-wrapper back">
+<div class="center-wrapper">
     <div id="container">
         <div id="dictname">{{DictionaryName}}</div>
-        <div id="header-container">
-            <div class="header-main-content">
-                <div id="expression">{{Word}}</div>
-                <div id="reading">{{Reading}}</div>
+
+        <div id="top-section">
+            <div id="header-container">
+                <div class="header-main-content">
+                    <div id="expression">{{Word}}</div>
+                    <div id="reading">{{Reading}}</div>
+                </div>
+                <div class="audio-buttons">
+                    {{#Audio}}
+                    <div class="word-audio">
+                        {{Audio}}
+                        <span class="word-icon">字</span>
+                    </div>
+                    {{/Audio}}
+
+                    {{#SentenceAudio}}
+                    <div class="sentence-audio">
+                        {{SentenceAudio}}
+                        <span class="sentence-icon">〽</span>
+                    </div>
+                    {{/SentenceAudio}}
+                </div>
             </div>
-            <div class="audio-buttons">
-                <div class="word-audio">{{Audio}}</div>
-                <div class="sentence-audio">{{SentenceAudio}}</div>
+
+            <div id="image-container">
+                <div class="image-edge-nav image-left-edge"></div>
+                <div class="image-edge-nav image-right-edge"></div>
+                <div id="image">
+                    {{Picture}}
+                </div>
             </div>
         </div>
-        <div id="content-container">
+
+        <div id="content-container" class="縦書き">
             <div id="glossary-container">
                 <div id="definition">{{Glossary}}</div>
                 <div id="sentence">{{Sentence}}</div>
             </div>
-            <div id="image-container">
-                <div id="image">{{Picture}}</div>
-            </div>
         </div>
     </div>
+</div>
+
+<div id="lightbox-overlay">
+    <span id="lightbox-close">&times;</span>
+    <img id="lightbox-image" src="" alt="">
 </div>
 
 <script>
@@ -41,31 +66,44 @@
             "角川新字源 改訂新版": "角川新字源",
             "明鏡国語辞典 第三版": "明鏡",
             "大辞泉 第二版": "大辞泉",
+            "デジタル大辞泉": "大辞泉",
             "漢検漢字辞典　第二版": "漢検検定辞典",
             "新明解国語辞典　第八版": "新明解",
             "現代心理学辞典": "心理学辞典",
             "南山堂医学大辞典 第20版": "南山堂医学",
-            "三省堂国語辞典　第八版": "三省堂国語"
+            "三省堂国語辞典　第八版": "三省堂国語",
+            "旺文社国語辞典 第十一版": "旺文社国語",
+            "大辞林　第四版": "大辞林",
+            "精選版　日本国語大辞典": "精選版",
+            "広辞苑 第七版": "広辞苑",
+
+            //四字熟語
+            "YOJI-JUKUGO": "YOJI",
+            "四字熟語の百科事典": "四字百科",
+            "新明解四字熟語辞典": "新明解四字",
+            "学研 四字熟語辞典": "学研四字",
+            "四字熟語辞典オンライン": "四字オンライン"
         },
 
         // 折りたたみ可能な要素のセレクター
         collapsibleSelectors: {
             "三省堂 全訳読解古語辞典": [
-                "div[data-sc絵巻項目]",
-                "div[data-sc読解-g]"
+                { selector: "div[data-sc絵巻項目]", displayName: "絵巻" },
+                { selector: "div[data-sc読解-g]", displayName: "読解" },
+                { selector: "div[data-sc関連語sub-b]", displayName: "関連語" }
             ],
             "旺文社 全訳古語辞典": [
-                "div[data-sc用例囲み-g]",
-                "div[data-sc発展]"
+                { selector: "div[data-sc用例囲み-g]", displayName: "例文・訳" },
+                { selector: "div[data-sc発展]", displayName: "発展事項" },
+                { selector: "div[data-sc敬語ガイド]", displayName: "敬語ガイド" },
+                { selector: "div:has(>div[data-sc図解学習タイトル])", displayName: "図解学習" }
+            ],
+            "四字熟語の百科事典": [
+                { selector: "div[data-sc-name=\"使い方\"]", displayName: "使い方" }
+            ],
+            "四字熟語辞典オンライン": [
+                { selector: "div[style=\"display:block;\"]>table", displayName: "詳細情報" }
             ]
-        },
-
-        // 表示名マッピング
-        displayNameMap: {
-            "絵巻項目": "絵巻",
-            "発展": "発展事項",
-            "読解-g": "読解",
-            "用例囲み-g": "例文・訳"
         },
 
         // 画像要素のセレクター
@@ -73,6 +111,13 @@
             "三省堂 全訳読解古語辞典": "div[data-sc画像-g]",
             "大辞泉 第二版": "div[data-sc-m-image]",
             "現代心理学辞典": "div[data-sc-image]>div:has([data-sc-img])",
+            "南山堂医学大辞典 第20版": "span[data-sc-scale-image]",
+            "角川新字源 改訂新版": "div[data-sc-imagefile]",
+            "明鏡国語辞典 第三版": "td[data-sc-img]",
+            "デジタル大辞泉": "li:has(>a>span img)",
+            "広辞苑 第七版": "div:has(>a>span)",
+            "旺文社国語辞典 第十一版": "span>a>span",
+            "漢字でGo! [2024-03-09]": "div:has(>a>span)",
             "default": "div[data-sc画像-g], .image-container, .figure, figure, .img-container"
         },
 
@@ -89,18 +134,16 @@
             const contentContainer = this.elements.contentContainer;
             if (!contentContainer) return false;
 
-            // モバイル表示かどうかチェック（常に横書き）
             const isMobileView = window.innerWidth <= 600;
             this.isVertical = isMobileView ? false : this.userPreferences.tategakiEnabled;
 
-            // 正しいモードのクラスを適用
             contentContainer.classList.toggle('縦書き', this.isVertical);
             contentContainer.classList.toggle('横書き', !this.isVertical);
 
             return this.isVertical;
         },
 
-        // 文字方向（縦書き/横書き）切替
+        // 文字方向切替
         toggleWritingMode(enabled) {
             this.userPreferences.tategakiEnabled = typeof enabled === 'boolean' ? enabled : !this.userPreferences.tategakiEnabled;
             localStorage.setItem('tategakiEnabled', this.userPreferences.tategakiEnabled);
@@ -110,7 +153,6 @@
             const toggle = document.getElementById('writing-mode-toggle');
             if (toggle) toggle.checked = this.userPreferences.tategakiEnabled;
 
-            // 正しい状態を適用したので、切替を表示
             this.showWritingModeToggle();
 
             window.dispatchEvent(new Event('resize'));
@@ -140,14 +182,88 @@
         showWritingModeToggle() {
             const toggleContainer = document.getElementById('writing-mode-toggle-container');
             if (toggleContainer) {
-                // モバイルでない場合のみ表示
                 if (window.innerWidth > 600) {
                     toggleContainer.classList.add('ready');
                 }
             }
         },
 
-        // DOMからアクティブな辞書を識別
+        //文字サイズを調整する
+        adjustFontSize() {
+            const expression = this.elements.expression;
+            const reading = this.elements.reading;
+            if (!expression || !reading) return;
+
+            // 最小サイズ設定
+            const minExpressionSize = 1.8;
+            const minReadingSize = 0.9;
+
+            // 最大サイズ（文字数が少ない時に使う）
+            const maxExpressionSize = 2.5;
+            const maxReadingSize = 1.2;
+
+            // CJK文字をカウントする関数
+            function countCJKChars(text) {
+                if (!text) return 0;
+                // - Basic CJK Unified Ideographs (4E00-9FFF)
+                // - CJK Extension A (3400-4DBF)
+                // - CJK Extension B (20000-2A6DF)
+                // - CJK Extension C (2A700-2B73F)
+                // - CJK Extension D (2B740-2B81F)
+                // - CJK Extension E (2B820-2CEAF)
+                // - CJK Extension F (2CEB0-2EBEF)
+                // - CJK Extension G (30000-3134F)
+                // - CJK Extension H (31350-323AF)
+                // - CJK Compatibility Ideographs (F900-FAFF)
+                // - CJK Radicals Supplement (2E80-2EFF)
+                // - CJK Strokes (31C0-31EF)
+                // - Ideographic Description Characters (2FF0-2FFF)
+                // - Hiragana (3040-309F)
+                // - Katakana (30A0-30FF)
+                // - Katakana Phonetic Extensions (31F0-31FF)
+                // - Halfwidth Katakana (FF65-FF9F)
+                // - Kanbun (3190-319F)
+                const cjkRegex = /[\u4E00-\u9FFF\u3400-\u4DBF\u30000-\u3134F\u31350-\u323AF\uF900-\uFAFF\u2E80-\u2EFF\u31C0-\u31EF\u2FF0-\u2FFF\u3040-\u309F\u30A0-\u30FF\u31F0-\u31FF\uFF65-\uFF9F\u3190-\u319F]|[\uD840-\uD868][\uDC00-\uDFFF]|\uD869[\uDC00-\uDEDF]|\uD86D[\uDC00-\uDF3F]|\uD86E[\uDC00-\uDC1F]|\uD87E[\uDC00-\uDE1F]/g;
+                const matches = text.match(cjkRegex);
+                return matches ? matches.length : 0;
+            }
+
+            const expressionText = expression.textContent;
+            const readingText = reading.textContent;
+
+            const expressionLength = countCJKChars(expressionText);
+            const readingLength = countCJKChars(readingText);
+
+            // 単語のサイズ調整
+            let expressionSize;
+            if (expressionLength === 1) {
+                // 一文字なら最大サイズ
+                expressionSize = maxExpressionSize;
+            } else if (expressionLength <= 3) {
+                // 2-3文字なら中間サイズ
+                const scale = (expressionLength - 1) / 2;
+                expressionSize = maxExpressionSize - (maxExpressionSize - minExpressionSize) * scale;
+            } else {
+                // 4文字以上なら最小サイズ
+                expressionSize = minExpressionSize;
+            }
+
+            // 読み方のサイズ調整
+            let readingSize;
+            if (readingLength === 0) {
+                readingSize = minReadingSize;
+            } else if (readingLength <= 4) {
+                readingSize = maxReadingSize - (maxReadingSize - minReadingSize) * ((readingLength - 1) / 3);
+            } else {
+                readingSize = minReadingSize;
+            }
+
+            // 実際にサイズを適用
+            expression.style.fontSize = `${expressionSize}em`;
+            reading.style.fontSize = `${readingSize}em`;
+        },
+
+        // 現在アクティブな辞書を調べる
         identifyActiveDictionaries() {
             if (Object.keys(this.activeDictionaries).length > 0) {
                 return Object.keys(this.activeDictionaries);
@@ -169,10 +285,7 @@
             return Object.keys(this.activeDictionaries);
         },
 
-        /**
-         * 辞書固有のCSSクラスを適用し、単一辞書表示の場合は適切なリスト構造を構築します
-         * 単一の辞書エントリでもかわいいスタイリングな枠線を一貫して適用するために拡張しました
-         */
+        // 辞書ごとのスタイルを適用
         applyDictionaryClasses() {
             const { dictionaryClassNames, activeDictionaries, elements } = this;
             const dictionariesToProcess = Object.keys(activeDictionaries);
@@ -191,23 +304,32 @@
                     const actualDictName = dictname.textContent.trim();
                     if (!actualDictName) return;
 
-                    // パフォーマンス向上のためにドキュメントフラグメントを使用
+                    // パフォーマンス向上のためにドキュメントフラグメントを使う
                     const fragment = document.createDocumentFragment();
 
                     // リスト構造を作成
                     const listElement = document.createElement("ol");
                     listElement.className = "dictionary-list";
 
-                    // 単一の辞書用のリストアイテムを作成
+                    // リストアイテム作成
                     const listItem = document.createElement("li");
                     listItem.setAttribute("data-dictionary", actualDictName);
 
-                    // 変更前の現在のコンテンツを取得
+                    // 現在の内容を取得
                     const currentContent = definitionContainer.innerHTML;
 
-                    // 辞書クラスが利用可能な場合は適用
+                    // 辞書クラスを適用
                     if (dictionaryClassNames[actualDictName]) {
                         listItem.classList.add(dictionaryClassNames[actualDictName]);
+                    }
+
+                    // Pixiv辞書は特別扱い
+                    else if (actualDictName.startsWith('Pixiv')) {
+                        listItem.classList.add('pixiv');
+                    }
+
+                    else if (actualDictName.startsWith('漢字でGo')) {
+                        listItem.classList.add('漢字でGo');
                     }
 
                     listItem.innerHTML = currentContent;
@@ -221,26 +343,43 @@
                     definitionContainer.innerHTML = "";
                     definitionContainer.appendChild(fragment);
 
-                    // 要素の保存を更新
+                    // 要素を更新
                     this.elements.dictionaryEntries = definitionContainer.querySelectorAll("li[data-dictionary]");
-                } else if (dictionaryClassNames[dictName]) {
-                    // 従来の単一辞書処理: メインコンテナにクラスを追加
+                }
+
+                else if (dictName.startsWith('Pixiv')) {
+                    definitionContainer.classList.add('pixiv');
+                }
+
+                else if (dictName.startsWith('漢字でGo')) {
+                    definitionContainer.classList.add('漢字でGo');
+                }
+
+                else if (dictionaryClassNames[dictName]) {
                     definitionContainer.classList.add(dictionaryClassNames[dictName]);
                 }
             }
 
-            // 個別の辞書エントリを処理（既存の機能を維持）
+            // 各辞書エントリにクラスを適用
             if (this.elements.dictionaryEntries && this.elements.dictionaryEntries.length > 0) {
                 this.elements.dictionaryEntries.forEach(entry => {
                     const dictName = entry.getAttribute("data-dictionary");
-                    if (dictName && dictionaryClassNames[dictName]) {
-                        entry.classList.add(dictionaryClassNames[dictName]);
+                    if (dictName) {
+                        if (dictionaryClassNames[dictName]) {
+                            entry.classList.add(dictionaryClassNames[dictName]);
+                        }
+                        else if (dictName.startsWith('Pixiv')) {
+                            entry.classList.add('pixiv');
+                        }
+                        else if (dictName.startsWith('漢字でGo')) {
+                            entry.classList.add('漢字でGo')
+                        }
                     }
                 });
             }
         },
 
-        // 全てを初期化
+        // 初期化処理
         init() {
             if (this.initialized) return;
 
@@ -254,11 +393,12 @@
             this.identifyActiveDictionaries();
             this.applyDictionaryClasses();
             this.detectVerticalMode();
+            this.adjustFontSize();
 
             const toggle = document.getElementById('writing-mode-toggle');
             if (toggle) toggle.checked = this.userPreferences.tategakiEnabled;
 
-            // すべての設定が完了してから切替を表示
+            // ちょっと待ってから切り替えボタンを表示
             setTimeout(() => this.showWritingModeToggle(), 50);
 
             this.initialized = true;
@@ -273,38 +413,42 @@
 
         const ctx = window.dictionaryContext;
 
-        // どの要素が存在するかチェック
+        // 画像要素をキャッシュ
+        if (!ctx.elements.imageDiv) {
+            ctx.elements.imageDiv = document.querySelector('#image');
+        }
+
+        if (!ctx.elements.imageContainer) {
+            ctx.elements.imageContainer = document.querySelector('#image-container');
+        }
+
+        // 存在する要素をチェック
         const elementsExist = {};
         for (const key in ctx.elements) {
             elementsExist[key] = ctx.elements[key] !== null &&
                 !(ctx.elements[key] instanceof NodeList && ctx.elements[key].length === 0);
         }
 
-        // バッチ操作を作成
+        // 必要な処理をまとめて実行
         requestAnimationFrame(() => {
-            // 条件を満たす全ての機能関数を実行
             if (elementsExist.sentence) handleEmptySentence();
             if (elementsExist.expression && elementsExist.reading && elementsExist.sentence) handleDuplicateContent();
             if (elementsExist.definitionContainer) setupCyclableDefinitions();
             setupCollapsibleElements();
             handleImages();
-            if (elementsExist.imageContainer && elementsExist.imageDiv) hideEmptyImageContainer();
             setupWritingModeToggle();
 
-            // 全ての操作が完了した後にイベントリスナーを設定
             setupGlobalEventListeners();
         });
     }
 
-    // 縦書き切替の設定
+    // 縦書き切り替えボタンの設定
     function setupWritingModeToggle() {
         const toggle = document.getElementById('writing-mode-toggle');
         if (!toggle) return;
 
-        // 辞書コンテキストに基づいて初期状態を設定
         toggle.checked = window.dictionaryContext.userPreferences.tategakiEnabled;
 
-        // 変更イベントリスナーを追加
         toggle.addEventListener('change', function () {
             window.dictionaryContext.toggleWritingMode(this.checked);
         });
@@ -354,154 +498,118 @@
         }
     }
 
-    // 辞書の定義を切り替えられるようにするための便利な機能です。
+    // 複数辞書のページング機能
     function setupCyclableDefinitions() {
         const definitionContainer = window.dictionaryContext.elements.definitionContainer;
         if (!definitionContainer) return;
 
         const definitionItems = Array.from(definitionContainer.querySelectorAll("li[data-dictionary]"));
-        if (definitionItems.length <= 1) return; // 定義が一つだけならサイクルする必要ない
-
-        console.log(definitionItems)
-        // 最初は全ての定義を非表示にしておきます
-        definitionItems.forEach(item => item.style.display = "none");
-
-        // デフォルトでは最初の定義だけ表示する
-        if (definitionItems[0]) {
-            definitionItems[0].style.display = "";
-        }
-
-         // パフォーマンスを良くするために、全ての要素を一度にドキュメントフラグメントで作成します
-        const fragment = document.createDocumentFragment();
-        const counterElement = document.createElement("div");
-        const leftEdge = document.createElement("div");
-        const rightEdge = document.createElement("div");
-
-        counterElement.className = "definition-counter";
-        leftEdge.className = "definition-left-edge";
-        rightEdge.className = "definition-right-edge";
-
-        fragment.appendChild(counterElement);
-        fragment.appendChild(leftEdge);
-        fragment.appendChild(rightEdge);
+        if (definitionItems.length <= 1) return;
 
         const containerToUse = window.dictionaryContext.elements.contentContainer || definitionContainer;
         containerToUse.style.position = "relative";
+
+        // スマホかどうか判定
+        const isMobileDevice = document.documentElement.classList.contains('mobile') ||
+            document.documentElement.classList.contains('android') ||
+            document.documentElement.classList.contains('iphone') ||
+            document.documentElement.classList.contains('ipad') ||
+            /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+        // モバイルデバイス用のクラスを追加
+        if (isMobileDevice) {
+            containerToUse.classList.add('mobile-device');
+        }
+
+        // ナビゲーション用HTML
+        const navHTML = `
+        <div class="definition-counter"></div>
+        <div class="definition-left-edge" role="button" aria-label="前の定義"></div>
+        <div class="definition-right-edge" role="button" aria-label="次の定義"></div>
+    `;
+
+        containerToUse.insertAdjacentHTML('beforeend', navHTML);
+
+        const counterElement = containerToUse.querySelector('.definition-counter');
+        const leftEdge = containerToUse.querySelector('.definition-left-edge');
+        const rightEdge = containerToUse.querySelector('.definition-right-edge');
 
         let currentStartIndex = 0;
         let visibleCount = 1;
         const totalDefinitions = definitionItems.length;
 
-        // 表示用の辞書名を取得します
         const dictionaryNames = definitionItems.map(item => {
             const dictName = item.getAttribute("data-dictionary");
-            return dictName || `Dictionary ${definitionItems.indexOf(item) + 1}`;
+            return dictName || `辞書 ${definitionItems.indexOf(item) + 1}`;
         });
 
         let lastMeasuredWidth = 0;
         let lastMeasuredHeight = 0;
         let hasCalculatedInitialLayout = false;
 
-        // 表示できる定義の数を計算します
+        // 表示可能な定義数を計算
         function calculateVisibleCount() {
-            // 縦モードかどうかを再チェックします
             window.dictionaryContext.detectVerticalMode();
             const isVertical = window.dictionaryContext.isVertical;
 
-            // 横モードの場合は特別な処理が必要です
             if (!isVertical) {
-                // 横モードでは、他のコンテンツの後に利用可能なスペースを考慮する必要があります
                 const sentenceEl = document.getElementById('sentence');
                 const contentRect = containerToUse.getBoundingClientRect();
                 const viewportHeight = window.innerHeight;
 
-                // 利用可能な高さを計算します
                 const contentTop = containerToUse.getBoundingClientRect().top;
-                const otherContentHeight = sentenceEl ?
-                    sentenceEl.getBoundingClientRect().bottom - contentTop :
-                    100; // 見つからない場合のデフォルトのパディング
 
-                // 最大使用可能高さを計算します（ビューポート） - （ヘッダー） - （パディング）
-                const maxHeight = viewportHeight * 0.65; // ビューポートの65%を最大値として使用
+                let sentenceHeight = 0;
+                if (sentenceEl && sentenceEl.style.display !== 'none') {
+                    const sentenceRect = sentenceEl.getBoundingClientRect();
+                    sentenceHeight = sentenceRect.height;
+                }
+
+                const otherContentHeight = sentenceHeight || 50;
+                const maxHeight = viewportHeight * 0.65;
                 const availableHeight = Math.max(50, maxHeight - otherContentHeight);
 
-                // 少なくとも一つの定義が表示されるように最小の高さを設定します
-                containerToUse.style.minHeight = otherContentHeight + 150 + 'px';
-
-                // 測定のためにアイテムを一時的に表示しますが、非表示にしておきます
                 definitionItems.forEach(item => {
                     item.style.display = "";
                     item.style.visibility = "hidden";
                 });
 
-                // レイアウト計算を強制します
                 containerToUse.offsetHeight;
 
-                // 少なくとも一つの定義を常に表示し、
-                // 完全に収まる場合のみ追加します
                 let count = 0;
-                let firstItemHeight = 0;
+                let totalHeight = 0;
 
-                // まず、バッファー付きの最初のアイテムの高さを測定します
-                if (definitionItems[0]) {
-                    const firstItemRect = definitionItems[0].getBoundingClientRect();
-                    const firstItemStyle = window.getComputedStyle(definitionItems[0]);
+                for (let i = 0; i < definitionItems.length; i++) {
+                    const item = definitionItems[i];
+                    const itemRect = item.getBoundingClientRect();
+                    const itemStyle = window.getComputedStyle(item);
 
-                    firstItemHeight = firstItemRect.height +
-                        parseFloat(firstItemStyle.marginTop) +
-                        parseFloat(firstItemStyle.marginBottom);
+                    const itemHeight = itemRect.height +
+                        parseFloat(itemStyle.marginTop) +
+                        parseFloat(itemStyle.marginBottom);
 
-                    // 安全バッファーを追加します（10%）
-                    firstItemHeight = firstItemHeight * 1.1;
+                    const itemWithBuffer = itemHeight * 1.1;
 
-                    // 常に最初の定義を表示します
-                    count = 1;
-                }
-
-                // もっと定義を表示するスペースがあれば、追加の定義を慎重に測定します
-                if (firstItemHeight < availableHeight * 0.7) { // 最初の定義には最大70%を使用
-                    let remainingSpace = availableHeight - firstItemHeight;
-
-                    // 完全に収まる場合は追加の定義を追加してみます
-                    for (let i = 1; i < definitionItems.length; i++) {
-                        const item = definitionItems[i];
-                        const itemRect = item.getBoundingClientRect();
-                        const itemStyle = window.getComputedStyle(item);
-
-                        const itemHeight = itemRect.height +
-                            parseFloat(itemStyle.marginTop) +
-                            parseFloat(itemStyle.marginBottom);
-
-                        // 安全のために10%のバッファーを追加します
-                        const itemWithBuffer = itemHeight * 1.1;
-
-                        // 余裕を持って完全に収まる場合のみ追加します
-                        if (remainingSpace >= itemWithBuffer) {
-                            remainingSpace -= itemWithBuffer;
-                            count++;
-                        } else {
-                            // これ以上収まらない場合は停止します
-                            break;
-                        }
+                    if (totalHeight + itemWithBuffer <= availableHeight || i === 0) {
+                        totalHeight += itemWithBuffer;
+                        count++;
+                    } else {
+                        break;
                     }
                 }
 
-                // 可視性をリセットします
                 definitionItems.forEach(item => {
                     item.style.visibility = "";
                     item.style.display = "none";
                 });
 
-                // 少なくとも一つ、最大でも全ての定義を表示します
                 return Math.max(1, Math.min(count, totalDefinitions));
             }
 
-            // 縦モードの計算はリクエスト通り変更しません
             const containerRect = containerToUse.getBoundingClientRect();
             const containerWidth = containerRect.width;
             const containerHeight = containerRect.height;
 
-            // 寸法が変わっていなければ再計算をスキップします
             if (containerWidth === lastMeasuredWidth &&
                 containerHeight === lastMeasuredHeight &&
                 hasCalculatedInitialLayout) {
@@ -511,20 +619,18 @@
             lastMeasuredWidth = containerWidth;
             lastMeasuredHeight = containerHeight;
 
-            // 測定のためにアイテムを一時的に表示しますが、非表示にしておきます
             definitionItems.forEach(item => {
                 item.style.display = "";
                 item.style.visibility = "hidden";
             });
 
-            const containerSize = containerWidth; // 縦モードの場合
+            const containerSize = containerWidth;
             const safetyMargin = 0.9;
             const usableSpace = containerSize * safetyMargin;
 
             let totalUsedSpace = 0;
             let count = 0;
 
-            // 縦モードの計算
             for (const item of definitionItems) {
                 const itemRect = item.getBoundingClientRect();
                 const style = window.getComputedStyle(item);
@@ -539,7 +645,6 @@
                 count++;
             }
 
-            // 可視性をリセットします
             definitionItems.forEach(item => {
                 item.style.visibility = "";
                 item.style.display = "none";
@@ -549,9 +654,8 @@
             return Math.max(1, count);
         }
 
-        // 表示する定義を更新します
+        // 表示する定義を更新
         function updateVisibleDefinitions() {
-            // まず全て非表示にします
             definitionItems.forEach(item => item.style.display = "none");
 
             const actualVisibleCount = Math.min(visibleCount, totalDefinitions - currentStartIndex);
@@ -569,12 +673,46 @@
                 counterElement.textContent = `(${currentStartIndex + 1}-${endIndex + 1}/${totalDefinitions})`;
             }
 
-            // ナビゲーション要素の表示/非表示を切り替えます
             const showNavigation = visibleCount < totalDefinitions;
             leftEdge.style.display = rightEdge.style.display = showNavigation ? "" : "none";
         }
 
-        // 次/前の定義セットにサイクルします
+        // コンテナの高さ調整
+        function adjustContainerHeight() {
+            if (window.dictionaryContext.isVertical) return;
+
+            const visibleItems = definitionItems.filter(item => item.style.display === "");
+            if (visibleItems.length === 0) return;
+
+            const sentenceEl = document.getElementById('sentence');
+            const contentContainerEl = containerToUse.closest('#content-container');
+
+            if (!contentContainerEl) return;
+
+            const containerRect = contentContainerEl.getBoundingClientRect();
+
+            contentContainerEl.style.minHeight = '';
+
+            let lastElement = null;
+            let lastElementRect = null;
+
+            if (sentenceEl && sentenceEl.style.display !== 'none') {
+                lastElement = sentenceEl;
+            }
+            else if (visibleItems.length > 0) {
+                lastElement = visibleItems[visibleItems.length - 1];
+            }
+
+            if (lastElement) {
+                contentContainerEl.offsetHeight;
+
+                lastElementRect = lastElement.getBoundingClientRect();
+                const requiredHeight = lastElementRect.bottom - containerRect.top + 20;
+                contentContainerEl.style.minHeight = `${Math.max(requiredHeight, 100)}px`;
+            }
+        }
+
+        // 定義を切り替える
         function cycleDefinitions(direction) {
             if (visibleCount >= totalDefinitions) return;
 
@@ -590,21 +728,10 @@
             }
 
             updateVisibleDefinitions();
+            setTimeout(() => adjustContainerHeight(), 10);
         }
 
-        // ナビゲーションのイベントリスナー
-        leftEdge.addEventListener("click", () => cycleDefinitions("prev"));
-        rightEdge.addEventListener("click", () => cycleDefinitions("next"));
-
-        // キーボードナビゲーション
-        document.addEventListener("keydown", (event) => {
-            if (event.key === "ArrowLeft" || event.keyCode === 37) {
-                cycleDefinitions("prev");
-            } else if (event.key === "ArrowRight" || event.keyCode === 39) {
-                cycleDefinitions("next");
-            }
-        }, { passive: true });
-
+        // 連続クリック対策
         function debounce(func, wait) {
             let timeout;
             return function () {
@@ -613,60 +740,116 @@
             };
         }
 
-        // 要素を初期化します
-        containerToUse.appendChild(fragment);
-        counterElement.textContent = `(1/${totalDefinitions})`;
+        // タッチ操作用の変数
+        let touchActive = false;
+        let touchTimeout = null;
 
-        // 必要に応じてナビゲーションを表示します
+        // タッチ開始時の処理
+        function handleTouchStart(element) {
+            return function (e) {
+                element.classList.add('touch-active');
+                touchActive = true;
+
+                if (touchTimeout) {
+                    clearTimeout(touchTimeout);
+                    touchTimeout = null;
+                }
+            };
+        }
+
+        // タッチ終了時の処理
+        function handleTouchEnd(element, direction) {
+            return function (e) {
+                if (touchActive) {
+                    cycleDefinitions(direction);
+
+                    touchTimeout = setTimeout(() => {
+                        element.classList.remove('touch-active');
+                        touchActive = false;
+                    }, 300);
+                }
+            };
+        }
+
+        // タッチキャンセル時の処理
+        function handleTouchCancel(element) {
+            return function (e) {
+                element.classList.remove('touch-active');
+                touchActive = false;
+
+                if (touchTimeout) {
+                    clearTimeout(touchTimeout);
+                    touchTimeout = null;
+                }
+            };
+        }
+
+        // クリックとタッチイベントを設定
+        leftEdge.addEventListener("click", () => cycleDefinitions("prev"));
+        rightEdge.addEventListener("click", () => cycleDefinitions("next"));
+
+        leftEdge.addEventListener("touchstart", handleTouchStart(leftEdge), { passive: true });
+        leftEdge.addEventListener("touchend", handleTouchEnd(leftEdge, "prev"), { passive: true });
+        leftEdge.addEventListener("touchcancel", handleTouchCancel(leftEdge), { passive: true });
+
+        rightEdge.addEventListener("touchstart", handleTouchStart(rightEdge), { passive: true });
+        rightEdge.addEventListener("touchend", handleTouchEnd(rightEdge, "next"), { passive: true });
+        rightEdge.addEventListener("touchcancel", handleTouchCancel(rightEdge), { passive: true });
+
+        // キーボード操作もサポート
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowLeft" || event.keyCode === 37) {
+                cycleDefinitions("prev");
+            } else if (event.key === "ArrowRight" || event.keyCode === 39) {
+                cycleDefinitions("next");
+            }
+        }, { passive: true });
+
+        // 初期表示
+        counterElement.textContent = `(1/${totalDefinitions})`;
         leftEdge.style.display = rightEdge.style.display = totalDefinitions > 1 ? "" : "none";
 
-        // 初期計算をスケジュールします
+        // 初期計算
         const scheduleInitialCalculation = window.requestIdleCallback || requestAnimationFrame;
         scheduleInitialCalculation(() => {
             visibleCount = calculateVisibleCount();
             updateVisibleDefinitions();
+            adjustContainerHeight();
         });
 
-        // デバウンスでリサイズを処理します
+        // リサイズ時の処理
         const debouncedResize = debounce(() => {
             visibleCount = calculateVisibleCount();
             updateVisibleDefinitions();
+            adjustContainerHeight();
         }, 250);
 
         window.addEventListener('resize', debouncedResize, { passive: true });
 
-        // 書き込みモードの変更を処理します
+        // 表示モード変更時の処理
         const originalDetectVerticalMode = window.dictionaryContext.detectVerticalMode;
         window.dictionaryContext.detectVerticalMode = function () {
             const wasVertical = this.isVertical;
             const result = originalDetectVerticalMode.call(this);
 
             if (wasVertical !== this.isVertical) {
-                // 保存された寸法をリセットします
                 lastMeasuredWidth = lastMeasuredHeight = 0;
 
-                // レイアウトが落ち着くまで少し遅延させて次のフレームで再計算します
                 setTimeout(() => {
                     requestAnimationFrame(() => {
                         visibleCount = calculateVisibleCount();
                         updateVisibleDefinitions();
 
-                        // 横モードの場合、コンテンツに基づいてコンテナの高さを調整します
                         if (!this.isVertical) {
-                            const visibleItems = definitionItems.filter(item => item.style.display === "");
-                            if (visibleItems.length > 0) {
-                                // 最後の表示アイテムの下部を見つけます
-                                const lastItemRect = visibleItems[visibleItems.length - 1].getBoundingClientRect();
-                                const containerRect = containerToUse.getBoundingClientRect();
-                                const requiredHeight = lastItemRect.bottom - containerRect.top + 30; // パッディングを追加
-
-                                // 表示されている全ての定義に対応するために最小の高さを設定します
-                                const minHeight = visibleItems.length === 1 ? requiredHeight : Math.max(300, requiredHeight);
-                                containerToUse.closest('#content-container').style.minHeight = `${minHeight}px`;
+                            adjustContainerHeight();
+                        } else {
+                            const contentContainer = containerToUse.closest('#content-container');
+                            if (contentContainer) {
+                                contentContainer.style.minHeight = '';
                             }
                         }
                     });
-                }, 50); // レイアウトが落ち着くまでの小さな遅延
+                }, 50);
             }
 
             return result;
@@ -678,12 +861,10 @@
         const { collapsibleSelectors, displayNameMap, activeDictionaries } = window.dictionaryContext;
         const dictionariesToProcess = Object.keys(activeDictionaries);
 
-        // 要素を処理する前に、すぐにイベントハンドラーを登録
-        // これにより、ハンドラーができるだけ早く有効になる
+        // イベントハンドラーを早めに登録
         if (!window.dictionaryContext.collapsibleHandlerRegistered) {
             window.dictionaryContext.collapsibleHandlerRegistered = true;
 
-            // ポインターイベントを使用（タッチとマウス用）
             document.addEventListener('pointerdown', function (e) {
                 if (e.target && (
                     e.target.hasAttribute('data-clickable') ||
@@ -696,7 +877,6 @@
                 }
             }, { passive: true });
 
-            // 非常に早いクリック用のバックアップとしてmousedownを使用
             document.addEventListener('mousedown', function (e) {
                 if (e.target && e.target.classList.contains('collapsible-header')) {
                     const wrapper = e.target.closest('.collapsible-wrapper');
@@ -711,7 +891,7 @@
 
         const allContentElements = [];
 
-        // 折りたたみ可能にする必要のある要素を特定
+        // 折りたたみ対象を探す
         dictionariesToProcess.forEach(dictionaryName => {
             const currentSelectors = collapsibleSelectors[dictionaryName];
             if (!currentSelectors) return;
@@ -720,18 +900,11 @@
             const container = entries.length > 0 ? entries : [document];
 
             container.forEach(ctx => {
-                currentSelectors.forEach(selector => {
+                currentSelectors.forEach(({ selector, displayName }) => {
                     const elements = ctx.querySelectorAll(selector);
                     if (!elements.length) return;
 
-                    const attrMatch = selector.match(/data-sc([^=\]]*)/);
-                    const rawAttrName = attrMatch ? attrMatch[1] : selector.split('[')[1]?.split(']')[0];
-                    if (!rawAttrName) return;
-
-                    const displayName = displayNameMap[rawAttrName] || rawAttrName;
-
                     elements.forEach(el => {
-                        // 既にラップされている場合はスキップ
                         if (el.parentNode && el.parentNode.classList?.contains('collapsible-content')) return;
 
                         allContentElements.push({
@@ -744,14 +917,12 @@
             });
         });
 
-        // 処理するものがない場合はスキップ
         if (allContentElements.length === 0) return;
 
-        // ドキュメントフラグメントを作成
         const fragment = document.createDocumentFragment();
         const wrappers = [];
 
-        // 全ての要素のラッパーを作成
+        // 折りたたみ用ラッパーを作成
         allContentElements.forEach(item => {
             const { element, parent, displayName } = item;
 
@@ -761,11 +932,8 @@
             const header = document.createElement('div');
             header.className = 'collapsible-header';
             header.textContent = displayName;
-
-            // クリック可能としてデータ属性でマーク
             header.setAttribute('data-clickable', 'true');
 
-            // 即時応答用の直接ハンドラーを追加
             header.addEventListener('mousedown', function (e) {
                 wrapper.classList.toggle('collapsed');
                 e.stopPropagation();
@@ -774,11 +942,9 @@
             const content = document.createElement('div');
             content.className = 'collapsible-content';
 
-            // ラッパーに追加
             wrapper.appendChild(header);
             wrapper.appendChild(content);
 
-            // バッチ挿入用に保存
             wrappers.push({
                 wrapper,
                 content,
@@ -788,23 +954,18 @@
         });
 
         wrappers.forEach(({ wrapper, content, element, parent }) => {
-            // 要素を現在の親から削除
             if (element.parentNode) {
                 element.parentNode.removeChild(element);
             }
 
-            // 要素をコンテンツラッパーに追加
             content.appendChild(element);
-
-            // ラッパーを元の位置の前に挿入
             parent.appendChild(wrapper);
         });
 
-        // 既存のすべてのヘッダーをクリック可能としてマークし、直接ハンドラーを追加
+        // 既存のヘッダーにもクリック処理を追加
         document.querySelectorAll('.collapsible-header:not([data-clickable])').forEach(header => {
             header.setAttribute('data-clickable', 'true');
 
-            // 即時クリック用の直接ハンドラーを追加
             const wrapper = header.closest('.collapsible-wrapper');
             if (wrapper) {
                 header.addEventListener('mousedown', function (e) {
@@ -815,48 +976,278 @@
         });
     }
 
-    // 画像の処理
+    // 画像処理
     function handleImages() {
-        const { imageSelectors, activeDictionaries } = window.dictionaryContext;
+        const { imageSelectors, activeDictionaries, elements } = window.dictionaryContext;
         const dictionaries = Object.keys(activeDictionaries);
 
         if (dictionaries.length === 0) return;
 
-        // 非表示にする必要のあるすべての画像を収集
-        const imagesToHide = [];
+        const imageDiv = elements.imageDiv || document.querySelector('#image');
+        const imageContainer = elements.imageContainer || document.querySelector('#image-container');
 
-        function collectExtraImages(container, selector) {
-            const images = container.querySelectorAll(selector);
-            if (images.length > 1) {
-                for (let i = 1; i < images.length; i++) {
-                    imagesToHide.push(images[i]);
-                }
-            }
-        }
+        if (!imageDiv || !imageContainer) return;
 
-        // <li>辞書エントリを処理
-        for (const dictName of dictionaries) {
-            const selector = imageSelectors[dictName] || imageSelectors["default"];
-            document.querySelectorAll(`li[data-dictionary="${dictName}"]`)
-                .forEach(entry => collectExtraImages(entry, selector));
-        }
+        const allImages = [];
+        const uniqueImageUrls = new Set();
+        let currentImageIndex = 0;
+        let imageContainersToHide = [];
 
-        // 単一辞書エントリのレイアウトを処理
-        const dictnameEl = window.dictionaryContext.elements.dictname;
-        if (dictnameEl) {
-            const singleDict = dictnameEl.textContent.trim();
-            if (activeDictionaries[singleDict]) {
-                const selector = imageSelectors[singleDict] || imageSelectors["default"];
-                collectExtraImages(document, selector);
-            }
-        }
+        // 既存の画像をチェック
+        const existingImages = imageDiv.querySelectorAll('img');
+        if (existingImages.length > 0) {
+            existingImages.forEach(img => {
+                if (!img.src || img.src === window.location.href) return;
 
-        // 変更を一度に適用
-        if (imagesToHide.length > 0) {
-            imagesToHide.forEach(img => {
-                img.style.display = "none";
+                if (uniqueImageUrls.has(img.src)) return;
+
+                uniqueImageUrls.add(img.src);
+                const newImg = img.cloneNode(true);
+                allImages.push(newImg);
             });
         }
+
+        // 画像コンテナをクリア
+        while (imageDiv.firstChild) {
+            imageDiv.removeChild(imageDiv.firstChild);
+        }
+
+        // 画像を収集する関数
+        function collectImagesFromContainer(container, selector) {
+            const imageContainers = container.querySelectorAll(selector);
+            if (!imageContainers.length) return;
+
+            imageContainers.forEach(container => {
+                const imgElements = container.querySelectorAll('img');
+                if (!imgElements.length) return;
+
+                imageContainersToHide.push(container);
+
+                imgElements.forEach(img => {
+                    if (!img.src || img.src === window.location.href) return;
+
+                    if (uniqueImageUrls.has(img.src)) return;
+
+                    uniqueImageUrls.add(img.src);
+
+                    const newImg = new Image();
+                    newImg.src = img.src;
+                    newImg.alt = img.alt || '';
+
+                    if (img.title) newImg.title = img.title;
+                    if (img.dataset) {
+                        Object.keys(img.dataset).forEach(key => {
+                            newImg.dataset[key] = img.dataset[key];
+                        });
+                    }
+
+                    allImages.push(newImg);
+                });
+            });
+        }
+
+        // 各辞書から画像を収集
+        for (const dictName of dictionaries) {
+            const selector = imageSelectors[dictName] || imageSelectors["default"];
+
+            document.querySelectorAll(`li[data-dictionary="${dictName}"]`)
+                .forEach(entry => collectImagesFromContainer(entry, selector));
+
+            if (elements.dictname && elements.dictname.textContent.trim() === dictName) {
+                collectImagesFromContainer(document, selector);
+            }
+        }
+
+        // 元の画像コンテナを削除
+        imageContainersToHide.forEach(container => {
+            if (container.parentNode) {
+                container.parentNode.removeChild(container);
+            }
+        });
+
+        // 画像がない場合は非表示
+        if (allImages.length === 0) {
+            imageContainer.style.display = 'none';
+            return;
+        }
+
+        imageContainer.style.display = '';
+
+        let leftEdge = imageContainer.querySelector('.image-left-edge');
+        let rightEdge = imageContainer.querySelector('.image-right-edge');
+
+        if (!leftEdge) {
+            leftEdge = document.createElement('div');
+            leftEdge.className = 'image-edge-nav image-left-edge';
+            imageContainer.appendChild(leftEdge);
+        }
+
+        if (!rightEdge) {
+            rightEdge = document.createElement('div');
+            rightEdge.className = 'image-edge-nav image-right-edge';
+            imageContainer.appendChild(rightEdge);
+        }
+
+        // 画像切り替えのボタン表示を更新する関数
+        function updateEdgeVisibility() {
+            if (allImages.length <= 1) {
+                leftEdge.style.display = 'none';
+                rightEdge.style.display = 'none';
+            } else {
+                leftEdge.style.display = '';
+                rightEdge.style.display = '';
+            }
+        }
+
+        if (allImages.length > 0) {
+            const firstImage = allImages[0];
+
+            firstImage.style.maxWidth = '100%';
+            firstImage.style.maxHeight = '210px';
+            firstImage.style.objectFit = 'contain';
+            firstImage.style.borderRadius = '6px';
+            firstImage.style.transition = 'all 0.3s ease';
+
+            imageDiv.appendChild(firstImage);
+
+            updateEdgeVisibility();
+        }
+
+        if (allImages.length > 1) {
+            function cycleImage(direction) {
+                const currentImg = imageDiv.querySelector('img');
+                if (currentImg) {
+                    imageDiv.removeChild(currentImg);
+                }
+
+                // 新しいインデックス計算しよっと
+                if (direction === 'next') {
+                    currentImageIndex = (currentImageIndex + 1) % allImages.length;
+                } else {
+                    currentImageIndex = (currentImageIndex - 1 + allImages.length) % allImages.length;
+                }
+
+                const newImg = allImages[currentImageIndex];
+
+                newImg.style.maxWidth = '100%';
+                newImg.style.maxHeight = '210px';
+                newImg.style.objectFit = 'contain';
+                newImg.style.borderRadius = '6px';
+                newImg.style.transition = 'all 0.3s ease';
+
+                imageDiv.appendChild(newImg);
+            }
+
+            // イベントリスナーがダブらないようにクローンして置き換え
+            const newLeftEdge = leftEdge.cloneNode(true);
+            const newRightEdge = rightEdge.cloneNode(true);
+
+            imageContainer.replaceChild(newLeftEdge, leftEdge);
+            imageContainer.replaceChild(newRightEdge, rightEdge);
+
+            // 新しいイベントリスナー追加する
+            function addEdgeListeners(element, direction) {
+                element.addEventListener('click', function (e) {
+                    cycleImage(direction);
+                    e.stopPropagation();
+                });
+
+                element.addEventListener('touchstart', function (e) {
+                    cycleImage(direction);
+                    e.stopPropagation();
+                    e.preventDefault();
+                }, { passive: false });
+            }
+
+            addEdgeListeners(newLeftEdge, 'prev');
+            addEdgeListeners(newRightEdge, 'next');
+
+            leftEdge = newLeftEdge;
+            rightEdge = newRightEdge;
+        }
+
+        setupLightbox();
+
+        window.addEventListener('resize', function () {
+            requestAnimationFrame(updateEdgeVisibility);
+        }, { passive: true });
+    }
+
+    function setupLightbox() {
+        const lightboxOverlay = document.getElementById('lightbox-overlay');
+        const lightboxImage = document.getElementById('lightbox-image');
+        const lightboxClose = document.getElementById('lightbox-close');
+        const imageDiv = document.getElementById('image');
+
+        if (!lightboxOverlay || !lightboxImage || !imageDiv) return;
+
+        // ズームの段階を設定する
+        const zoomLevels = [1, 1.5, 2, 2.5, 3];
+        let currentZoomIndex = 0;
+
+        // ライトボックスを閉じる関数
+        function closeLightbox() {
+            lightboxOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            resetZoom();
+        }
+
+        // ズームを最初に戻す関数
+        function resetZoom() {
+            currentZoomIndex = 0;
+            lightboxImage.style.transform = 'scale(1)';
+            lightboxImage.style.cursor = 'zoom-in';
+        }
+
+        // クリックするたびにズームを変える関数
+        function cycleZoom() {
+            currentZoomIndex = (currentZoomIndex + 1) % zoomLevels.length;
+            const zoomLevel = zoomLevels[currentZoomIndex];
+            lightboxImage.style.transform = `scale(${zoomLevel})`;
+
+            // 次クリックしたら1倍に戻るかどうかチェック
+            const willResetTo1x = currentZoomIndex === zoomLevels.length - 1;
+            lightboxImage.style.cursor = willResetTo1x ? 'zoom-out' : 'zoom-in';
+        }
+
+        // ライトボックスを開いて画像を表示する関数
+        function openLightbox(imgSrc) {
+            lightboxImage.src = imgSrc;
+            lightboxOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            resetZoom();
+        }
+
+        // 画像をクリックした時の処理
+        imageDiv.addEventListener('click', function (e) {
+            const img = e.target.closest('img');
+            if (img && img.src) {
+                openLightbox(img.src);
+            }
+        });
+
+        // ライトボックス内の画像をクリックした時の処理
+        lightboxImage.addEventListener('click', function (e) {
+            e.stopPropagation();
+            cycleZoom();
+        });
+
+        // 閉じるボタンの処理
+        lightboxClose.addEventListener('click', closeLightbox);
+
+        // オーバーレイをクリックした時の処理
+        lightboxOverlay.addEventListener('click', function (e) {
+            if (e.target === lightboxOverlay) {
+                closeLightbox();
+            }
+        });
+
+        // Escapeキーで閉じられるようにする
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && lightboxOverlay.classList.contains('active')) {
+                closeLightbox();
+            }
+        });
     }
 
     // グローバルイベントリスナーの設定
