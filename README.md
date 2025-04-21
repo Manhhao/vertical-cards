@@ -5,16 +5,7 @@ A lovely card template for Anki that I've made for my Yomitan dictionaries <img 
 ## How it looks
 
 ### Desktop
-<p align="center">
-  <a href="./assets/desktop-demo.webm" target="_blank">
-    <picture>
-      <source srcset="./assets/desktop-demo.webm" type="video/webm">
-      <img src="./assets/desktop-demo.gif" width="600" alt="High quality demo">
-    </picture>
-  </a>
-  <br>
-  <em>Click for full quality (WebM)</em>
-</p>
+![Desktop Demo](./assets/desktop-demo.gif)
 
 ### Mobile
 <img src="./assets/mobile.jpg" width="300" alt="Mobile layout" /> 
