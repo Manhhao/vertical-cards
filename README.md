@@ -5,10 +5,10 @@ A lovely card template for Anki that I've made for my Yomitan dictionaries <img 
 ## How it looks
 
 ### Desktop
-<video src="./assets/desktop-demo.mp44" width="400" controls></video>
+<video src="./assets/desktop-demo.mp4" width="400" controls></video>
 
 ### Mobile
-![Mobile Horizontal Layout](./assets/mobile.jpg)
+<img src="./assets/mobile-horizontal.png" width="300" alt="Mobile layout" /> 
 
 - **Smart layout that adapts to your screen**: 
   - Flips horizontal when you're on your mobile or have a narrow window open
