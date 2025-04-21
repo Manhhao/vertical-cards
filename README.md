@@ -1,28 +1,22 @@
 # Vertical Cards
 
-A lovely card template for Anki that I've made for my Yomitan dictionaries. Grand for studying on any device!
+A lovely card template for Anki that I've made for my Yomitan dictionaries <img src="assets/SaberLion.png" width="20" height="20" alt="SaberLion" />. Grand for studying on any device! 
 
-![Header Image Placeholder](header-image-placeholder.png)
+## How it looks
 
-## Have a quick look!
+### Desktop
+<video src="./assets/desktop-demo.mp44" width="400" controls></video>
 
-*[GIF demonstrating responsive layout and features will go here]*
+### Mobile
+![Mobile Horizontal Layout](./assets/mobile.jpg)
 
 - **Smart layout that adapts to your screen**: 
   - Flips horizontal when you're on your mobile or have a narrow window open
   
 - **Plays nicely with dictionaries**:
-  - Definitions are cyclable
-  - Styling support for my converted Yomitan dictionaries.
-  - Collapsible sections for some dictionaries so you're not overwhelmed with text
-
-## How it looks
-
-### Vertical on desktop
-*[Image of vertical layout will go here]*
-
-### Horizontal on mobile
-*[Image of horizontal layout will go here]*
+  - Definitions and images are cyclable
+  - Styling support for my converted Yomitan dictionaries and some others too.
+  - Collapsible sections for some dictionaries
 
 ### Yomitan fields
 | Field                 | Value                           |
@@ -42,4 +36,4 @@ A lovely card template for Anki that I've made for my Yomitan dictionaries. Gran
 
 ## My yomitan dictionaries
 
-- [My Dictionary Collection](https://github.com/kiwakiwaa/yomitan-dictionaries) - A wee collection of dictionaries that work brilliantly with this template
+- [My Dictionary Collection](https://drive.proton.me/urls/GH0GV6DMEC#RP55zc2DL8vD) - A wee collection of dictionaries that work brilliantly with this template
