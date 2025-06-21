@@ -57,6 +57,45 @@
 </div>
 
 <script>
+    // CJK文字をカウントする関数
+    function countCJKChars(text) {
+        if (!text) return 0;
+        // - Basic CJK Unified Ideographs (4E00-9FFF)
+        // - CJK Extension A (3400-4DBF)
+        // - CJK Extension B (20000-2A6DF)
+        // - CJK Extension C (2A700-2B73F)
+        // - CJK Extension D (2B740-2B81F)
+        // - CJK Extension E (2B820-2CEAF)
+        // - CJK Extension F (2CEB0-2EBEF)
+        // - CJK Extension G (30000-3134F)
+        // - CJK Extension H (31350-323AF)
+        // - CJK Compatibility Ideographs (F900-FAFF)
+        // - CJK Radicals Supplement (2E80-2EFF)
+        // - CJK Strokes (31C0-31EF)
+        // - Ideographic Description Characters (2FF0-2FFF)
+        // - Hiragana (3040-309F)
+        // - Katakana (30A0-30FF)
+        // - Katakana Phonetic Extensions (31F0-31FF)
+        // - Halfwidth Katakana (FF65-FF9F)
+        // - Kanbun (3190-319F)
+
+        const cjkBasic = /[\u4E00-\u9FFF]/;
+        // surrogate pairs for UTF-32
+        const cjkExtensions = /\uD840[\uDC00-\uDFFF]|[\uD841-\uD868][\uDC00-\uDFFF]|\uD869[\uDC00-\uDEDF]|\uD869[\uDF00-\uDFFF]|[\uD86A-\uD86C][\uDC00-\uDFFF]|\uD86D[\uDC00-\uDF3F]|\uD86D[\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1F]|\uD86E[\uDC20-\uDFFF]|[\uD86F-\uD872][\uDC00-\uDFFF]|\uD873[\uDC00-\uDEAF]|\uD873[\uDEB0-\uDFFF]|[\uD874-\uD879][\uDC00-\uDFFF]|\uD87A[\uDC00-\uDFEF]|\uD880[\uDC00-\uDFFF]|[\uD881-\uD883][\uDC00-\uDFFF]|\uD884[\uDC00-\uDF4F]|\uD884[\uDF50-\uDFFF]|[\uD885-\uD887][\uDC00-\uDFFF]|\uD888[\uDC00-\uDFAF]/;
+        const cjkAdditional = /[\uF900-\uFAFF\u2E80-\u2EFF\u2FF0-\u2FFF]/;
+
+        const basicMatches = text.match(cjkBasic);
+        const extensionMatches = text.match(cjkExtensions);
+        const additionalMatches = text.match(cjkAdditional);
+
+        const basicCount = basicMatches ? basicMatches.length : 0;
+        const extensionCount = extensionMatches ? extensionMatches.length : 0;
+        const additionalCount = additionalMatches ? additionalMatches.length : 0;
+
+        return basicCount + extensionCount + additionalCount;
+    }
+
+
     // メイン辞書コンテキストオブジェクト
     window.dictionaryContext = {
         // 辞書クラス名マッピング
@@ -88,21 +127,21 @@
         // 折りたたみ可能な要素のセレクター
         collapsibleSelectors: {
             "三省堂 全訳読解古語辞典": [
-                { selector: "div[data-sc絵巻項目]", displayName: "絵巻" },
-                { selector: "div[data-sc読解-g]", displayName: "読解" },
-                { selector: "div[data-sc関連語sub-b]", displayName: "関連語" }
+                {selector: "div[data-sc絵巻項目]", displayName: "絵巻"},
+                {selector: "div[data-sc読解-g]", displayName: "読解"},
+                {selector: "div[data-sc関連語sub-b]", displayName: "関連語"}
             ],
             "旺文社 全訳古語辞典": [
-                { selector: "div[data-sc用例囲み-g]", displayName: "例文・訳" },
-                { selector: "div[data-sc発展]", displayName: "発展事項" },
-                { selector: "div[data-sc敬語ガイド]", displayName: "敬語ガイド" },
-                { selector: "div:has(>div[data-sc図解学習タイトル])", displayName: "図解学習" }
+                {selector: "div[data-sc用例囲み-g]", displayName: "例文・訳"},
+                {selector: "div[data-sc発展]", displayName: "発展事項"},
+                {selector: "div[data-sc敬語ガイド]", displayName: "敬語ガイド"},
+                {selector: "div:has(>div[data-sc図解学習タイトル])", displayName: "図解学習"}
             ],
             "四字熟語の百科事典": [
-                { selector: "div[data-sc-name=\"使い方\"]", displayName: "使い方" }
+                {selector: "div[data-sc-name=\"使い方\"]", displayName: "使い方"}
             ],
             "四字熟語辞典オンライン": [
-                { selector: "div[style=\"display:block;\"]>table", displayName: "詳細情報" }
+                {selector: "div[style=\"display:block;\"]>table", displayName: "詳細情報"}
             ]
         },
 
@@ -161,19 +200,19 @@
         // 高速アクセスのためにDOM要素を保存
         cacheElements() {
             const selectors = {
-                dictionaryEntries: { selector: "li[data-dictionary]", all: true },
-                definitionContainer: { selector: "#definition" },
-                contentContainer: { selector: "#content-container" },
-                dictname: { selector: "#dictname" },
-                expression: { selector: "#expression" },
-                reading: { selector: "#reading" },
-                sentence: { selector: "#sentence" },
-                imageDiv: { selector: "#image" },
-                imageContainer: { selector: "#image-container" },
-                centerWrapperBack: { selector: ".center-wrapper.back" }
+                dictionaryEntries: {selector: "li[data-dictionary]", all: true},
+                definitionContainer: {selector: "#definition"},
+                contentContainer: {selector: "#content-container"},
+                dictname: {selector: "#dictname"},
+                expression: {selector: "#expression"},
+                reading: {selector: "#reading"},
+                sentence: {selector: "#sentence"},
+                imageDiv: {selector: "#image"},
+                imageContainer: {selector: "#image-container"},
+                centerWrapperBack: {selector: ".center-wrapper.back"}
             };
 
-            for (const [key, { selector, all }] of Object.entries(selectors)) {
+            for (const [key, {selector, all}] of Object.entries(selectors)) {
                 this.elements[key] = all ? document.querySelectorAll(selector) : document.querySelector(selector);
             }
         },
@@ -201,32 +240,6 @@
             // 最大サイズ（文字数が少ない時に使う）
             const maxExpressionSize = 2.5;
             const maxReadingSize = 1.2;
-
-            // CJK文字をカウントする関数
-            function countCJKChars(text) {
-                if (!text) return 0;
-                // - Basic CJK Unified Ideographs (4E00-9FFF)
-                // - CJK Extension A (3400-4DBF)
-                // - CJK Extension B (20000-2A6DF)
-                // - CJK Extension C (2A700-2B73F)
-                // - CJK Extension D (2B740-2B81F)
-                // - CJK Extension E (2B820-2CEAF)
-                // - CJK Extension F (2CEB0-2EBEF)
-                // - CJK Extension G (30000-3134F)
-                // - CJK Extension H (31350-323AF)
-                // - CJK Compatibility Ideographs (F900-FAFF)
-                // - CJK Radicals Supplement (2E80-2EFF)
-                // - CJK Strokes (31C0-31EF)
-                // - Ideographic Description Characters (2FF0-2FFF)
-                // - Hiragana (3040-309F)
-                // - Katakana (30A0-30FF)
-                // - Katakana Phonetic Extensions (31F0-31FF)
-                // - Halfwidth Katakana (FF65-FF9F)
-                // - Kanbun (3190-319F)
-                const cjkRegex = /[\u4E00-\u9FFF\u3400-\u4DBF\u30000-\u3134F\u31350-\u323AF\uF900-\uFAFF\u2E80-\u2EFF\u31C0-\u31EF\u2FF0-\u2FFF\u3040-\u309F\u30A0-\u30FF\u31F0-\u31FF\uFF65-\uFF9F\u3190-\u319F]|[\uD840-\uD868][\uDC00-\uDFFF]|\uD869[\uDC00-\uDEDF]|\uD86D[\uDC00-\uDF3F]|\uD86E[\uDC00-\uDC1F]|\uD87E[\uDC00-\uDE1F]/g;
-                const matches = text.match(cjkRegex);
-                return matches ? matches.length : 0;
-            }
 
             const expressionText = expression.textContent;
             const readingText = reading.textContent;
@@ -270,15 +283,14 @@
             }
 
             this.activeDictionaries = {};
-            const { dictionaryEntries, dictname } = this.elements;
+            const {dictionaryEntries, dictname} = this.elements;
 
             if (dictionaryEntries && dictionaryEntries.length > 0) {
                 dictionaryEntries.forEach(entry => {
                     const dictName = entry.getAttribute("data-dictionary");
                     if (dictName) this.activeDictionaries[dictName] = true;
                 });
-            }
-            else if (dictname && dictname.textContent.trim()) {
+            } else if (dictname && dictname.textContent.trim()) {
                 this.activeDictionaries[dictname.textContent.trim()] = true;
             }
 
@@ -287,12 +299,12 @@
 
         // 辞書ごとのスタイルを適用
         applyDictionaryClasses() {
-            const { dictionaryClassNames, activeDictionaries, elements } = this;
+            const {dictionaryClassNames, activeDictionaries, elements} = this;
             const dictionariesToProcess = Object.keys(activeDictionaries);
 
             if (dictionariesToProcess.length === 0) return;
 
-            const { dictionaryEntries, definitionContainer, dictname } = elements;
+            const {dictionaryEntries, definitionContainer, dictname} = elements;
 
             // 単一辞書の場合のリスト構造の確認と構築
             if (definitionContainer && dictionariesToProcess.length === 1) {
@@ -326,9 +338,7 @@
                     // Pixiv辞書は特別扱い
                     else if (actualDictName.startsWith('Pixiv')) {
                         listItem.classList.add('pixiv');
-                    }
-
-                    else if (actualDictName.startsWith('漢字でGo')) {
+                    } else if (actualDictName.startsWith('漢字でGo')) {
                         listItem.classList.add('漢字でGo');
                     }
 
@@ -345,17 +355,11 @@
 
                     // 要素を更新
                     this.elements.dictionaryEntries = definitionContainer.querySelectorAll("li[data-dictionary]");
-                }
-
-                else if (dictName.startsWith('Pixiv')) {
+                } else if (dictName.startsWith('Pixiv')) {
                     definitionContainer.classList.add('pixiv');
-                }
-
-                else if (dictName.startsWith('漢字でGo')) {
+                } else if (dictName.startsWith('漢字でGo')) {
                     definitionContainer.classList.add('漢字でGo');
-                }
-
-                else if (dictionaryClassNames[dictName]) {
+                } else if (dictionaryClassNames[dictName]) {
                     definitionContainer.classList.add(dictionaryClassNames[dictName]);
                 }
             }
@@ -367,11 +371,9 @@
                     if (dictName) {
                         if (dictionaryClassNames[dictName]) {
                             entry.classList.add(dictionaryClassNames[dictName]);
-                        }
-                        else if (dictName.startsWith('Pixiv')) {
+                        } else if (dictName.startsWith('Pixiv')) {
                             entry.classList.add('pixiv');
-                        }
-                        else if (dictName.startsWith('漢字でGo')) {
+                        } else if (dictName.startsWith('漢字でGo')) {
                             entry.classList.add('漢字でGo')
                         }
                     }
@@ -461,7 +463,7 @@
 
     // 空の画像コンテナを非表示
     function hideEmptyImageContainer() {
-        const { imageDiv, imageContainer } = window.dictionaryContext.elements;
+        const {imageDiv, imageContainer} = window.dictionaryContext.elements;
         if (!imageContainer || !imageDiv) return;
 
         const hasImages = imageDiv.getElementsByTagName('img').length > 0;
@@ -482,7 +484,7 @@
 
     // 重複コンテンツを非表示
     function handleDuplicateContent() {
-        const { expression, reading, sentence } = window.dictionaryContext.elements;
+        const {expression, reading, sentence} = window.dictionaryContext.elements;
         if (!expression) return;
 
         const expressionText = expression.textContent.trim();
@@ -510,11 +512,7 @@
         containerToUse.style.position = "relative";
 
         // スマホかどうか判定
-        const isMobileDevice = document.documentElement.classList.contains('mobile') ||
-            document.documentElement.classList.contains('android') ||
-            document.documentElement.classList.contains('iphone') ||
-            document.documentElement.classList.contains('ipad') ||
-            /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isMobileDevice = document.documentElement.classList.contains('mobile');
 
         // モバイルデバイス用のクラスを追加
         if (isMobileDevice) {
@@ -538,11 +536,6 @@
         let visibleCount = 1;
         const totalDefinitions = definitionItems.length;
 
-        const dictionaryNames = definitionItems.map(item => {
-            const dictName = item.getAttribute("data-dictionary");
-            return dictName || `辞書 ${definitionItems.indexOf(item) + 1}`;
-        });
-
         let lastMeasuredWidth = 0;
         let lastMeasuredHeight = 0;
         let hasCalculatedInitialLayout = false;
@@ -554,10 +547,7 @@
 
             if (!isVertical) {
                 const sentenceEl = document.getElementById('sentence');
-                const contentRect = containerToUse.getBoundingClientRect();
                 const viewportHeight = window.innerHeight;
-
-                const contentTop = containerToUse.getBoundingClientRect().top;
 
                 let sentenceHeight = 0;
                 if (sentenceEl && sentenceEl.style.display !== 'none') {
@@ -698,8 +688,7 @@
 
             if (sentenceEl && sentenceEl.style.display !== 'none') {
                 lastElement = sentenceEl;
-            }
-            else if (visibleItems.length > 0) {
+            } else if (visibleItems.length > 0) {
                 lastElement = visibleItems[visibleItems.length - 1];
             }
 
@@ -788,13 +777,13 @@
         leftEdge.addEventListener("click", () => cycleDefinitions("prev"));
         rightEdge.addEventListener("click", () => cycleDefinitions("next"));
 
-        leftEdge.addEventListener("touchstart", handleTouchStart(leftEdge), { passive: true });
-        leftEdge.addEventListener("touchend", handleTouchEnd(leftEdge, "prev"), { passive: true });
-        leftEdge.addEventListener("touchcancel", handleTouchCancel(leftEdge), { passive: true });
+        leftEdge.addEventListener("touchstart", handleTouchStart(leftEdge), {passive: true});
+        leftEdge.addEventListener("touchend", handleTouchEnd(leftEdge, "prev"), {passive: true});
+        leftEdge.addEventListener("touchcancel", handleTouchCancel(leftEdge), {passive: true});
 
-        rightEdge.addEventListener("touchstart", handleTouchStart(rightEdge), { passive: true });
-        rightEdge.addEventListener("touchend", handleTouchEnd(rightEdge, "next"), { passive: true });
-        rightEdge.addEventListener("touchcancel", handleTouchCancel(rightEdge), { passive: true });
+        rightEdge.addEventListener("touchstart", handleTouchStart(rightEdge), {passive: true});
+        rightEdge.addEventListener("touchend", handleTouchEnd(rightEdge, "next"), {passive: true});
+        rightEdge.addEventListener("touchcancel", handleTouchCancel(rightEdge), {passive: true});
 
         // キーボード操作もサポート
         document.addEventListener("keydown", (event) => {
@@ -803,7 +792,7 @@
             } else if (event.key === "ArrowRight" || event.keyCode === 39) {
                 cycleDefinitions("next");
             }
-        }, { passive: true });
+        }, {passive: true});
 
         // 初期表示
         counterElement.textContent = `(1/${totalDefinitions})`;
@@ -824,7 +813,7 @@
             adjustContainerHeight();
         }, 250);
 
-        window.addEventListener('resize', debouncedResize, { passive: true });
+        window.addEventListener('resize', debouncedResize, {passive: true});
 
         // 表示モード変更時の処理
         const originalDetectVerticalMode = window.dictionaryContext.detectVerticalMode;
@@ -858,7 +847,7 @@
 
     // 折りたたみ要素の設定
     function setupCollapsibleElements() {
-        const { collapsibleSelectors, displayNameMap, activeDictionaries } = window.dictionaryContext;
+        const {collapsibleSelectors, displayNameMap, activeDictionaries} = window.dictionaryContext;
         const dictionariesToProcess = Object.keys(activeDictionaries);
 
         // イベントハンドラーを早めに登録
@@ -875,7 +864,7 @@
                         wrapper.classList.toggle('collapsed');
                     }
                 }
-            }, { passive: true });
+            }, {passive: true});
 
             document.addEventListener('mousedown', function (e) {
                 if (e.target && e.target.classList.contains('collapsible-header')) {
@@ -884,7 +873,7 @@
                         wrapper.classList.toggle('collapsed');
                     }
                 }
-            }, { passive: true, capture: true });
+            }, {passive: true, capture: true});
         }
 
         if (dictionariesToProcess.length === 0) return;
@@ -900,13 +889,12 @@
             const container = entries.length > 0 ? entries : [document];
 
             container.forEach(ctx => {
-                currentSelectors.forEach(({ selector, displayName }) => {
+                currentSelectors.forEach(({selector, displayName}) => {
                     const elements = ctx.querySelectorAll(selector);
                     if (!elements.length) return;
 
                     elements.forEach(el => {
                         if (el.parentNode && el.parentNode.classList?.contains('collapsible-content')) return;
-
                         allContentElements.push({
                             element: el,
                             parent: el.parentNode,
@@ -918,13 +906,11 @@
         });
 
         if (allContentElements.length === 0) return;
-
-        const fragment = document.createDocumentFragment();
         const wrappers = [];
 
         // 折りたたみ用ラッパーを作成
         allContentElements.forEach(item => {
-            const { element, parent, displayName } = item;
+            const {element, parent, displayName} = item;
 
             const wrapper = document.createElement('div');
             wrapper.className = 'collapsible-wrapper collapsed';
@@ -937,7 +923,7 @@
             header.addEventListener('mousedown', function (e) {
                 wrapper.classList.toggle('collapsed');
                 e.stopPropagation();
-            }, { capture: true });
+            }, {capture: true});
 
             const content = document.createElement('div');
             content.className = 'collapsible-content';
@@ -953,7 +939,7 @@
             });
         });
 
-        wrappers.forEach(({ wrapper, content, element, parent }) => {
+        wrappers.forEach(({wrapper, content, element, parent}) => {
             if (element.parentNode) {
                 element.parentNode.removeChild(element);
             }
@@ -971,14 +957,14 @@
                 header.addEventListener('mousedown', function (e) {
                     wrapper.classList.toggle('collapsed');
                     e.stopPropagation();
-                }, { capture: true });
+                }, {capture: true});
             }
         });
     }
 
     // 画像処理
     function handleImages() {
-        const { imageSelectors, activeDictionaries, elements } = window.dictionaryContext;
+        const {imageSelectors, activeDictionaries, elements} = window.dictionaryContext;
         const dictionaries = Object.keys(activeDictionaries);
 
         if (dictionaries.length === 0) return;
@@ -1156,7 +1142,7 @@
                     cycleImage(direction);
                     e.stopPropagation();
                     e.preventDefault();
-                }, { passive: false });
+                }, {passive: false});
             }
 
             addEdgeListeners(newLeftEdge, 'prev');
@@ -1170,7 +1156,7 @@
 
         window.addEventListener('resize', function () {
             requestAnimationFrame(updateEdgeVisibility);
-        }, { passive: true });
+        }, {passive: true});
     }
 
     function setupLightbox() {
@@ -1268,7 +1254,7 @@
 
                 window.dictionaryContext.detectVerticalMode();
             });
-        }, { passive: true });
+        }, {passive: true});
 
         // 折りたたみヘッダー用のイベントハンドラー
         if (!window.dictionaryContext.collapsibleHandlerRegistered) {
@@ -1285,7 +1271,7 @@
                         wrapper.classList.toggle('collapsed');
                     }
                 }
-            }, { passive: true });
+            }, {passive: true});
         }
 
         // 必要に応じて既存のヘッダーをクリック可能としてマーク
@@ -1325,6 +1311,7 @@
 
         // RAFによるフォールバックタイムアウト
         let frameCount = 0;
+
         function checkAfterFrames() {
             if (checkReadiness() || frameCount > 60) {
                 observer.disconnect();

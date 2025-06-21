@@ -1,6 +1,6 @@
 # Vertical Cards
 
-A lovely card template for Anki that I've made for my Yomitan dictionaries <img src="assets/SaberLion.png" width="20" height="20" alt="SaberLion" style="vertical-align: text-bottom;" />. Grand for studying on any device! 
+A clean card template for Anki designed for Yomitan dictionaries <img src="assets/SaberLion.png" width="20" height="20" alt="SaberLion" style="vertical-align: text-bottom;" />. Works well for studying across different devices.
 
 ## How it looks
 
@@ -10,13 +10,13 @@ A lovely card template for Anki that I've made for my Yomitan dictionaries <img 
 ### Mobile
 <img src="./assets/mobile.jpg" width="300" alt="Mobile layout" /> 
 
-- **Smart layout that adapts to your screen**: 
-  - Flips horizontal when you're on your mobile or have a narrow window open
+- **Responsive layout that adjusts to screen size**: 
+  - Switches to horizontal orientation on mobile devices or narrow windows
   
-- **Plays nicely with dictionaries**:
-  - Definitions and images are cyclable
-  - Styling support for my converted Yomitan dictionaries and some others too.
-  - Collapsible sections for some dictionaries
+- **Optimised for dictionary content**:
+  - Cyclable definitions and images
+  - Styling compatibility with converted Yomitan dictionaries and other formats
+  - Collapsible sections for certain dictionaries
 
 ### Yomitan fields
 | Field                 | Value                           |
@@ -30,10 +30,10 @@ A lovely card template for Anki that I've made for my Yomitan dictionaries <img 
 
 ## Getting started
 
-1. Pop over to the [releases page](https://github.com/kiwakiwaa/vertical-cards/releases) and download the latest version
+1. Visit the [releases page](https://github.com/kiwakiwaa/vertical-cards/releases) and download the latest version
 2. Import it into your Anki
-3. Create a new note type or tweak an existing one to use this template
+3. Create a new note type or modify an existing one to use this template
 
 ## My yomitan dictionaries
 
-- [My Dictionary Collection](https://drive.proton.me/urls/GH0GV6DMEC#RP55zc2DL8vD) - A wee collection of dictionaries that work brilliantly with this template
+- [My Dictionary Collection](https://drive.proton.me/urls/GH0GV6DMEC#RP55zc2DL8vD) - A collection of dictionaries that integrate well with this template
