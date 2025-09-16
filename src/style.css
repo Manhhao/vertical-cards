@@ -54,7 +54,7 @@
 
     /* --- フォント --- */
     --expression-font: "SHINJIMinchoW7", "SHINJIMinchoW7 W7", "Hiragino Mincho ProN", "sans";
-    --reading-font: "SHINJIMinchoW3", "SHINJIMinchoW3 W3", "Hiragino Kaku Gothic ProN" "serif";
+    --reading-font: "SHINJIMinchoW3", "SHINJIMinchoW3 W3", "Hiragino Kaku Gothic ProN", "serif";
     --mincho-font: "Hiragino Mincho ProN", "ヒラギノ明朝 ProN", "Yu Mincho";
     --gothic-font: "Hiragino Kaku Gothic ProN", "Yu Gothic";
     --dictname-font: "FOT-TelopMinPro-D", "FOT-テロップ明朝 Pro", "Hiragino Kaku Gothic ProN";
@@ -622,6 +622,10 @@ body {
     font-weight: bold;
     font-size: 0.9em;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    user-select: none;
+    -webkit-user-select: none; /* For Chrome, Safari */
+    -moz-user-select: none;    /* For Firefox */
+    -ms-user-select: none;     /* For IE/Edge */
 }
 
 /* 単語用ボタン */
@@ -2293,3 +2297,85 @@ span[title="同義または類義の漢字"] {
     position: inherit !important;
     max-width: 70% !important;
 }
+
+#freqsort{
+  position:absolute;
+  top:.6em;
+  left:.6em;
+  padding:.1em .4em;
+  border:1px solid var(--content-border-color);
+  border-radius:6px;
+  background:var(--content-background-color);
+  font-size:.9em;
+  pointer-events:none;
+  box-shadow: 0 1px 2px rgba(0,0,0,.08);
+}
+
+#reading-pitch {
+    display: none;
+    margin-bottom: 0.25em;
+    text-align: center;
+}
+
+/* numbers "0・1・…" */
+#reading-pitch .tags {
+    display: none;
+    font-size: 0.85em;
+    opacity: 0.8;
+    margin-right: 0.35em;
+    padding: 0.05em 0.3em;
+    border-radius: 0.25em;
+    background: rgba(0, 0, 0, 0.12);
+}
+
+/* inline multi-graph */
+#reading-pitch .pitch ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: inline;
+}
+#reading-pitch .pitch li {
+    display: inline;
+}
+#reading-pitch .pitch ul > li:not(:last-child)::after {
+    content: "・";
+    opacity: 0.6;
+    margin: 0 0.15em;
+}
+
+/* glyph + line */
+#reading-pitch .pitch-low,
+#reading-pitch .pitch-high,
+#reading-pitch .pitch-to-drop {
+    position: relative;
+    display: inline-block;
+}
+#reading-pitch .pitch-high > .pitch-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -0.1em;
+    height: 0;
+    border-top: 0.1em solid currentColor;
+}
+#reading-pitch .pitch-to-drop {
+    padding-right: 0.1em;
+    margin-right: 0.1em;
+}
+#reading-pitch .pitch-to-drop > .pitch-line {
+    position: absolute;
+    left: 0;
+    right: -0.1em;
+    top: -0.1em;
+    height: 0.45em;
+    border-top: 0.1em solid currentColor;
+    border-right: 0.1em solid currentColor;
+}
+
+/* per-type color (graph only) */
+#reading-pitch .pitch-item.heiban    { color: #1aa0ce; }
+#reading-pitch .pitch-item.atamadaka { color: #e92a35; }
+#reading-pitch .pitch-item.nakadaka  { color: #ff6b03; }
+#reading-pitch .pitch-item.odaka     { color: #61ad3b; }
+#reading-pitch .pitch-item.kifuku    { color: #7e53c4; }

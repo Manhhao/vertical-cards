@@ -1,3 +1,9 @@
+# Stuff changed
+- Adds the pitch accent stuff from Lapis (thanks Gemini)
+- Fixes 'An image is missing ""' error message on AnkiMobile
+- Add FreqSort 
+- Add Audio playback to existing buttons
+
 # Vertical Cards
 
 A clean card template for Anki designed for Yomitan dictionaries <img src="assets/SaberLion.png" width="20" height="20" alt="SaberLion" style="vertical-align: text-bottom;" />. Works well for studying across different devices.

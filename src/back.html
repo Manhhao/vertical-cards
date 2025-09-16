@@ -1,6 +1,6 @@
 <div id="writing-mode-toggle-container">
     <label class="writing-mode-switch">
-        <input type="checkbox" id="writing-mode-toggle" checked>
+        <input type="checkbox" id="writing-mode-toggle">
         <span class="slider round"></span>
         <span class="toggle-label"></span>
     </label>
@@ -12,6 +12,9 @@
 
         <div id="top-section">
             <div id="header-container">
+                {{#FreqSort}}
+                    <div id="frequency-sort">{{FreqSort}}</div>
+                {{/FreqSort}}
                 <div class="header-main-content">
                     <div id="expression">{{Word}}</div>
                     <div id="reading">{{Reading}}</div>
@@ -53,7 +56,7 @@
 
 <div id="lightbox-overlay">
     <span id="lightbox-close">&times;</span>
-    <img id="lightbox-image" src="" alt="">
+    <img id="lightbox-image" alt="">
 </div>
 
 <script>
@@ -165,7 +168,7 @@
         isVertical: false,
         initialized: false,
         userPreferences: {
-            tategakiEnabled: true
+            tategakiEnabled: false
         },
 
         // ユーザー設定とデバイス幅に基づいて縦書きモードを検出
@@ -436,12 +439,48 @@
             if (elementsExist.sentence) handleEmptySentence();
             if (elementsExist.expression && elementsExist.reading && elementsExist.sentence) handleDuplicateContent();
             if (elementsExist.definitionContainer) setupCyclableDefinitions();
+
+            setupAudioButtons();
+
             setupCollapsibleElements();
             handleImages();
             setupWritingModeToggle();
 
             setupGlobalEventListeners();
         });
+    }
+
+    function setupAudioButtons() {
+        const audioButtonsParent = document.querySelector('.audio-buttons');
+        if (!audioButtonsParent || audioButtonsParent.dataset.audioSetup === 'true') {
+            return;
+        }
+        audioButtonsParent.dataset.audioSetup = 'true';
+
+        const wordAudioContainer = document.querySelector('.word-audio');
+        const sentenceAudioContainer = document.querySelector('.sentence-audio');
+
+        function addAudioListener(container) {
+            if (!container) return;
+
+            const ankiPlayButton = container.querySelector('[onclick]');
+
+            if (!ankiPlayButton) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const buttonToClick = container.querySelector('[onclick]');
+                if (buttonToClick) {
+                    buttonToClick.click();
+                }
+            });
+        }
+
+        addAudioListener(wordAudioContainer);
+        addAudioListener(sentenceAudioContainer);
     }
 
     // 縦書き切り替えボタンの設定
@@ -1176,6 +1215,7 @@
             lightboxOverlay.classList.remove('active');
             document.body.style.overflow = 'auto';
             resetZoom();
+            lightboxImage.removeAttribute('src');
         }
 
         // ズームを最初に戻す関数
@@ -1198,7 +1238,7 @@
 
         // ライトボックスを開いて画像を表示する関数
         function openLightbox(imgSrc) {
-            lightboxImage.src = imgSrc;
+            lightboxImage.setAttribute('src', imgSrc);
             lightboxOverlay.classList.add('active');
             document.body.style.overflow = 'hidden';
             resetZoom();
@@ -1331,4 +1371,211 @@
     } else {
         waitForDictionaryContent();
     }
+</script>
+
+<script>
+(function () {
+    "use strict";
+
+    function groupMoras(kana) {
+        let currentChar = "";
+        let nextChar = "";
+        const groupedMoras = [];
+        const small = ["ァ","ィ","ゥ","ェ","ォ","ャ","ュ","ョ","ヮ","ぁ","ぃ","ぅ","ぇ","ぉ","ゃ","ゅ","ょ","ゎ"];
+
+        for (let i = 0; i < kana.length; i++) {
+            currentChar = kana[i];
+            nextChar = i < kana.length - 1 && kana[i + 1];
+            if (small.includes(nextChar)) {
+                groupedMoras.push(currentChar + nextChar);
+                i += 1;
+            } else {
+                groupedMoras.push(currentChar);
+            }
+        }
+        return groupedMoras;
+    }
+
+    function getKana() {
+        // Reading comes from your field or the DOM fallback.
+        const field = (`{{Reading}}` || "").trim();
+        const dom = (document.getElementById("reading")?.textContent || "").trim();
+        return field || dom;
+    }
+
+    function isOdaka(pitchNumber) {
+        const kana = getKana();
+        return (
+            kana &&
+            kana.replace(/[ァィゥェォャュョヮぁぃぅぇぉゃゅょゎ]/g, "").length === pitchNumber
+        );
+    }
+
+    function getPitchCategories() {
+        const valid = /(heiban|atamadaka|nakadaka|odaka|kifuku)/g;
+        return [...(`{{PitchCategories}}`.match(valid) || [])];
+    }
+
+    function hasVerbOrAdjEnding() {
+        const endings = ["い","う","く","ぐ","す","つ","ぶ","む","る"];
+        // Your expression field is {{Word}}
+        return endings.some(e => `{{text:Word}}`.endsWith(e));
+    }
+
+    function getPitchType(pitchPosition) {
+        const pitchCategories = getPitchCategories();
+        const kifukuTags = ["adj-i","v1","v2","v4","v5","vs-","vz","vk","vn","vr"];
+        let canBeKifuku = pitchCategories.includes("kifuku");
+        canBeKifuku ||= kifukuTags.some(tag => `{{PitchCategories}}`.includes(tag));
+
+        if (canBeKifuku || (pitchCategories.length === 0 && hasVerbOrAdjEnding())) {
+            return pitchPosition === 0 ? "heiban" : "kifuku";
+        }
+        if (pitchPosition === 0) return "heiban";
+        if (pitchPosition === 1) return "atamadaka";
+        return pitchPosition > 1 ? (isOdaka(pitchPosition) ? "odaka" : "nakadaka") : "heiban";
+    }
+
+    function getPitchPattern(pitchPosition) {
+        // 0 = low, 1 = high, 2 = high-to-low drop (on the LAST char of the dropping mora)
+        const kana = getKana();
+        const moras = groupMoras(kana);
+        let pattern = [];
+
+        if (pitchPosition === 0) {
+            // 平板
+            pattern = [
+                ...Array(moras[0].length).fill("0"),
+                ...Array(kana.length - moras[0].length).fill("1"),
+            ];
+        } else if (pitchPosition === 1) {
+            // 頭高
+            pattern = [
+                ...(moras[0].length === 2 ? ["1","2"] : ["2"]),
+                ...Array(kana.length - moras[0].length).fill("0"),
+            ];
+        } else if (pitchPosition > 1) {
+            if (isOdaka(pitchPosition)) {
+                // 尾高
+                pattern = [
+                    ...Array(moras[0].length).fill("0"),
+                    ...Array(kana.length - moras[0].length - 1).fill("1"),
+                    "2",
+                ];
+            } else {
+                // 中高
+                let afterDrop = false;
+                for (let i = 0; i < moras.length; i++) {
+                    if (i === 0) {
+                        pattern = Array(moras[0].length).fill("0");
+                    } else if (i + 1 === pitchPosition) {
+                        pattern = moras[i].length === 2
+                            ? [...pattern, "1", "2"]
+                            : [...pattern, "2"];
+                        afterDrop = true;
+                    } else if (afterDrop) {
+                        pattern = [...pattern, ...Array(moras[i].length).fill("0")];
+                    } else {
+                        pattern = [...pattern, ...Array(moras[i].length).fill("1")];
+                    }
+                }
+            }
+        }
+        return pattern;
+    }
+
+    function ensurePitchContainer() {
+        const header = document.querySelector(".header-main-content");
+        const readingEl = document.getElementById("reading");
+        if (!header || !readingEl) return null;
+
+        let box = document.getElementById("reading-pitch");
+        if (!box) {
+            box = document.createElement("div");
+            box.id = "reading-pitch";
+            box.innerHTML = `
+                <span id="pitch-tags" class="tags"></span>
+                <div class="pitch"></div>
+            `;
+            // show ABOVE the existing reading line
+            header.insertBefore(box, readingEl);
+        }
+        return box;
+    }
+
+    function constructPitch(pitchPositions) {
+        const kana = getKana();
+        const pitchBox = document.querySelector("#reading-pitch .pitch");
+        const pitchTags = document.getElementById("pitch-tags");
+
+        const createPitchSpan = (pitchClass, ch) => {
+            const wrap = document.createElement("span");
+            const sChar = document.createElement("span");
+            const sLine = document.createElement("span");
+            wrap.className = pitchClass;
+            sChar.className = "pitch-char";
+            sChar.textContent = ch;
+            sLine.className = "pitch-line";
+            wrap.appendChild(sChar);
+            wrap.appendChild(sLine);
+            return wrap;
+        };
+
+        pitchBox.innerHTML = "";
+        pitchTags.innerHTML = "";
+
+        const list = document.createElement("ul");
+        const tagList = document.createElement("ul");
+
+        for (const pos of pitchPositions) {
+            const pat = getPitchPattern(pos);
+            const item = document.createElement("li");
+            item.classList.add("pitch-item", getPitchType(pos));
+
+            for (let i = 0; i < kana.length; i++) {
+                const code = pat[i];
+                if (code === "0") item.appendChild(createPitchSpan("pitch-low", kana[i]));
+                else if (code === "1") item.appendChild(createPitchSpan("pitch-high", kana[i]));
+                else if (code === "2") item.appendChild(createPitchSpan("pitch-to-drop", kana[i]));
+            }
+
+            const tag = document.createElement("li");
+            tag.textContent = String(pos);
+
+            list.appendChild(item);
+            tagList.appendChild(tag);
+        }
+
+        pitchBox.appendChild(list);
+        pitchTags.appendChild(tagList);
+    }
+
+    function handlePitches() {
+        const box = ensurePitchContainer();
+        const readingEl = document.getElementById("reading");
+        const kana = getKana();
+        const positions = (`{{text:PitchPosition}}`.match(/\d+/g) || []).map(Number);
+
+        if (!box || !kana) return;
+
+        if (!positions.length) {
+            // No pitch -> show plain reading, hide pitch box
+            box.style.display = "none";
+            if (readingEl) readingEl.style.display = "";
+            return;
+        }
+
+        // Pitch is available -> hide plain reading and show pitch block
+        if (readingEl) readingEl.style.display = "none";
+        box.style.display = "inline-flex";
+
+        constructPitch(new Set(positions));
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", handlePitches, { once: true });
+    } else {
+        handlePitches();
+    }
+})();
 </script>
