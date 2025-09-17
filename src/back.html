@@ -16,7 +16,10 @@
                     <div id="frequency-sort">{{FreqSort}}</div>
                 {{/FreqSort}}
                 <div class="header-main-content">
-                    <div id="expression">{{Word}}</div>
+                    <div id="expression">
+                        {{#WordFurigana}}{{furigana:WordFurigana}}{{/WordFurigana}}
+                        {{^WordFurigana}}{{Word}}{{/WordFurigana}}
+                    </div>
                     <div id="reading">{{Reading}}</div>
                 </div>
                 <div class="audio-buttons">
@@ -455,7 +458,7 @@
         if (!audioButtonsParent || audioButtonsParent.dataset.audioSetup === 'true') {
             return;
         }
-        audioButtonsParent.dataset.audioSetup = 'true';
+        audioButtonsParent.dataset.audioSetup = 'true'; // Mark as initialized.
 
         const wordAudioContainer = document.querySelector('.word-audio');
         const sentenceAudioContainer = document.querySelector('.sentence-audio');

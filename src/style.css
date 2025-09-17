@@ -2298,7 +2298,7 @@ span[title="同義または類義の漢字"] {
     max-width: 70% !important;
 }
 
-#freqsort{
+#frequency-sort{
   position:absolute;
   top:.6em;
   left:.6em;
@@ -2379,3 +2379,7 @@ span[title="同義または類義の漢字"] {
 #reading-pitch .pitch-item.nakadaka  { color: #ff6b03; }
 #reading-pitch .pitch-item.odaka     { color: #61ad3b; }
 #reading-pitch .pitch-item.kifuku    { color: #7e53c4; }
+
+#expression ruby rt {
+  padding-bottom: 4px;
+}
